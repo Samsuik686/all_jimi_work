@@ -1,0 +1,137 @@
+package jimi.dev.youtHope;
+
+import android.app.DownloadManager;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.util.Log;
+import android.widget.Toast;
+
+import androidx.core.content.FileProvider;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import jimi.dev.YoutHope.BuildConfig;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Response;
+
+public class TestObj {
+    Context mContext;
+    private final String DIR_PATH = Environment.getExternalStorageDirectory()+"/Download/";
+    private String DIR_PATH_Q ;
+
+    public TestObj(){
+        Log.e("long","TestObj instance");
+    }
+
+    public TestObj(Context context){
+        mContext = context;
+        DIR_PATH_Q = context.getExternalFilesDir(null).getPath() + "/Download/";
+        Log.e("long","TestObj context instance " + DIR_PATH_Q + "  version:"+APKVersionInfo.getVersionCode(context) );
+        clearFile();
+    }
+
+    public String change(String url) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(url.substring(0,url.lastIndexOf("/"))).append("?name=").append(url.substring(url.lastIndexOf("/")+1,url.length()))
+                .append("&type=7");
+        testOkhttpGet(stringBuilder.toString());
+        Log.e("long","TestObj change2 " + stringBuilder.toString());
+        return "app";
+    }
+
+    public void installApk(File file) {
+        Log.e("long","installApk :" + file.getPath()+"   " + mContext.getPackageName());
+        Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        } else {
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Uri contentUri = FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID + ".fileprovider", file);
+            Log.e("long","installApk uri:" + contentUri);
+            intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
+        }
+        mContext.startActivity(intent);
+    }
+
+    private void clearFile() {
+        File clearFile = new File(DIR_PATH_Q);
+        if(clearFile != null) {
+            File[] files = clearFile.listFiles();
+            if (files != null) {
+                for (File tmp : files) {
+                    if (tmp.isFile()) {
+                        Log.e("long","clearFile " + tmp.getPath());
+                        tmp.delete();
+                    }
+                }
+            }
+        }
+    }
+
+    private void testOkhttpGet(String urlStr) {
+        File fd = new File(DIR_PATH_Q);
+        if(!fd.exists()){
+            if (fd.mkdirs()){
+            }
+        }
+
+        final File file = new File(fd, "heart.apk");
+        StringBuilder url = new StringBuilder();
+        final okhttp3.Request request = new okhttp3.Request.Builder().url(
+                url.append(urlStr).toString()
+        ).get().build();
+        OkHttpClient okHttpClient = new OkHttpClient();
+        final okhttp3.Call call = okHttpClient.newCall(request);
+        ((okhttp3.Call) call).enqueue(new Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                Log.d("long", "onFailure:" +e);
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                Log.d("long", "back:" + response.body().contentLength() + "  time:"+System.currentTimeMillis());
+                InputStream is = null;
+                byte[] buf = new byte[2048];
+                int len = 0;
+                FileOutputStream fos = null;
+                long total = response.body().contentLength();
+                long current = 0;
+                is = response.body().byteStream();
+                fos = new FileOutputStream(file);
+                while ((len = is.read(buf)) != -1) {
+                    current += len;
+                    fos.write(buf, 0, len);
+                }
+                fos.flush();
+                Log.e("long", "current------>" + System.currentTimeMillis());
+                //下载完毕 开始安装
+                installApk(file);
+            }
+        });
+    }
+
+    public String getPublickDiskFileDir(Context context, String fileName) {
+        String cachePath = null;
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+                || !Environment.isExternalStorageRemovable()) {//此目录下的是外部存储下的私有的fileName目录
+            cachePath = context.getExternalFilesDir(fileName).getAbsolutePath();  //mnt/sdcard/Android/data/com.my.app/files/fileName
+        } else {
+            cachePath = context.getFilesDir().getPath() + "/" + fileName;        //data/data/com.my.app/files
+        }
+        File file = new File(cachePath);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        return file.getAbsolutePath();  //mnt/sdcard/Android/data/com.my.app/files/fileName
+    }
+}

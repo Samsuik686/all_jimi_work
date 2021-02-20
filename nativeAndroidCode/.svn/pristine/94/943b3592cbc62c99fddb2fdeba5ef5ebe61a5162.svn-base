@@ -1,0 +1,516 @@
+-- Merging decision tree log ---
+provider#androidx.core.content.FileProvider
+INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:44:9-52:20
+	android:grantUriPermissions
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:48:13-47
+	android:authorities
+		INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:46:13-64
+	android:exported
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:47:13-37
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:45:13-62
+manifest
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:2:1-80:12
+INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:2:1-80:12
+INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:2:1-80:12
+INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:2:1-80:12
+MERGED from [android-gif-drawable-release@1.2.17.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\36ff04bf26371adffcb619c5bc538e91\jetified-android-gif-drawable-release@1.2.17\AndroidManifest.xml:2:1-10:12
+MERGED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:2:1-289:12
+MERGED from [miit_mdid_1.0.10.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\02fccf302cfa026a202da7d8749131b1\jetified-miit_mdid_1.0.10\AndroidManifest.xml:1:1-10:12
+MERGED from [androidx.appcompat:appcompat:1.0.2] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\7d5850c2e4051d9ad463848f919e8822\appcompat-1.0.2\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.constraintlayout:constraintlayout:1.1.3] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\bf996406e5b2f35e38d52df99c2aabf5\constraintlayout-1.1.3\AndroidManifest.xml:2:1-11:12
+MERGED from [com.github.bumptech.glide:glide:4.9.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\b082a324e27e7ea25fe9a3a77119803f\jetified-glide-4.9.0\AndroidManifest.xml:2:1-12:12
+MERGED from [androidx.legacy:legacy-support-v4:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\e387d4c9208ab2db0e78c1e622b601c8\legacy-support-v4-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.fragment:fragment:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\2b262e3b3e87c527f45009d7ad6d2bf3\fragment-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\9be5ce50dda4cf17cd055b96a3210ce1\vectordrawable-animated-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.legacy:legacy-support-core-ui:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\5fea3667434139f62a2bb7135c3d6063\legacy-support-core-ui-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\17f273e1f11f12e9c86e26fab633b009\legacy-support-core-utils-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.vectordrawable:vectordrawable:1.0.1] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\8c09d8fee0705e0cd383458b6f5765eb\vectordrawable-1.0.1\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.media:media:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\c119753060e491b9a18dc790458beb38\media-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\8df82d82a4f02b2a572f75a8f6b92c73\loader-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\6b74e78e51f4ac28eab44f31da969e95\viewpager-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\9d24591d732f8cb61a86c18dbea157d6\coordinatorlayout-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\3b6b1331e69c44a14c9c3e96b429f89d\drawerlayout-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.slidingpanelayout:slidingpanelayout:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\f31adfe5fe611a067787b20a354966bb\slidingpanelayout-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.customview:customview:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\fa3b931ce0bbf1de112f7f5fe0243633\customview-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.swiperefreshlayout:swiperefreshlayout:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\3081f6f0cfcda1c469a028bc3311f7c9\swiperefreshlayout-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.asynclayoutinflater:asynclayoutinflater:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\da1b8134d52b14b8f219e7e62522f19e\asynclayoutinflater-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.core:core:1.0.1] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\4f3bb1da190dbc4f4f36d248d706076e\core-1.0.1\AndroidManifest.xml:17:1-24:12
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\b95e07c7f6b07ab97c74a88d4643cd91\versionedparcelable-1.0.0\AndroidManifest.xml:17:1-25:12
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\bc6200f9c873a8fed6ea82dab9ba657d\cursoradapter-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.github.bumptech.glide:gifdecoder:4.9.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\e0210476352b4f0afd8377d9fd559e26\jetified-gifdecoder-4.9.0\AndroidManifest.xml:2:1-11:12
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\746ec9ee65a0804ee36a81388d0c738a\lifecycle-runtime-2.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\20bade175ce70af772d84b5be17552f2\documentfile-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\3203be141ec050bf3afd373e5ab6a395\localbroadcastmanager-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.print:print:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\072a31e6b49d0f2c0a9e96e1fbf9fe5c\print-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\099b36877c6a5eebe5beb0f611d8560e\lifecycle-viewmodel-2.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\accf4c2ee98da86cbe50f702bd10de80\interpolator-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\1858318c32926c4f4bac2c8c54babe41\lifecycle-livedata-2.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\4cca06ae69cfc00b284e5b1c0c69d7de\lifecycle-livedata-core-2.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.arch.core:core-runtime:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\66b1422bbbde9e3230decf5e65fb461f\core-runtime-2.0.0\AndroidManifest.xml:17:1-22:12
+INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:2:1-80:12
+INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:2:1-80:12
+INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:2:1-80:12
+	package
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:4:5-32
+		INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+		INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+	android:versionName
+		INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:2:1-80:12
+		INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+	xmlns:tools
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:3:5-51
+	android:versionCode
+		INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:2:1-80:12
+		INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:2:11-69
+application
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:6:5-54:19
+MERGED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:156:5-287:19
+MERGED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:156:5-287:19
+MERGED from [androidx.constraintlayout:constraintlayout:1.1.3] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\bf996406e5b2f35e38d52df99c2aabf5\constraintlayout-1.1.3\AndroidManifest.xml:9:5-20
+MERGED from [androidx.constraintlayout:constraintlayout:1.1.3] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\bf996406e5b2f35e38d52df99c2aabf5\constraintlayout-1.1.3\AndroidManifest.xml:9:5-20
+MERGED from [com.github.bumptech.glide:glide:4.9.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\b082a324e27e7ea25fe9a3a77119803f\jetified-glide-4.9.0\AndroidManifest.xml:10:5-20
+MERGED from [com.github.bumptech.glide:glide:4.9.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\b082a324e27e7ea25fe9a3a77119803f\jetified-glide-4.9.0\AndroidManifest.xml:10:5-20
+MERGED from [androidx.core:core:1.0.1] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\4f3bb1da190dbc4f4f36d248d706076e\core-1.0.1\AndroidManifest.xml:22:5-89
+MERGED from [androidx.core:core:1.0.1] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\4f3bb1da190dbc4f4f36d248d706076e\core-1.0.1\AndroidManifest.xml:22:5-89
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\b95e07c7f6b07ab97c74a88d4643cd91\versionedparcelable-1.0.0\AndroidManifest.xml:22:5-23:19
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\b95e07c7f6b07ab97c74a88d4643cd91\versionedparcelable-1.0.0\AndroidManifest.xml:22:5-23:19
+MERGED from [com.github.bumptech.glide:gifdecoder:4.9.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\e0210476352b4f0afd8377d9fd559e26\jetified-gifdecoder-4.9.0\AndroidManifest.xml:9:5-20
+MERGED from [com.github.bumptech.glide:gifdecoder:4.9.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\e0210476352b4f0afd8377d9fd559e26\jetified-gifdecoder-4.9.0\AndroidManifest.xml:9:5-20
+	android:appComponentFactory
+		ADDED from [androidx.core:core:1.0.1] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\4f3bb1da190dbc4f4f36d248d706076e\core-1.0.1\AndroidManifest.xml:22:18-86
+	android:supportsRtl
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:10:9-35
+	android:label
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:9:9-41
+	android:icon
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:8:9-38
+	android:allowBackup
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:7:9-35
+	android:theme
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:11:9-40
+	android:usesCleartextTraffic
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:159:9-44
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:157:9-63
+activity#io.dcloud.PandoraEntry
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:12:9-25:20
+	android:screenOrientation
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:19:13-45
+	android:label
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:15:13-45
+	android:launchMode
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:16:13-44
+	android:hardwareAccelerated
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:17:13-47
+	android:windowSoftInputMode
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:20:13-55
+	android:configChanges
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:14:13-83
+	android:theme
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:18:13-52
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:13:13-50
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:21:13-24:29
+action#android.intent.action.MAIN
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:22:17-69
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:22:25-66
+category#android.intent.category.LAUNCHER
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:23:17-77
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:23:27-74
+activity#io.dcloud.PandoraEntryActivity
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:26:9-41:20
+	android:screenOrientation
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:32:13-45
+	android:launchMode
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:28:13-44
+	android:hardwareAccelerated
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:30:13-47
+	android:windowSoftInputMode
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:34:13-55
+	android:permission
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:31:13-89
+	android:configChanges
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:29:13-101
+	android:theme
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:33:13-47
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:27:13-58
+intent-filter#action:name:android.intent.action.VIEW+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:scheme:h56131bcf
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:35:13-40:29
+category#android.intent.category.DEFAULT
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:36:17-76
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:36:27-73
+category#android.intent.category.BROWSABLE
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:37:17-78
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:37:27-75
+action#android.intent.action.VIEW
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:38:17-69
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:38:25-66
+data
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:39:17-52
+	android:scheme
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:39:23-49
+uses-feature#android.hardware.camera
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:56:5-60
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:56:19-57
+uses-permission#android.permission.CAMERA
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:57:5-65
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:57:22-62
+uses-permission#android.hardware.camera.autofocus
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:58:5-73
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:58:22-70
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:59:5-81
+MERGED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:16:5-81
+MERGED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:16:5-81
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:59:22-78
+uses-permission#android.permission.READ_EXTERNAL_STORAGE
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:60:5-80
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:60:22-77
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:61:5-79
+MERGED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:18:5-79
+MERGED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:18:5-79
+MERGED from [miit_mdid_1.0.10.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\02fccf302cfa026a202da7d8749131b1\jetified-miit_mdid_1.0.10\AndroidManifest.xml:4:5-79
+MERGED from [miit_mdid_1.0.10.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\02fccf302cfa026a202da7d8749131b1\jetified-miit_mdid_1.0.10\AndroidManifest.xml:4:5-79
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:61:22-76
+uses-permission#android.permission.REQUEST_INSTALL_PACKAGES
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:63:5-82
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:63:22-80
+uses-permission#android.permission.INSTALL_PACKAGES
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:64:5-65:47
+	tools:ignore
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:65:9-44
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:64:22-72
+uses-permission#android.permission.PACKAGE_USAGE_STATS
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:67:5-113
+	tools:ignore
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:67:76-111
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:67:22-75
+uses-permission#android.permission.SYSTEM_ALERT_WINDOW
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:68:5-78
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:68:22-75
+uses-permission#android.permission.RECORD_AUDIO
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:70:5-71
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:70:22-68
+uses-permission#android.permission.INTERNET
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:75:5-67
+MERGED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:17:5-67
+MERGED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:17:5-67
+MERGED from [miit_mdid_1.0.10.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\02fccf302cfa026a202da7d8749131b1\jetified-miit_mdid_1.0.10\AndroidManifest.xml:6:5-67
+MERGED from [miit_mdid_1.0.10.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\02fccf302cfa026a202da7d8749131b1\jetified-miit_mdid_1.0.10\AndroidManifest.xml:6:5-67
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:75:22-64
+uses-permission#android.permission.READ_PHONE_STATE
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:78:5-74
+MERGED from [miit_mdid_1.0.10.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\02fccf302cfa026a202da7d8749131b1\jetified-miit_mdid_1.0.10\AndroidManifest.xml:5:5-75
+MERGED from [miit_mdid_1.0.10.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\02fccf302cfa026a202da7d8749131b1\jetified-miit_mdid_1.0.10\AndroidManifest.xml:5:5-75
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:78:22-72
+uses-sdk
+INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+MERGED from [android-gif-drawable-release@1.2.17.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\36ff04bf26371adffcb619c5bc538e91\jetified-android-gif-drawable-release@1.2.17\AndroidManifest.xml:6:5-8:41
+MERGED from [android-gif-drawable-release@1.2.17.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\36ff04bf26371adffcb619c5bc538e91\jetified-android-gif-drawable-release@1.2.17\AndroidManifest.xml:6:5-8:41
+MERGED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:7:5-44
+MERGED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:7:5-44
+MERGED from [androidx.appcompat:appcompat:1.0.2] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\7d5850c2e4051d9ad463848f919e8822\appcompat-1.0.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.appcompat:appcompat:1.0.2] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\7d5850c2e4051d9ad463848f919e8822\appcompat-1.0.2\AndroidManifest.xml:20:5-44
+MERGED from [androidx.constraintlayout:constraintlayout:1.1.3] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\bf996406e5b2f35e38d52df99c2aabf5\constraintlayout-1.1.3\AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.constraintlayout:constraintlayout:1.1.3] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\bf996406e5b2f35e38d52df99c2aabf5\constraintlayout-1.1.3\AndroidManifest.xml:5:5-7:41
+MERGED from [com.github.bumptech.glide:glide:4.9.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\b082a324e27e7ea25fe9a3a77119803f\jetified-glide-4.9.0\AndroidManifest.xml:6:5-8:41
+MERGED from [com.github.bumptech.glide:glide:4.9.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\b082a324e27e7ea25fe9a3a77119803f\jetified-glide-4.9.0\AndroidManifest.xml:6:5-8:41
+MERGED from [androidx.legacy:legacy-support-v4:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\e387d4c9208ab2db0e78c1e622b601c8\legacy-support-v4-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-v4:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\e387d4c9208ab2db0e78c1e622b601c8\legacy-support-v4-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.fragment:fragment:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\2b262e3b3e87c527f45009d7ad6d2bf3\fragment-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.fragment:fragment:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\2b262e3b3e87c527f45009d7ad6d2bf3\fragment-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\9be5ce50dda4cf17cd055b96a3210ce1\vectordrawable-animated-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.vectordrawable:vectordrawable-animated:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\9be5ce50dda4cf17cd055b96a3210ce1\vectordrawable-animated-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-ui:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\5fea3667434139f62a2bb7135c3d6063\legacy-support-core-ui-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-ui:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\5fea3667434139f62a2bb7135c3d6063\legacy-support-core-ui-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\17f273e1f11f12e9c86e26fab633b009\legacy-support-core-utils-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.legacy:legacy-support-core-utils:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\17f273e1f11f12e9c86e26fab633b009\legacy-support-core-utils-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.vectordrawable:vectordrawable:1.0.1] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\8c09d8fee0705e0cd383458b6f5765eb\vectordrawable-1.0.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.vectordrawable:vectordrawable:1.0.1] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\8c09d8fee0705e0cd383458b6f5765eb\vectordrawable-1.0.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media:media:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\c119753060e491b9a18dc790458beb38\media-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.media:media:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\c119753060e491b9a18dc790458beb38\media-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\8df82d82a4f02b2a572f75a8f6b92c73\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.loader:loader:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\8df82d82a4f02b2a572f75a8f6b92c73\loader-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\6b74e78e51f4ac28eab44f31da969e95\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.viewpager:viewpager:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\6b74e78e51f4ac28eab44f31da969e95\viewpager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\9d24591d732f8cb61a86c18dbea157d6\coordinatorlayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\9d24591d732f8cb61a86c18dbea157d6\coordinatorlayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\3b6b1331e69c44a14c9c3e96b429f89d\drawerlayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.drawerlayout:drawerlayout:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\3b6b1331e69c44a14c9c3e96b429f89d\drawerlayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.slidingpanelayout:slidingpanelayout:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\f31adfe5fe611a067787b20a354966bb\slidingpanelayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.slidingpanelayout:slidingpanelayout:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\f31adfe5fe611a067787b20a354966bb\slidingpanelayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\fa3b931ce0bbf1de112f7f5fe0243633\customview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.customview:customview:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\fa3b931ce0bbf1de112f7f5fe0243633\customview-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.swiperefreshlayout:swiperefreshlayout:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\3081f6f0cfcda1c469a028bc3311f7c9\swiperefreshlayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.swiperefreshlayout:swiperefreshlayout:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\3081f6f0cfcda1c469a028bc3311f7c9\swiperefreshlayout-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.asynclayoutinflater:asynclayoutinflater:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\da1b8134d52b14b8f219e7e62522f19e\asynclayoutinflater-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.asynclayoutinflater:asynclayoutinflater:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\da1b8134d52b14b8f219e7e62522f19e\asynclayoutinflater-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.0.1] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\4f3bb1da190dbc4f4f36d248d706076e\core-1.0.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.core:core:1.0.1] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\4f3bb1da190dbc4f4f36d248d706076e\core-1.0.1\AndroidManifest.xml:20:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\b95e07c7f6b07ab97c74a88d4643cd91\versionedparcelable-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.versionedparcelable:versionedparcelable:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\b95e07c7f6b07ab97c74a88d4643cd91\versionedparcelable-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\bc6200f9c873a8fed6ea82dab9ba657d\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.cursoradapter:cursoradapter:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\bc6200f9c873a8fed6ea82dab9ba657d\cursoradapter-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.github.bumptech.glide:gifdecoder:4.9.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\e0210476352b4f0afd8377d9fd559e26\jetified-gifdecoder-4.9.0\AndroidManifest.xml:5:5-7:41
+MERGED from [com.github.bumptech.glide:gifdecoder:4.9.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\e0210476352b4f0afd8377d9fd559e26\jetified-gifdecoder-4.9.0\AndroidManifest.xml:5:5-7:41
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\746ec9ee65a0804ee36a81388d0c738a\lifecycle-runtime-2.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-runtime:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\746ec9ee65a0804ee36a81388d0c738a\lifecycle-runtime-2.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\20bade175ce70af772d84b5be17552f2\documentfile-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\20bade175ce70af772d84b5be17552f2\documentfile-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\3203be141ec050bf3afd373e5ab6a395\localbroadcastmanager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\3203be141ec050bf3afd373e5ab6a395\localbroadcastmanager-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\072a31e6b49d0f2c0a9e96e1fbf9fe5c\print-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.print:print:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\072a31e6b49d0f2c0a9e96e1fbf9fe5c\print-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\099b36877c6a5eebe5beb0f611d8560e\lifecycle-viewmodel-2.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-viewmodel:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\099b36877c6a5eebe5beb0f611d8560e\lifecycle-viewmodel-2.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\accf4c2ee98da86cbe50f702bd10de80\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.interpolator:interpolator:1.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\accf4c2ee98da86cbe50f702bd10de80\interpolator-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\1858318c32926c4f4bac2c8c54babe41\lifecycle-livedata-2.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\1858318c32926c4f4bac2c8c54babe41\lifecycle-livedata-2.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\4cca06ae69cfc00b284e5b1c0c69d7de\lifecycle-livedata-core-2.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.lifecycle:lifecycle-livedata-core:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\4cca06ae69cfc00b284e5b1c0c69d7de\lifecycle-livedata-core-2.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\66b1422bbbde9e3230decf5e65fb461f\core-runtime-2.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.arch.core:core-runtime:2.0.0] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\66b1422bbbde9e3230decf5e65fb461f\core-runtime-2.0.0\AndroidManifest.xml:20:5-44
+INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+		INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+		INJECTED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml
+meta-data#android.support.FILE_PROVIDER_PATHS
+ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:49:13-51:57
+	android:resource
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:51:17-55
+	android:name
+		ADDED from D:\nativeAndroidCode\app\src\main\AndroidManifest.xml:50:17-67
+supports-screens
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:9:5-14:39
+	android:largeScreens
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:11:9-36
+	android:smallScreens
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:14:9-36
+	android:normalScreens
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:12:9-37
+	android:resizeable
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:13:9-34
+	android:anyDensity
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:10:9-34
+uses-permission#com.huawei.android.launcher.permission.CHANGE_BADGE
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:24:5-91
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:24:22-88
+service#io.dcloud.common.adapter.io.MiniServerService
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:160:9-162:40
+	android:exported
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:162:13-37
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:161:13-73
+receiver#io.dcloud.common.adapter.io.PushReceiver
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:164:9-168:20
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:164:19-74
+intent-filter#action:name:dcloud.push.broswer
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:165:13-167:29
+action#dcloud.push.broswer
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:166:17-62
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:166:25-59
+activity#io.dcloud.imagepick.CustomGalleryActivity
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:170:9-173:40
+	android:noHistory
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:173:13-37
+	android:exported
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:172:13-37
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:171:13-69
+activity#io.dcloud.feature.nativeObj.photoview.PhotoActivity
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:174:9-177:58
+	android:noHistory
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:176:13-38
+	android:theme
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:177:13-55
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:175:13-79
+activity#io.dcloud.appstream.StreamAppMainActivity
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:178:9-199:20
+	android:screenOrientation
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:183:13-49
+	android:launchMode
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:182:13-44
+	android:windowSoftInputMode
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:186:13-73
+	android:exported
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:181:13-36
+	android:configChanges
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:180:13-82
+	android:theme
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:185:13-70
+	android:taskAffinity
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:184:13-41
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:179:13-69
+intent-filter#action:name:android.intent.action.MAIN
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:187:13-189:29
+intent-filter#action:name:android.intent.action.VIEW+category:name:android.intent.category.BROWSABLE+category:name:android.intent.category.DEFAULT+data:scheme:streamapp+data:scheme:streamappmain
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:190:13-198:29
+activity#io.dcloud.WebAppActivity
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:200:9-210:58
+	android:screenOrientation
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:207:13-49
+	android:label
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:205:13-46
+	android:launchMode
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:206:13-44
+	android:hardwareAccelerated
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:203:13-47
+	android:windowSoftInputMode
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:210:13-55
+	android:configChanges
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:202:13-92
+	android:icon
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:204:13-51
+	android:theme
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:209:13-47
+	android:taskAffinity
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:208:13-43
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:201:13-52
+service#io.dcloud.streamdownload.DownloadService
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:212:9-216:19
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:212:18-73
+intent-filter#action:name:com.qihoo.life.plugin.streamapp.ACTION_PUSH_TO_PLUGIN
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:213:13-215:29
+action#com.qihoo.life.plugin.streamapp.ACTION_PUSH_TO_PLUGIN
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:214:17-96
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:214:25-93
+service#io.dcloud.multiprocess.service.MultiProcessService
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:217:9-86
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:217:18-83
+activity#io.dcloud.multiprocess.activity.WebAppActivity1
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:219:9-230:58
+	android:screenOrientation
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:227:13-49
+	android:process
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:226:13-61
+	android:label
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:224:13-46
+	android:launchMode
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:225:13-44
+	android:hardwareAccelerated
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:222:13-47
+	android:windowSoftInputMode
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:230:13-55
+	android:configChanges
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:221:13-82
+	android:icon
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:223:13-51
+	android:theme
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:229:13-47
+	android:taskAffinity
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:228:13-44
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:220:13-75
+activity#io.dcloud.appstream.OpenStreamAppTransferActivity
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:231:9-237:20
+	android:screenOrientation
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:234:13-49
+	android:windowSoftInputMode
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:236:13-73
+	android:configChanges
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:233:13-82
+	android:theme
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:235:13-70
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:232:13-77
+meta-data#MultiProcessCount
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:239:9-241:33
+	android:value
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:241:13-30
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:240:13-45
+activity#io.dcloud.ProcessMediator
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:243:9-249:75
+	android:label
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:247:13-45
+	android:excludeFromRecents
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:245:13-46
+	android:launchMode
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:248:13-43
+	android:exported
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:246:13-36
+	android:theme
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:249:13-72
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:244:13-53
+activity#io.dcloud.WebviewActivity
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:250:9-255:20
+	android:screenOrientation
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:252:13-49
+	android:windowSoftInputMode
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:254:13-52
+	android:theme
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:253:13-51
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:251:13-53
+receiver#io.dcloud.common.adapter.io.DownloadReceiver
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:257:9-266:20
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:257:19-78
+intent-filter#action:name:android.intent.action.DOWNLOAD_COMPLETE
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:258:13-260:29
+action#android.intent.action.DOWNLOAD_COMPLETE
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:259:17-82
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:259:25-79
+intent-filter#action:name:android.intent.action.PACKAGE_ADDED+data:scheme:package
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:261:13-265:29
+action#android.intent.action.PACKAGE_ADDED
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:262:17-78
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:262:25-75
+meta-data#android.max_aspect
+ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:284:9-286:35
+	android:value
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:286:13-32
+	android:name
+		ADDED from [lib.5plus.base-release.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\249d69b5b0cbd14363b5b2ad43b254cb\jetified-lib.5plus.base-release\AndroidManifest.xml:285:13-46
+uses-permission#com.asus.msa.SupplementaryDID.ACCESS
+ADDED from [miit_mdid_1.0.10.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\02fccf302cfa026a202da7d8749131b1\jetified-miit_mdid_1.0.10\AndroidManifest.xml:8:5-76
+	android:name
+		ADDED from [miit_mdid_1.0.10.aar] C:\Users\jimi\.gradle\caches\transforms-2\files-2.1\02fccf302cfa026a202da7d8749131b1\jetified-miit_mdid_1.0.10\AndroidManifest.xml:8:22-73

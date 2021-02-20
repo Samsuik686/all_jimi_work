@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: __local_aars__:E.\code\Test\app\libs\miit_mdid_1.0.10.aar:unspecified@jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/10081831bba1bea6e1a25cb03f4fe9c5/jetified-miit_mdid_1.0.10/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/10081831bba1bea6e1a25cb03f4fe9c5/jetified-miit_mdid_1.0.10/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

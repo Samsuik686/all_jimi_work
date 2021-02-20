@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "jimi.dev.YoutHope",
+  "variantName": "release",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "properties": [],
+      "versionCode": 36,
+      "versionName": "1.1.36",
+      "enabled": true,
+      "outputFile": "app-release.apk"
+    }
+  ]
+}

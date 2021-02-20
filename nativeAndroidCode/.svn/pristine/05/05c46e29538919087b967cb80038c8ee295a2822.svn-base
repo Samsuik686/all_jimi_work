@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: __local_aars__:E.\code\xinxiao\nativeAndroidCode\app\libs\lib.5plus.base-release.aar:unspecified@jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/fea633743d4869c2e0bac5e23e0d382e/jetified-lib.5plus.base-release/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/fea633743d4869c2e0bac5e23e0d382e/jetified-lib.5plus.base-release/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
