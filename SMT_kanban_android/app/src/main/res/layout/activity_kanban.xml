@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:paddingRight="20dp"
+        android:layout_margin="2dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <TextView
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14dp"
+            android:text="工单:"
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="18dp">
+        </TextView>
+        <EditText
+            android:maxLength="25"
+            android:singleLine="true"
+            android:gravity="center"
+            android:textSize="13dp"
+            android:padding="0dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="4dp"
+            android:id="@+id/workerorder"
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+        </EditText>
+        <TextView
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14dp"
+            android:text="客户:"
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="18dp">
+        </TextView>
+        <EditText
+            android:maxLength="25"
+            android:singleLine="true"
+            android:gravity="center"
+            android:textSize="13dp"
+            android:padding="0dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="4dp"
+            android:id="@+id/client"
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+
+        </EditText>
+
+        <TextView
+            android:gravity="center"
+            android:textSize="7dp"
+            android:text="选择日期时间"
+            android:layout_gravity="center"
+            android:layout_marginLeft="4dp"
+            android:id="@+id/click_time"
+            android:background="@drawable/yuanjiao"
+            android:layout_weight="3"
+            android:layout_width="0dp"
+            android:layout_height="18dp">
+        </TextView>
+
+        <TextView
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14dp"
+            android:text="线号:"
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="18dp">
+        </TextView>
+        <Spinner
+            android:gravity="center"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/yuanjiao"
+            android:id="@+id/chooseline"
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="22dp">
+
+        </Spinner>
+        <TextView
+            android:gravity="center"
+            android:layout_gravity="center_vertical"
+            android:textSize="13dp"
+            android:layout_marginLeft="9dp"
+            android:id="@+id/search"
+            android:textColor="@color/white"
+            android:text="确定"
+            android:background="@drawable/jianbianyuanjiao"
+            android:layout_width="wrap_content"
+            android:layout_height="22dp">
+        </TextView>
+        <TextView
+            android:gravity="top"
+            android:layout_gravity="center_vertical"
+            android:textSize="13dp"
+            android:layout_marginLeft="9dp"
+            android:id="@+id/cannel"
+            android:textColor="@color/white"
+            android:text="清除"
+            android:background="@drawable/huiseyuanjiao"
+            android:layout_width="wrap_content"
+            android:layout_height="22dp">
+
+        </TextView>
+        <ImageView
+            android:visibility="gone"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="12dp"
+            android:id="@+id/reflesh"
+            android:layout_marginLeft="23dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/baseline_autorenew_black_24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+        </ImageView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_weight="4.5"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+        <LinearLayout
+            android:padding="14dp"
+            android:orientation="vertical"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            android:background="@drawable/blankline"
+            android:layout_weight="8"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/zhidan_view"
+                android:textStyle="bold"
+                android:textSize="11dp"
+                android:gravity="left"
+                android:text="工单："
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+            </TextView>
+            <TextView
+                android:id="@+id/machine_name_view"
+                android:textStyle="bold"
+                android:textSize="11dp"
+                android:gravity="left"
+                android:text="机型："
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+            </TextView>
+            <TextView
+                android:id="@+id/nest_quantity_view"
+                android:textStyle="bold"
+                android:textSize="11dp"
+                android:gravity="left"
+                android:text="套料数："
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+            </TextView>
+            <TextView
+                android:id="@+id/client_http_view"
+                android:textStyle="bold"
+                android:textSize="11dp"
+                android:gravity="left"
+                android:text="客户："
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+            </TextView>
+            <TextView
+                android:id="@+id/start_time_view"
+                android:textStyle="bold"
+                android:textSize="11dp"
+                android:gravity="left"
+                android:text="开始时间："
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+            </TextView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:background="@drawable/blankline"
+            android:layout_weight="8"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_margin="3dp"
+
+                android:gravity="center"
+                android:text="不良项TOP"
+                android:textSize="14dp"
+                android:layout_gravity="center"
+
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+            </TextView>
+            <TextView
+                android:id="@+id/bad_record1_view"
+                android:layout_margin="3dp"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:text="不良项A"
+                android:textSize="11dp"
+                android:layout_gravity="center"
+                android:background="#456b94"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+            </TextView>
+            <TextView
+                android:id="@+id/bad_record2_view"
+                android:layout_margin="3dp"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:text="不良项B"
+                android:textSize="11dp"
+                android:layout_gravity="center"
+                android:background="#456b94"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+
+            </TextView>
+            <TextView
+                android:id="@+id/bad_record3_view"
+                android:layout_margin="3dp"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:text="不良项C"
+                android:textSize="11dp"
+                android:layout_gravity="center"
+                android:background="#456b94"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+
+            </TextView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            android:background="@drawable/blankline"
+            android:layout_weight="8"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/frequency_view"
+                android:layout_margin="3dp"
+                android:gravity="center"
+                android:text="班别：301白班"
+                android:textSize="13dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+            </TextView>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="5">
+                <LinearLayout
+                    android:layout_margin="3dp"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+                    <ImageView
+                        android:id="@+id/shife_leader_Pic_view"
+                        android:src="@mipmap/ic_launcher"
+                        android:layout_weight="4"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp">
+
+                    </ImageView>
+                    <TextView
+                        android:textSize="11dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:text="生产领班"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp">
+
+                    </TextView>
+                    <TextView
+                       android:id="@+id/shife_leader"
+                        android:textSize="11dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:text="张三"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp">
+
+                    </TextView>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+                    <ImageView
+                        android:id="@+id/line_enginner_Pic_view"
+                        android:src="@mipmap/ic_launcher"
+                        android:layout_weight="4"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp">
+
+                    </ImageView>
+                    <TextView
+                        android:textSize="11dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:text="根线工程师"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp">
+
+                    </TextView>
+                    <TextView
+                        android:id="@+id/line_enginner_view"
+                        android:textSize="11dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:text="李四"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp">
+
+                    </TextView>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_margin="3dp"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent">
+                    <ImageView
+                        android:id="@+id/IPQC_Pic_view"
+                        android:src="@mipmap/ic_launcher"
+                        android:layout_weight="4"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp">
+
+                    </ImageView>
+                    <TextView
+                        android:textSize="11dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:text="IPQC"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp">
+
+                    </TextView>
+                    <TextView
+                        android:id="@+id/IPQC_view"
+                        android:textSize="11dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:text="王五"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp">
+
+                    </TextView>
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_weight="8"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+         <com.example.smt_kanban_android.view.EchartView
+
+             android:background="@drawable/blankline"
+             android:layout_margin="2dp"
+             android:layout_weight="1"
+                android:id="@+id/lineChart"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center">
+        </com.example.smt_kanban_android.view.EchartView>
+        <com.example.smt_kanban_android.view.EchartView
+            android:background="@drawable/blankline"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:id="@+id/lineChart2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center">
+        </com.example.smt_kanban_android.view.EchartView>
+    </LinearLayout>
+
+
+</LinearLayout>

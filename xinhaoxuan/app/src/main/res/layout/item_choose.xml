@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <View
+        android:id="@+id/topview"
+        android:layout_centerHorizontal="true"
+        android:background="@color/black"
+        android:layout_width="1dp"
+        android:layout_height="6dp">
+
+    </View>
+    <TextView
+
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/topview"
+
+        android:textColor="@color/white"
+        android:textSize="19dp"
+        android:text="位置"
+        android:id="@+id/item"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content">
+
+    </TextView>
+    <View
+        android:layout_below="@+id/item"
+        android:id="@+id/belowview"
+        android:layout_centerHorizontal="true"
+        android:background="@color/black"
+        android:layout_width="1dp"
+        android:layout_height="6dp">
+
+    </View>
+</RelativeLayout>

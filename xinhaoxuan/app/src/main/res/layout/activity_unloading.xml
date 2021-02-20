@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:background="@color/background"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:id="@+id/head"
+        android:src="@mipmap/head"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        >
+    </ImageView>
+    <RelativeLayout
+        android:layout_below="@+id/head"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!--        <com.example.xinhaoxuan.view.MyTextView-->
+        <!--            android:layout_centerHorizontal="true"-->
+        <!--            android:layout_marginRight="10dp"-->
+        <!--            android:layout_marginLeft="10dp"-->
+        <!--            android:layout_width="250dp"-->
+        <!--            android:layout_height="150dp"-->
+        <!--            />-->
+        <TextView
+            android:id="@+id/title"
+            android:textColor="#4C7808"
+            android:textSize="36dp"
+            android:gravity="center"
+            android:text="卸载"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </TextView>
+        <TextView
+            android:layout_below="@+id/title"
+            android:id="@+id/huojia"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            android:gravity="center"
+            android:text="货架："
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </TextView>
+        <TextView
+            android:layout_below="@+id/huojia"
+            android:id="@+id/xiezaiwei"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            android:gravity="center"
+            android:text="卸载位："
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </TextView>
+        <LinearLayout
+            android:id="@+id/line1"
+            android:orientation="horizontal"
+            android:layout_below="@+id/xiezaiwei"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/choosehuojia"
+                android:layout_margin="9dp"
+                android:layout_weight="1"
+                android:textSize="24dp"
+                android:text="选择货架"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:background="@drawable/jianbianyuanjiao"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+            </TextView>
+            <TextView
+                android:id="@+id/start"
+                android:layout_margin="9dp"
+                android:layout_weight="1"
+                android:textSize="24dp"
+                android:text="开始搬运"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:background="@drawable/jianbianyuanjiao"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+            </TextView>
+        </LinearLayout>
+        <LinearLayout
+
+            android:orientation="horizontal"
+            android:layout_below="@+id/line1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/complate"
+                android:layout_margin="9dp"
+                android:layout_weight="1"
+                android:textSize="24dp"
+                android:text="卸载完成"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:background="@drawable/jianbianyuanjiao"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+            </TextView>
+            <TextView
+                android:id="@+id/over"
+                android:layout_margin="9dp"
+                android:layout_weight="1"
+                android:textSize="24dp"
+                android:text="结束"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:background="@drawable/jianbianyuanjiao"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+            </TextView>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/back"
+        android:layout_margin="15dp"
+        android:src="@mipmap/back"
+        android:layout_width="40dp"
+        android:layout_height="40dp">
+
+    </ImageView>
+    <RelativeLayout
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        android:background="@drawable/yuanjiao"
+        android:id="@+id/layout_choose"
+        android:layout_margin="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/linnerlayout"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="180dp">
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_weight="1"
+                android:id="@+id/huojialist"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+            </androidx.recyclerview.widget.RecyclerView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_weight="1"
+                android:id="@+id/xiezailist"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+            </androidx.recyclerview.widget.RecyclerView>
+        </LinearLayout>
+        <View
+            android:layout_below="@+id/linnerlayout"
+            android:id="@+id/view"
+            android:background="@color/black"
+            android:layout_width="match_parent"
+            android:layout_height="1dp">
+
+        </View>
+        <LinearLayout
+
+            android:layout_below="@+id/view"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/cancan_choose"
+                android:layout_margin="6dp"
+                android:textSize="24dp"
+                android:text="取消"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:background="@drawable/jianbianyuanjiao"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+            </TextView>
+            <TextView
+                android:id="@+id/sure_choose"
+                android:layout_margin="6dp"
+                android:textSize="24dp"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:background="@drawable/jianbianyuanjiao"
+                android:layout_gravity="center"
+                android:text="确定"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+            </TextView>
+
+        </LinearLayout>
+    </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/layout_complate"
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        android:background="@drawable/yuanjiao"
+        android:layout_margin="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_weight="1"
+            android:id="@+id/complate_list"
+            android:layout_width="match_parent"
+            android:layout_height="180dp">
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <View
+            android:background="@color/black"
+            android:layout_width="match_parent"
+            android:layout_height="1dp">
+
+        </View>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/cancan_com"
+                android:layout_margin="6dp"
+                android:textSize="24dp"
+                android:text="取消"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:background="@drawable/jianbianyuanjiao"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+            </TextView>
+            <TextView
+                android:id="@+id/sure_com"
+                android:layout_margin="6dp"
+                android:textSize="24dp"
+                android:gravity="center"
+                android:textColor="@color/white"
+                android:background="@drawable/jianbianyuanjiao"
+                android:layout_gravity="center"
+                android:text="确定"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+            </TextView>
+
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

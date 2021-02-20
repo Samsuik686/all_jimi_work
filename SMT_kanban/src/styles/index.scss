@@ -1,0 +1,446 @@
+@import './variables.scss';
+@import './mixin.scss';
+@import './transition.scss';
+@import './element-ui.scss';
+@import './sidebar.scss';
+
+body {
+  height: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+}
+
+label {
+  font-weight: 700;
+}
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#app {
+  height: 100%;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+a:focus,
+a:active {
+  outline: none;
+}
+
+a,
+a:focus,
+a:hover {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
+
+div:focus {
+  outline: none;
+}
+
+.clearfix {
+  &:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+  }
+}
+
+// main-container global css
+.app-container {
+  padding: 20px;
+}
+.base{
+  background-color: #fff;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  overflow: hidden;
+  //-webkit-box-shadow:  0 0 8px rgba(0,0,0,0.3);
+}
+
+.query-comp{
+  
+  width: 100%;
+  min-height: 60px;
+  display: flex;
+  flex-wrap: wrap;
+  //padding: 20px;
+  box-sizing: border-box;
+  //@extend .base;
+  label {
+    display: block;
+    line-height: 26px;
+    font-size: 14px;
+    text-align: left;
+    font-weight: normal;
+  }
+  .query-comp-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    ///deep/ .el-input ,/deep/ .el-select{
+    .el-input , .el-select{
+      width: 203px;
+    }
+    >div{
+      margin-right: 20px;
+    }
+  }
+  .query-comp-btn{
+    
+    height: 60px;
+    padding-bottom: 7px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .query-comp-btn-left{
+    margin-left: 9px;
+    height: 60px;
+    padding-bottom: 7px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-end;
+  }
+}
+.query-comp-btn-kuang{
+  margin-left: 10px;
+}
+.query-comp-dialog{
+  .query-comp-container{
+    //height: 680px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+  }
+  .query-comp-btn{
+    width: 45%;
+    height: 60px;
+    padding-bottom: 7px;
+    box-sizing: border-box;
+    display: flex;
+    align-items:center;
+
+    .query-comp-label{
+      display: inline-block;
+      width: 30%;
+    }
+    .query-comp-btn-kuang{
+      width: 70%;
+    }
+  }
+  
+}
+.data-comp{
+  height: 100%;
+  width: 100%;
+  position: relative;
+  //margin-top: 80px;
+  flex: 1;
+  //@extend .base;
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  .el-table{
+    position: absolute;
+    max-height: 100%;
+    thead{
+      height:20px;
+      font-size:14px;
+      color:#001852;
+      z-index: 1;
+      th{
+        text-align:center;
+        background-color:#EBEEF5;
+      }
+    }
+    tbody{
+      td{
+        text-align:center;
+        font-size:13px;
+      }
+    }
+  }
+
+  /* icon按钮大小 */
+  .el-button [class^='el-icon-'] , .el-button [class^='iconfont']{
+    font-size: 16px;
+  }
+}
+#kanban{
+  .bigsize{
+    .el-input__inner{
+      height: 100%;
+      width: 400px;
+      font-size: 50px;
+      text-align: center;
+      color: #365B7C;
+    }
+  }
+}
+
+
+ /* 编辑/新增panel样式 */
+.form-panel{
+  .user-edit-form-text ,.edit-form-text{
+    width: 260px;
+    .el-input{
+      width: 187px;
+    }
+  }
+  .el-form-item{
+    margin: 15px 0 15px 0;
+  }
+  .el-form-item__label{
+    width: 100px !important;
+    float: left;
+  }
+  .el-form-item__content{
+    width: 70%;
+    margin-left: 3px !important;
+    float: left;
+  }
+}
+
+.paging{
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: flex-end;
+  //@extend .base;
+  //padding-left: 20px;
+  box-sizing: border-box;
+
+  /*el-pagination加small后 条/页 框大小问题*/
+  .el-input--suffix{
+    input{
+      width: 90px;
+      height: 22px;
+    }
+    .el-input__suffix{
+      right: 10px;
+      .el-icon-arrow-up{
+        line-height: 23px;
+      }
+    }
+  }
+}
+
+/* 核欠料详情dialog太大需要往上移，不然会有滚动条 */
+.detection-dialog{
+  .el-dialog{
+    margin-top: 2vh !important;
+  }
+  .el-dialog__body{
+    //height: 680px;
+    min-height: 760px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+}
+/* 任务创建 */
+.pro-create-dialog{
+  .el-dialog{
+    margin-top: 10vh !important;
+  }
+  .el-dialog__body{
+    //height: 50vh;
+    overflow-y: auto;
+    padding-top: 0;
+  }
+}
+
+/* 任务编辑 */
+.pro-edit-dialog{
+  .el-dialog{
+    background-color: #eee;
+    margin-top: .7vh !important;
+  }
+  .el-dialog__body{
+    height: 91vh;
+    overflow-y: auto;
+    padding-top: 0;
+    .el-form-item__label{
+      padding-left: 10px;
+      box-sizing: border-box;
+      font-size: 12px;
+    }
+    .complex-item, .multi-item{
+      .el-form-item__label{
+        font-size: 12px;
+      }
+    }
+  }
+}
+/* 操作、审批人员 */
+.personnel-setting{
+  .el-dialog{
+    margin-top: 4vh !important;
+  }
+  .el-dialog__body{
+    max-height: 78vh;
+    overflow-y: auto;
+    padding-top: 0;
+  }
+}
+/* 添加表单项 */
+.add-form-item-dialog{
+  .el-dialog{
+    .el-dialog__body{
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+
+}
+/* 图片加载失败时 字体大小 */
+.complex-img-preview{
+  .el-image__error{
+    font-size: 12px;
+  }
+}
+
+
+
+/*  上传订单，取消新的覆盖旧的的动画效果  */
+.orderUpload .el-list-enter-active, .el-list-leave-active {
+  transition: none;
+}
+
+.orderUpload .el-list-enter, .el-list-leave-active {
+  opacity: 0;
+}
+
+/* 角色获取权限 树形数据的样式 */
+.empower-panel{
+  .el-dialog {
+    margin-top: 5vh !important;
+  }
+  .el-tree-node__content{
+    margin-bottom: 4px;
+    .el-tree-node__label{
+      font-size: 16px!important;
+    }
+    .el-checkbox__input{
+      width: 20px;
+      .el-checkbox__inner{
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+  .el-tree-node__children  {
+    white-space: pre-wrap;
+    margin-bottom: 10px;
+
+    .el-tree-node {
+      display: inline-block;
+      vertical-align: middle;
+      width: 240px;
+
+      .el-tree-node__content{
+        .el-tree-node__label{
+          font-size: 14px!important;
+        }
+      }
+      .el-checkbox__input{
+        width: 20px;
+        .el-checkbox__inner{
+          width: 16px;
+          height: 16px;
+        }
+      }
+      .el-tree-node__label{
+        font-size: 18px;
+      }
+    }
+  }
+}
+
+/* 审批模板 */
+#preinstall{
+  .el-tree-node{
+    .el-tree-node__content{
+      height: 35px;
+      display: flex;
+      justify-content: space-around;
+      .template-node{
+        .el-input{
+          min-width: 0;
+          .el-input__inner{
+            padding: 2px;
+            font-size: 14px;
+          }
+        }
+        .el-button{
+          margin-left: 3px;
+        }
+      }
+
+    }
+  }
+  .el-tree-node:focus > .el-tree-node__content {
+    background-color: #ddd !important;
+  }
+}
+
+
+.el-table__body{
+  width: calc(100% - 6px) !important;
+}
+.el-table__body-wrapper{
+  &::-webkit-scrollbar {
+    /*滚动条整体样式*/
+    width : 6px;  /*高宽分别对应横竖滚动条的尺寸*/
+    height: 1px;
+  }
+  &::-webkit-scrollbar-thumb {
+    /*滚动条里面小方块*/
+    box-shadow   : inset 0 0 5px rgba(0, 0, 0, 0.2);
+    background-color: #ededed;
+    border-radius: 10px;
+    background-image: -webkit-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.2) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
+        transparent 75%,
+        transparent
+    );
+  }
+  &::-webkit-scrollbar-track {
+    /*滚动条里面轨道*/
+    border-radius   : 10px;
+    background-color: #eee;
+  }
+}
+.mzindex{
+  z-index: 4000!important;
+}
+.columnsam {
+  flex-direction:column 
+}
+.bigsize_span{
+  font-weight:bold;
+  font-size: large;
+}
+
