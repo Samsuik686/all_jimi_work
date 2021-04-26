@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+	<bean id="freeMarkerConfigurer" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<!-- 模板文件目录 -->
+		<property name="templateLoaderPath" value="/freemarker" />
+			<property name="freemarkerSettings">
+			<props>
+			<prop key="template_update_delay">0</prop>
+			<prop key="default_encoding">UTF-8</prop>
+			<prop key="locale">zh_CN</prop>
+			<!-- 取消数字格式，不采用科学计数法 -->
+			<prop key="number_format">0</prop>
+			</props>
+		</property>
+	
+	</bean>
+
+</beans>

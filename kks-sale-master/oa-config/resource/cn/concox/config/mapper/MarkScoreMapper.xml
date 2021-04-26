@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.exam.mapper.MarkScoreMapper">
+
+    <select id="listExam" resultType="cn.concox.vo.exam.Exam">
+		SELECT
+		    exam_id AS examId,
+		    exam_name AS examName,
+		    exam_description AS examDescription,
+		    exam_total_time AS examTotalTime,
+		    state,
+		    (
+		        SELECT
+		            COUNT(examinee_id)
+		        FROM
+		            z_exam_grade
+		        WHERE
+		            grade_state IN (0, 1)
+		        AND exam_id = ex.exam_id
+		    ) AS totalNum,
+		    (
+		        SELECT
+		            COUNT(examinee_id)
+		        FROM
+		            z_exam_grade
+		        WHERE
+		            grade_state = 1
+		        AND exam_id = ex.exam_id
+		    ) AS doneNum
+		FROM
+		    z_exam ex
+        <where>
+            state IN (2, 3)
+			AND (
+			    SELECT
+			        COUNT(*)
+			    FROM
+			        z_exam_topic
+			    WHERE
+			        exam_id = ex.exam_id
+			    AND topic_type IN (3, 4)
+			) > 0
+            <if test="searchText != null and searchText != ''">
+                AND exam_name like concat('%','${searchText}','%')
+            </if>
+        </where>
+        ORDER BY
+            create_time DESC
+    </select>
+    
+    <select id="listExaminee" resultType="cn.concox.vo.exam.Examinee">
+        SELECT DISTINCT
+        an.examinee_id AS examineeId,
+        an.examinee_name AS examineeName,
+        gr.grade_state AS gradeState
+        FROM
+        z_exam_answer an
+        LEFT JOIN
+        z_exam_grade gr ON gr.exam_id = #{examId} AND an.examinee_id = gr.examinee_id
+        <where>
+	        an.topic_id IN (
+	            SELECT 
+	            topic_id 
+	            FROM 
+	            z_exam_topic 
+	            WHERE 
+	            exam_id = #{examId}
+	        )
+	        <if test="searchText != null and searchText != ''">
+                AND an.examinee_name like concat('%','${searchText}','%')
+            </if>
+        </where>
+    </select>
+
+    <select id="listExamAnswer" resultType="cn.concox.vo.exam.ExamAnswer">
+        SELECT
+        an.answer_id AS answerId,
+        an.examinee_answer AS examineeAnswer,
+        an.examinee_score AS examineeScore,
+        top.topic_description AS topicDescription,
+        top.topic_score AS topicScore,
+        top.topic_answer AS topicAnswer,
+        top.topic_type AS topicType
+        FROM 
+        z_exam_answer an
+        LEFT JOIN
+        z_exam_topic top ON top.topic_id = an.topic_id
+        WHERE
+        exam_id = #{examId} AND examinee_id = #{examineeId}
+        AND top.topic_type IN (3, 4)
+    </select>
+    
+    <update id="updateExamAnswer" parameterType="cn.concox.vo.exam.ExamAnswer">
+        UPDATE
+        z_exam_answer
+        SET
+        examinee_score = #{examineeScore}
+        WHERE
+        answer_id = #{answerId}
+    </update>
+    
+</mapper>

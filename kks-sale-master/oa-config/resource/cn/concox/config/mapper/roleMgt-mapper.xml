@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.rolePrivilege.mapper.RoleMgtMapper">
+
+	<resultMap type="RoleMgt" id="queryRoleList_resultMap">
+ 
+	</resultMap>
+
+    <select id="queryRoleListByNamePage" resultMap="queryRoleList_resultMap" parameterType="RoleMgt">
+    	 select rolerId,rolerName,rolerDesc,creater,creatTime,orderIndex FROM t_oa_roler   WHERE 1=1 	 
+	         <if test="po.rolerName!=null">
+	        	and rolerName LIKE CONCAT('%',#{po.rolerName},'%' )    
+			 </if>  
+			 <if test="po.rolerDesc!=null">
+	        	and rolerDesc LIKE CONCAT('%',#{po.rolerDesc},'%' )    
+			 </if>
+	     order by creatTime desc		   
+    </select>  
+       
+	<select id="queryRoleListByNameCount" resultType="java.lang.Integer" parameterType="RoleMgt">
+		select count(*) FROM t_oa_roler  where 1=1
+			 <if test="po.rolerName!=null">
+	        	and rolerName LIKE CONCAT('%',#{po.rolerName},'%' )    
+			 </if>
+			 <if test="po.rolerDesc!=null">
+	        	and rolerDesc LIKE CONCAT('%',#{po.rolerDesc},'%' )    
+			 </if>       
+    </select>    
+    
+    <select id="getRoleByName" resultType="RoleMgt" parameterType="RoleMgt">
+    	select * from t_oa_roler where rolerName = #{rolerName} and rolerId != #{rolerId} LIMIT 1;
+    </select>      
+    
+    
+    <select id="getAllUserRoleList" resultMap="queryRoleList_resultMap" >
+    	 select rolerId,rolerName,rolerDesc,creater,creatTime,orderIndex FROM t_oa_roler   WHERE 1=1 	 
+	     order by creatTime desc		   
+    </select> 
+    
+        
+	       
+	<update id="update" parameterType="RoleMgt" >
+		update t_oa_roler set rolerName=#{rolerName,jdbcType=VARCHAR},rolerDesc=#{rolerDesc,jdbcType=VARCHAR},creater=#{creater,jdbcType=VARCHAR},creatTime=sysdate()
+        where rolerId=#{rolerId}
+    </update>
+	    
+    <delete id="delete" parameterType="RoleMgt">
+		delete from t_oa_roler where rolerId=#{rolerId}
+    </delete> 
+    
+    <!-- 
+    <resultMap type="MenusFunc" id="getAllMenuFunc_resultMap">
+		<result property="menuId" column="menuId"/>
+		<result property="parentId" column="parentId"/>
+		<result property="displayName" column="displayName"/>
+		<result property="url" column="url"/>
+		<result property="descrp" column="descrp"/>
+		<result property="sn" column="sn"/>
+		<result property="orderindex" column="orderindex"/>
+		<collection property="funcDetails" column="menuId" javaType="ArrayList"  select="queryFuncListByMenuId"></collection>
+	</resultMap>
+    -->
+    
+	<select id="queryFuncListByMenuId" resultType="FuncDetails" parameterType="java.lang.Integer">
+		select menuId,functionId,functionURL,functionDesc from t_oa_menus_details 
+		where menuId=#{menuId} order by functionId asc
+	</select>
+    
+   <select id="getAllMenuFunc" resultType="MenusFunc">
+    	SELECT A.menuId,A.parentId,A.displayName,A.url,B.displayName descrp,A.sn,A.orderindex
+		FROM t_oa_menus A INNER JOIN t_oa_menus B ON A.parentId=B.menuId
+		WHERE A.parentId!=0 AND B.parentId=0
+		ORDER BY A.parentId,A.menuId ASC
+   </select>  
+   
+   <insert id="insert" parameterType="RoleMgt" keyProperty="rolerId" useGeneratedKeys="true">
+    	insert into t_oa_roler(rolerName,rolerDesc,creater,creatTime)
+    	values(#{rolerName,jdbcType=VARCHAR},#{rolerDesc,jdbcType=VARCHAR},#{creater,jdbcType=VARCHAR},sysdate());
+   </insert> 
+    
+   
+</mapper>

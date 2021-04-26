@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.TestMaterialMapper">
+	<resultMap type="TestMaterial" id="TestMaterial">
+	</resultMap>
+
+	<sql id="selectAllFields">
+		  SELECT tid, 
+            create_user AS createUser, create_time AS createTime, material_name AS materialName, material_number AS materialNumber, material_specification AS materialSpecification, 
+            material_replace AS materialReplace, place_number AS placeNumber, supplier, project, amount, 
+            SMT_test_time AS SMTTestTime, SMT_work_order AS SMTWorkOrder, assembly_test_time AS assemblyTestTime, assembly_test_result AS assemblytestResult, test_result AS testResult, 
+            bill, out_time AS outTime, update_user AS updateUser, update_time AS updateTime, SMT_test_result AS SMTTestResult, 
+            _MASK_SYNC_V2 AS MASKTOV2
+        FROM t_ams_test_material
+	</sql>
+
+	<select id="getTestMaterialList" parameterType="TestMaterial" resultType="TestMaterial">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.materialName != null and po.materialName != ''"> and material_name like concat('%', '${po.materialName}', '%') </if>
+            <if test="po.materialNumber != null and po.materialNumber != ''"> and material_number like concat('%', '${po.materialNumber}', '%') </if>
+            <if test="po.materialSpecification != null and po.materialSpecification != ''"> and material_specification like concat('%', '${po.materialSpecification}', '%') </if>
+            <if test="po.materialReplace != null and po.materialReplace != ''"> and material_replace like concat('%', '${po.materialReplace}', '%') </if>
+            <if test="po.placeNumber != null and po.placeNumber != ''"> and place_number like concat('%', '${po.placeNumber}', '%') </if>
+            and bill = #{po.bill}
+		</where>
+		GROUP BY material_number
+	</select>
+
+	<insert id="insert" parameterType="TestMaterial">
+		 INSERT INTO t_ams_test_material (tid,
+            create_user, create_time, material_name, material_number, material_specification, 
+            material_replace, place_number, supplier, project, amount, 
+            SMT_test_time, SMT_work_order, assembly_test_time, assembly_test_result, test_result, 
+            bill, out_time, update_user, update_time, SMT_test_result, 
+            _MASK_SYNC_V2
+        ) VALUES (#{tid},
+            #{createUser}, #{createTime}, #{materialName}, #{materialNumber}, #{materialSpecification}, 
+            #{materialReplace}, #{placeNumber}, #{supplier}, #{project}, #{amount}, 
+            #{SMTTestTime}, #{SMTWorkOrder}, #{assemblyTestTime}, #{assemblytestResult}, #{testResult}, 
+            #{bill}, #{outTime}, #{updateUser}, #{updateTime}, #{SMTTestResult}, 
+            #{MASKTOV2}
+        )
+	</insert>
+
+	<select id="getT" parameterType="String" resultType="TestMaterial">
+		<include refid="selectAllFields" />
+		WHERE tid = #{tid}
+	</select>
+	
+	<!-- ams.bill = #{bill} and  -->
+		<select id="getGRoupConcat" resultType="String" parameterType="String">
+   		SELECT GROUP_CONCAT(ams.material_name SEPARATOR' | ') AS sllDesc FROM t_ams_test_material AS ams 
+		WHERE 
+		
+		ams.material_number IN 
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </select>
+</mapper>

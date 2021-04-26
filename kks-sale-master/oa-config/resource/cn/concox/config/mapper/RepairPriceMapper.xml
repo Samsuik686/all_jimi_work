@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.RepairPriceMapper">
+	<resultMap type="RepairPriceManage" id="RepairPriceManage">
+	</resultMap>	
+	
+	<sql id="selectAllFields">
+		select rid, gId, amount, price, priceNumber, model, repairType, pjlDesc, use_state AS useState, idCode, hourFee, priceGroupDesc
+		from t_sale_repair_price
+	</sql>
+	
+	<!-- 按条件分页查询 -->
+	<select id="getRepairPriceManageList" parameterType="RepairPriceManage" resultMap="RepairPriceManage">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.gId != null">
+				and gId = #{po.gId}
+			</if>
+			<if test="po.priceNumber != null and po.priceNumber != ''">
+				and priceNumber = #{po.priceNumber}
+			</if>
+			<if test="po.model != null and po.model != '' and (po.searchType == null or po.searchType == '') ">
+				and model = #{po.model}
+			</if>
+			<if test="po.useState != null and po.useState != ''">
+				and use_state = #{po.useState}
+			</if>
+			<if test="po.amount != null and po.amount != ''"> <!-- 维修时按照关键字查询 -->
+				and ( amount like concat('%', '${po.amount}','%')
+					or  model like concat('%', '${po.amount}','%')
+					)
+			</if>
+			<if test="po.model != null and po.searchType == 'modalSearch'"><!-- 查询当前维修的主板型号数据和主板型号为空的数据 -->
+				and ( model = #{po.model} or model is null or model='' )
+			</if>
+		</where>
+		order by gId, (priceNumber+0), (idCode+0) <!-- 维修报价类型，按编码, 识别码升序排序  -->
+	</select>
+	
+	 <!--维修报价匹配-->
+	<select id="getGRoupConcat" resultType="String" parameterType="String">
+   		SELECT GROUP_CONCAT(CONCAT('【',repairType,'】'),amount SEPARATOR' | ') AS `name`  FROM t_sale_repair_price
+		WHERE  rid IN 
+		<foreach collection="array" item="rid" open="(" separator="," close=")">
+			#{rid}
+		</foreach>
+    </select>
+    
+	<select id="getT" resultType="RepairPriceManage" parameterType="Integer">
+		<include refid="selectAllFields"/>
+		WHERE rid = #{id}
+    </select>
+
+	<!-- 删除或修改组时查看是组下否存在数据 -->
+	<select id="getCountByGid" parameterType="RepairPriceManage" resultType="int">
+		SELECT count(1) from t_sale_repair_price WHERE gId = #{gId}
+	</select>
+	
+	<!-- 修改分组时，改其下数据 -->
+	<update id="updateByGid" parameterType="RepairPriceManage">
+      	UPDATE t_sale_repair_price set repairType = (SELECT gname from t_sale_basegroup WHERE gId = #{gId}) 
+      	WHERE gId = #{gId}
+    </update>
+    
+    <insert id="insert" parameterType="RepairPriceManage">
+		INSERT INTO t_sale_repair_price(
+		gId,
+		amount,
+		price,
+		priceNumber,
+		model,
+		repairType,
+		pjlDesc,
+		use_state,
+		idCode, hourFee, priceGroupDesc
+		) 
+		VALUES(
+		(SELECT gid from t_sale_basegroup WHERE gname = #{repairType} AND enumSn ='BASE_WXBJ'),
+		#{amount},
+		#{price},
+		#{priceNumber},
+		#{model},
+		#{repairType},
+		#{pjlDesc},
+		#{useState},
+		#{idCode}, #{hourFee}, #{priceGroupDesc}
+		)
+	</insert>
+	
+	<update id="update" parameterType="RepairPriceManage">
+		UPDATE t_sale_repair_price
+		<set>
+			<if test="gId !=null"> gId = #{gId}, </if>
+			<if test="price != null"> price = #{price}, </if>
+			<if test="priceNumber != null and priceNumber != ''"> priceNumber = #{priceNumber}, </if>
+			<if test="repairType != null and repairType != ''"> repairType = #{repairType}, </if>
+			<if test="amount != null and amount != ''"> amount = #{amount}, </if>
+			<if test ="useState != null and useState != ''"> use_state = #{useState}, </if>
+			<if test ="idCode != null and idCode != ''"> idCode = #{idCode}, </if>
+			<if test ="model != null"> model = #{model}, </if>
+			<if test ="pjlDesc != null"> pjlDesc = #{pjlDesc}, </if>
+			<if test ="hourFee != null"> hourFee = #{hourFee}, </if>
+			<if test ="priceGroupDesc != null"> priceGroupDesc = #{priceGroupDesc}, </if>
+		</set>
+		WHERE rid = #{rid}
+	</update>
+
+	<delete id="delete" parameterType="RepairPriceManage">
+		DELETE FROM t_sale_repair_price WHERE rid = #{rid}
+	</delete>
+	
+	<!-- FIND_IN_SET 查询传入参数rid在表中的列 wxbjDesc中的下标，下标从1开始 -->
+	<select id="findCountWorkflowByRepairId" parameterType="RepairPriceManage" resultType="int">
+		SELECT count(id) FROM t_sale_workflow_related
+		WHERE FIND_IN_SET(#{rid},t_sale_workflow_related.wxbjDesc) 
+	</select>
+	
+	<!-- 编码和类别、识别码查看是否是同一条数据 -->
+	<select id="isExists" parameterType="RepairPriceManage" resultType="int">
+		select COUNT(1) from t_sale_repair_price 
+			WHERE repairType = #{repairType} AND priceNumber=#{priceNumber} AND idCode = #{idCode}
+		<if test ="rid !=null and rid !='' "> AND rid != #{rid} </if>
+		<choose>
+			<when test="model != null and model != ''">
+				and model = #{model}
+			</when>
+			<otherwise>
+				and ( model='' or model IS NULL)
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getRepeatOne" parameterType="RepairPriceManage" resultType="RepairPriceManage">
+		select * from t_sale_repair_price 
+		WHERE repairType = #{repairType} AND priceNumber=#{priceNumber} AND idCode = #{idCode}
+		<choose>
+			<when test="model != null and model != ''">
+				and model = #{model}
+			</when>
+			<otherwise>
+				and ( model='' or model IS NULL)
+			</otherwise>
+		</choose>
+		limit 1
+	</select>
+	
+	<!-- 新增修改看是否存在gid -->
+	<select id="isExistsGid" parameterType="RepairPriceManage" resultType="Integer">
+		SELECT COUNT(gid) from t_sale_basegroup WHERE TRIM(gname) = #{repairType} AND enumSn ='BASE_WXBJ'
+	</select>
+	
+	<!-- 根据ID查询维修报价之和 -->
+	<select id="getSumPrice" parameterType="String" resultType="RepairPriceManage">
+		select SUM(price) as sumPrice from t_sale_repair_price where rid IN
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<!-- 根据维修报价保存配件料 -->
+	<select id="getPjlIdsByWxbjId" parameterType="String" resultType="String">
+		SELECT GROUP_CONCAT(tsrp.pjlDesc SEPARATOR',') AS pjlDesc FROM t_sale_repair_price AS tsrp 
+		WHERE tsrp.rid IN 
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<!-- 获取最高的工时费 -->
+	<select id="getHourFee" parameterType="String" resultType="RepairPriceManage">
+		select * from t_sale_repair_price AS tsrp
+		WHERE tsrp.rid IN 
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		ORDER BY hourFee desc
+		limit 1
+	</select>
+	
+	
+	<select id="getPjlSumPrice" parameterType="java.lang.Integer" resultType="java.math.BigDecimal">
+		SELECT
+		    SUM(retailPrice + hourFee)
+		FROM
+		    t_sale_pjlmanage
+		WHERE
+		    pjlId IN
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+	</select>
+</mapper>

@@ -40,6 +40,7 @@ public class Constant {
     //工厂  http://192.168.89.89:8080/uw_server/
     //10.10.11.109:8080 如杰本地
 //    http://172.26.132.9:8080/uw_server/ 4楼新服务器ip
-    public static final String IP = "http://172.26.132.9:8080/uw_server/";
+//    192.168.242.102
+    public static final String IP = "http://172.26.168.228:8080/uw_server/";
 
 }

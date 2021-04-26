@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.aipay.mapper.SaleFeedbackMapper">
+
+   <resultMap id="queryList_resultMap" type="SaleFeedback" >
+   </resultMap>
+   <insert id="insert" parameterType="SaleFeedback">
+        INSERT INTO t_sale_feedback (
+            id,repairnNmber,skillDesc, serviceDesc, Fremark, Sremark, FcreateTime, 
+            ScreateTime,updateTime
+        ) VALUES (
+            (SELECT nextval('t_sale_feedback') id),#{repairnNmber},#{skillDesc}, #{serviceDesc}, #{Fremark}, #{Sremark}, #{FcreateTime}, 
+            #{ScreateTime}, #{FcreateTime}
+        )
+    </insert>
+    
+    <update id="update" parameterType="SaleFeedback">
+    	UPDATE t_sale_feedback 
+    	<set>
+    		<if test="skillDesc != null ">skillDesc = #{skillDesc},</if>
+    		<if test="serviceDesc != null ">serviceDesc = #{serviceDesc},</if>
+    		<if test="Fremark != null ">Fremark = #{Fremark},</if>
+    		updateTime = NOW(),
+    	</set>
+    	WHERE id = #{id}
+    </update>
+    
+    <select id="selectByRepairnNmber" parameterType="String" resultMap="queryList_resultMap">
+       SELECT id,repairnNmber,skillDesc, serviceDesc, Fremark, Sremark, FcreateTime, 
+            ScreateTime
+       FROM t_sale_feedback
+       WHERE repairnNmber = #{repairnNmber} Limit 1
+    </select>
+    
+    <select id="getSendNumByRepairnNum" parameterType="String" resultType="Integer">
+    	SELECT count(0) from t_sale_workflow where repairnNmber = #{repairnNmber} AND state = -1
+    </select>
+   <!-- ============================================ interface  End ============================================ -->
+      
+</mapper>

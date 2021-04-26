@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.WlwkRechargeReportMapper">
+	<resultMap id="queryList_resultMap" type="WlwkRechargeReport"></resultMap>
+	<!-- 分页查询 -->
+	<select id="getWlwkRechargeListPage" parameterType="WlwkRechargeReport" resultMap="queryList_resultMap">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.startTime != null and po.startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+			<if test="po.endTime != null and po.endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			<if test="po.phone != null and po.phone  != ''"> AND phone like concat('%', '${po.phone}', '%') </if>
+			<if test="po.searFormulas != null and po.searFormulas != '' "> AND formula IN (${po.searFormulas})</if>
+			<if test="po.cusName != null and po.cusName != ''"> AND cusName like concat('%','${po.cusName}','%')</if>
+			<if test="po.searchNOs != null and po.searchNOs != ''"> AND phone IN (${po.searchNOs})</if>
+			<if test="po.remittanceMethod != null and po.remittanceMethod != ''"> AND remittanceMethod = #{po.remittanceMethod} </if>
+		</where>
+		ORDER BY rechargeDate DESC
+	</select>
+	
+    <select id="getT" parameterType="Integer" resultType="WlwkRechargeReport">
+        <include refid="selectAllFields" />
+        WHERE wlwkId = #{id}
+    </select>
+
+    <insert id="insert" parameterType="WlwkRechargeReport">
+       INSERT INTO t_sale_recharge_wlwk (
+            rechargeDate, cusName, phone, formula, faceValue, remittanceMethod, 
+            monthNumber, payable, payOther, orderStatus, account, ratePrice, remark
+        ) VALUES (
+            #{rechargeDate}, #{cusName}, #{phone}, #{formula}, #{faceValue}, #{remittanceMethod}, 
+            #{monthNumber}, #{payable}, #{payOther}, #{orderStatus}, #{account}, #{ratePrice}, #{remark}
+        )
+    </insert>
+
+    <update id="update" parameterType="WlwkRechargeReport">
+    	update t_sale_recharge_wlwk
+    	<set>
+       		<if test="rechargeDate != null and rechargeDate != ''"> rechargeDate = #{rechargeDate}, </if>
+            <if test="cusName != null and cusName != ''"> cusName = #{cusName}, </if>
+            <if test="phone != null and phone != ''"> phone = #{phone}, </if>
+            <if test="formula != null and formula != ''"> formula = #{formula}, </if>
+            <if test="faceValue != null and faceValue != ''"> faceValue = #{faceValue}, </if>
+            <if test="monthNumber != null and monthNumber != ''"> monthNumber = #{monthNumber}, </if>
+            <if test="payable != null and payable != ''"> payable = #{payable}, </if>
+            <if test="payOther != null and payOther != ''"> payOther = #{payOther}, </if>
+            <if test="account != null and account != ''"> account = #{account}, </if>
+            <if test="ratePrice != null and ratePrice != ''"> ratePrice = #{ratePrice}, </if>
+            <if test="remark != null and remark != ''"> remark = #{remark}, </if>
+            <if test="remittanceMethod != null and remittanceMethod != ''"> remittanceMethod = #{remittanceMethod}, </if>
+            orderStatus = #{orderStatus},
+        </set>
+        WHERE 
+        wlwkId in
+        <foreach collection="wlwkIds" item="item" open="(" separator="," close=")">  
+            #{item}
+        </foreach>
+    </update>
+
+    <delete id="delete">
+        DELETE FROM 
+        t_sale_recharge_wlwk 
+        WHERE 
+        wlwkId in 
+        <foreach collection="wlwkIds" item="item" open="(" separator="," close=")">  
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="getAll" resultType="WlwkRechargeReport">
+        <include refid="selectAllFields" />
+    </select>
+
+    <sql id="selectAllFields">
+        SELECT wlwkId, 
+            rechargeDate, cusName, phone, formula, faceValue, remittanceMethod, 
+            monthNumber, payable, payOther, orderStatus, account, ratePrice, remark
+        FROM t_sale_recharge_wlwk
+    </sql>
+
+    <select id="queryList" parameterType="WlwkRechargeReport" resultMap="queryList_resultMap">
+        <include refid="selectAllFields" />
+        <where>
+			<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+			<if test="phone != null and phone  != ''"> AND phone like concat('%', '${phone}', '%') </if>
+			<if test="searFormulas != null and searFormulas != '' "> AND formula IN (${searFormulas})</if>
+			<if test="cusName != null and cusName != ''"> AND cusName like concat('%','${cusName}','%')</if>
+			<if test="searchNOs != null and searchNOs != ''"> AND phone IN (${searchNOs})</if>
+			<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+        </where>
+         order by rechargeDate desc
+    </select>
+    
+     <select id="queryTotal" parameterType="WlwkRechargeReport" resultMap="queryList_resultMap">
+			SELECT '合计' AS formula,SUM(payOther) AS payOther,SUM(faceValue) AS faceValue,SUM(payable) AS payable,SUM(ratePrice) AS ratePrice FROM t_sale_recharge_wlwk 
+			 <where>
+				<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+				<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+				<if test="phone != null and phone  != ''"> AND phone like concat('%', '${phone}', '%') </if>
+				<if test="searFormulas != null and searFormulas != '' "> AND formula IN (${searFormulas})</if>
+				<if test="cusName != null and cusName != ''"> AND cusName like concat('%','${cusName}','%')</if>
+				<if test="searchNOs != null and searchNOs != ''"> AND phone IN (${searchNOs})</if>
+				<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+       		 </where>
+			
+    </select>
+    
+    <select id="querySum" parameterType="WlwkRechargeReport" resultMap="queryList_resultMap">
+        SELECT a.* FROM(
+			SELECT '收客户充值费用' AS projects,SUM(payable) AS costs FROM t_sale_recharge_wlwk 
+			 <where>
+				<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+				<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+				<if test="phone != null and phone  != ''"> AND phone like concat('%', '${phone}', '%') </if>
+				<if test="searFormulas != null and searFormulas != '' "> AND formula IN (${searFormulas})</if>
+				<if test="cusName != null and cusName != ''"> AND cusName like concat('%','${cusName}','%')</if>
+				<if test="searchNOs != null and searchNOs != ''"> AND phone IN (${searchNOs})</if>
+				<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+       		 </where>
+			UNION
+			SELECT '付款给卡商' AS projects,SUM(payOther) AS costs FROM t_sale_recharge_wlwk
+			 <where>
+				<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+				<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+				<if test="phone != null and phone  != ''"> AND phone like concat('%', '${phone}', '%') </if>
+				<if test="searFormulas != null and searFormulas != '' "> AND formula IN (${searFormulas})</if>
+				<if test="cusName != null and cusName != ''"> AND cusName like concat('%','${cusName}','%')</if>
+				<if test="searchNOs != null and searchNOs != ''"> AND phone IN (${searchNOs})</if>
+				<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+	        </where>
+			UNION
+			SELECT '部门收益' AS projects,SUM(payable)- SUM(payOther) AS costs FROM t_sale_recharge_wlwk
+			 <where>
+				<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+				<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+				<if test="phone != null and phone  != ''"> AND phone like concat('%', '${phone}', '%') </if>
+				<if test="searFormulas != null and searFormulas != '' "> AND formula IN (${searFormulas})</if>
+				<if test="cusName != null and cusName != ''"> AND cusName like concat('%','${cusName}','%')</if>
+				<if test="searchNOs != null and searchNOs != ''"> AND phone IN (${searchNOs})</if>
+				<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+	        </where>
+	        UNION
+			SELECT '税费' AS projects,SUM(ratePrice) AS costs FROM t_sale_recharge_wlwk
+			 <where>
+				<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+				<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+				<if test="phone != null and phone  != ''"> AND phone like concat('%', '${phone}', '%') </if>
+				<if test="searFormulas != null and searFormulas != '' "> AND formula IN (${searFormulas})</if>
+				<if test="cusName != null and cusName != ''"> AND cusName like concat('%','${cusName}','%')</if>
+				<if test="searchNOs != null and searchNOs != ''"> AND phone IN (${searchNOs})</if>
+				<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+	        </where>
+		)a
+    </select>
+    
+      <!-- 充值日期、手机号是否为同一条数据 -->
+    <select id="isExists" parameterType="WlwkRechargeReport" resultType="int">
+		SELECT count(1) FROM t_sale_recharge_wlwk
+		WHERE rechargeDate = #{rechargeDate} AND phone = #{phone}
+		<if test ="wlwkId !=null"> AND wlwkId != #{wlwkId} </if>
+	</select>
+</mapper>

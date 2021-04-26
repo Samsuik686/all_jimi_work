@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.material.mapper.MaterialLogMapper">
+
+     <sql id="selectAllFields">
+        SELECT id ,
+            orderNO,materialType, totalType, type, depotName, receivingParty, 
+            clerk, outTime, proNO, proName, proSpeci, 
+            placesNO, consumption, masterOrSlave, manufacturerCode, manufacturer, 
+            loss, number, tradePrice, retailPrice, hourlyRates, costPrice, 
+            remark, marketModel, platform,status
+        FROM t_sale_material_log
+    </sql>
+
+  <insert id="insert" parameterType="MaterialLog">
+        INSERT INTO t_sale_material_log (
+            orderNO,materialType, totalType, type, depotName, receivingParty, 
+            clerk, outTime, proNO, proName, proSpeci, 
+            placesNO, consumption, masterOrSlave, manufacturerCode, manufacturer, 
+            loss, number, tradePrice, retailPrice, hourlyRates, costPrice,
+            remark, marketModel, platform,status,importFlag
+        ) VALUES (
+            #{orderNO},#{materialType}, #{totalType}, #{type}, #{depotName}, #{receivingParty}, 
+            #{clerk}, #{outTime}, #{proNO}, #{proName}, #{proSpeci}, 
+            #{placesNO}, #{consumption}, #{masterOrSlave}, #{manufacturerCode}, #{manufacturer}, 
+            #{loss}, #{number}, #{tradePrice}, #{retailPrice}, #{hourlyRates}, #{costPrice},
+            #{remark}, #{marketModel}, #{platform},#{status},#{importFlag}
+        )
+    </insert>
+    
+ 	<update id="update" parameterType="MaterialLog">
+        UPDATE t_sale_material_log
+        <set>
+            <if test="orderNO != null and orderNO != ''"> orderNO = #{orderNO}, </if>
+            <if test="materialType != null"> materialType = #{materialType}, </if>
+            <if test="totalType != null"> totalType = #{totalType}, </if>
+            <if test="type != null and type != ''"> type = #{type}, </if>
+            <if test="depotName != null and depotName != ''"> depotName = #{depotName}, </if>
+            <if test="receivingParty != null and receivingParty != ''"> receivingParty = #{receivingParty}, </if>
+            <if test="outTime != null"> outTime = #{outTime}, </if>
+            <if test="proNO != null and proNO != ''"> proNO = #{proNO}, </if>
+            <if test="proName != null and proName != ''"> proName = #{proName}, </if>
+            <if test="proSpeci != null and proSpeci != ''"> proSpeci = #{proSpeci}, </if>
+            <if test="consumption != null"> consumption = #{consumption}, </if>
+            <if test="masterOrSlave != null and masterOrSlave != ''"> masterOrSlave = #{masterOrSlave}, </if>
+            <if test="number != null"> number = #{number}, </if>
+            <if test="status != null">status = #{status}, </if>
+            <if test="placesNO != null"> placesNO = #{placesNO},</if>
+            <if test="clerk != null">clerk = #{clerk},</if>
+            <if test="loss != null">loss = #{loss}, </if>
+            <if test="manufacturerCode != null">manufacturerCode = #{manufacturerCode},</if>
+            <if test="manufacturer != null"> manufacturer = #{manufacturer}, </if>
+            <if test="tradePrice != null"> tradePrice = #{tradePrice},</if>
+            <if test="retailPrice != null"> retailPrice = #{retailPrice},</if>
+            <if test="hourlyRates != null"> hourlyRates = #{hourlyRates},</if>
+            <if test="costPrice != null"> costPrice = #{costPrice}, </if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="platform != null">platform = #{platform},</if>
+            <if test="marketModel != null"> marketModel = #{marketModel},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+   
+   <delete id="delete">
+        DELETE FROM t_sale_material_log
+        WHERE id =#{id}
+    </delete>
+    
+    <!-- 导入有不成功的全部删除 -->
+    <delete id="deleteByimportFlag">
+        DELETE FROM t_sale_material_log
+        WHERE importFlag =#{importFlag}
+    </delete>
+    
+    <delete id="deleteByIds">
+        DELETE FROM t_sale_material_log
+        WHERE id IN
+        <foreach collection="array" item="id" index="index" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <select id="select" resultType="MaterialLog">
+        <include refid="selectAllFields" />
+       where id=#{id} limit 1
+    </select>
+    
+    <!-- 出库 -->
+    <select id="selectOutByProNOOrModel" resultType="MaterialLog">
+        <include refid="selectAllFields" />
+        <where>
+            <if test="proNO != null and proNO != ''">
+                 and proNO = #{proNO}
+            </if>
+            <if test="marketModel != null">
+                 and marketModel = #{marketModel}
+            </if>
+            and totalType='0'
+        </where>
+       limit 1
+    </select>
+    
+     <select id="queryMaterialLogListPage" resultType="MaterialLog"  parameterType="MaterialLog">
+        <include refid="selectAllFields" />
+        <where>
+            <if test="po.orderNO != null and po.orderNO != ''"> and orderNO like concat('%', '${po.orderNO}', '%') </if>
+            <if test="po.totalType != null"> and totalType= #{po.totalType} </if>
+            <if test="po.materialType != null"> and materialType= #{po.materialType} </if>
+            <if test="po.type != null and po.type != ''"> and type like concat('%', '${po.type}', '%')  </if>
+            <if test="po.depotName != null and po.depotName != ''"> and depotName like concat('%', '${po.depotName}', '%') </if>
+            <if test="po.receivingParty != null and po.receivingParty != ''"> and receivingParty like concat('%', '${po.receivingParty}', '%') </if>
+            <if test="po.clerk != null and po.clerk != ''"> and clerk like concat('%', '${po.clerk}', '%') </if>
+            <if test="po.outTimeStart != null and po.outTimeStart != ''"> AND date_format(outTime,'%Y-%m-%d') &gt;= #{po.outTimeStart} </if>
+			<if test="po.outTimeEnd != null and po.outTimeEnd != ''"> AND date_format(outTime,'%Y-%m-%d') &lt;= #{po.outTimeEnd} </if>
+            <if test="po.proNO != null and po.proNO != ''"> and proNO = #{po.proNO} </if>
+            <if test="po.proName != null and po.proName != ''"> and proName like concat('%', '${po.proName}', '%') </if>
+            <if test="po.proSpeci != null and po.proSpeci != ''"> and proSpeci like concat('%', '${po.proSpeci}', '%') </if>
+            <if test="po.placesNO != null and po.placesNO != ''"> and placesNO like concat('%', '${po.placesNO}', '%') </if>
+            <if test="po.consumption != null"> and consumption = #{po.consumption} </if>
+            <if test="po.masterOrSlave != null and po.masterOrSlave != ''"> and masterOrSlave like concat('%', '${po.masterOrSlave}', '%') </if>
+            <if test="po.manufacturerCode != null and po.manufacturerCode != ''"> and manufacturerCode like concat('%', '${po.manufacturerCode}', '%') </if>
+            <if test="po.manufacturer != null and po.manufacturer != ''"> and manufacturer like concat('%', '${po.manufacturer}', '%') </if>
+            <if test="po.loss != null and po.loss != ''"> and loss like concat('%', '${po.loss}', '%') </if>
+            <if test="po.number != null"> and number = #{po.number} </if>
+            <if test="po.tradePrice != null"> and tradePrice = #{po.tradePrice} </if>
+            <if test="po.retailPrice != null"> and retailPrice = #{po.retailPrice} </if>
+            <if test="po.hourlyRates != null"> and hourlyRates = #{po.hourlyRates} </if>
+            <if test="po.costPrice != null"> and costPrice = #{po.costPrice} </if>
+            <if test="po.remark != null and po.remark != ''"> and remark like concat('%', '${po.remark}', '%') </if>
+            <if test="po.marketModel != null and po.marketModel != ''"> and marketModel like concat('%', '${po.marketModel}', '%') </if>
+            <if test="po.platform != null and po.platform != ''"> and platform like concat('%', '${po.platform}', '%') </if>
+            <if test="po.status != null"> and status = #{po.status} </if>
+        </where>
+          ORDER BY outTime DESC, (proNO+0)	<!-- 按出入库时间和物料编码排序  -->
+    </select>
+    
+    
+     <select id="queryList" resultType="MaterialLog">
+        <include refid="selectAllFields" />
+        <where>
+            <if test="orderNO != null and orderNO != ''"> and orderNO like concat('%', '${orderNO}', '%') </if>
+            <if test="materialType != null"> and materialType= #{materialType} </if>
+            <if test="totalType != null"> and totalType like concat('%', '${totalType}', '%') </if>
+            <if test="type != null and type != ''"> and type like concat('%', '${type}', '%') </if>
+            <if test="depotName != null and depotName != ''"> and depotName like concat('%', '${depotName}', '%') </if>
+            <if test="receivingParty != null and receivingParty != ''"> and receivingParty like concat('%', '${receivingParty}', '%') </if>
+            <if test="clerk != null and clerk != ''"> and clerk like concat('%', '${clerk}', '%') </if>
+            <if test="outTimeStart != null and outTimeStart != ''"> AND date_format(outTime,'%Y-%m-%d') &gt;= #{outTimeStart} </if>
+			<if test="outTimeEnd != null and outTimeEnd != ''"> AND date_format(outTime,'%Y-%m-%d') &lt;= #{outTimeEnd} </if>
+            <if test="proNO != null and proNO != ''"> and proNO = #{proNO} </if>
+            <if test="proName != null and proName != ''"> and proName like concat('%', '${proName}', '%') </if>
+            <if test="proSpeci != null and proSpeci != ''"> and proSpeci like concat('%', '${proSpeci}', '%') </if>
+            <if test="placesNO != null and placesNO != ''"> and placesNO like concat('%', '${placesNO}', '%') </if>
+            <if test="consumption != null"> and consumption = #{consumption} </if>
+            <if test="masterOrSlave != null and masterOrSlave != ''"> and masterOrSlave like concat('%', '${masterOrSlave}', '%') </if>
+            <if test="manufacturerCode != null and manufacturerCode != ''"> and manufacturerCode like concat('%', '${manufacturerCode}', '%') </if>
+            <if test="manufacturer != null and manufacturer != ''"> and manufacturer like concat('%', '${manufacturer}', '%') </if>
+            <if test="loss != null and loss != ''"> and loss like concat('%', '${loss}', '%') </if>
+            <if test="number != null"> and number = #{number} </if>
+            <if test="tradePrice != null"> and tradePrice = #{tradePrice} </if>
+            <if test="retailPrice != null"> and retailPrice = #{retailPrice} </if>
+            <if test="hourlyRates != null"> and hourlyRates = #{hourlyRates} </if>
+            <if test="costPrice != null"> and costPrice = #{costPrice} </if>
+            <if test="remark != null and remark != ''"> and remark like concat('%', '${remark}', '%') </if>
+            <if test="marketModel != null and marketModel != ''"> and marketModel like concat('%', '${marketModel}', '%') </if>
+            <if test="platform != null and platform != ''"> and platform like concat('%', '${platform}', '%') </if>
+            <if test="status != null"> and status = #{status} </if>
+        </where>
+           ORDER BY outTime DESC, (proNO+0)	<!-- 按出入库时间和物料编码排序  -->
+    </select>
+    
+    <select id="selectMaxId" resultType="Integer">
+     select id from t_sale_material_log  ORDER by  id   desc limit 1
+    </select>
+    
+    <!-- 根据物料编码查询出所有物料出入库信息 -->
+    <select id="queryLogInfoByProNO" resultType="MaterialLog">
+        <include refid="selectAllFields" />
+        <where>
+            <if test="orderNO != null and orderNO != ''"> and orderNO like concat('%', '${orderNO}', '%') </if>
+            <if test="materialType != null"> and materialType= #{materialType} </if>
+            <if test="totalType != null"> and totalType like concat('%', '${totalType}', '%') </if>
+            <if test="type != null and type != ''"> and type like concat('%', '${type}', '%') </if>
+            <if test="depotName != null and depotName != ''"> and depotName like concat('%', '${depotName}', '%') </if>
+            <if test="outTimeStart != null and outTimeStart != ''"> AND date_format(outTime,'%Y-%m-%d') &gt;= #{outTimeStart} </if>
+			<if test="outTimeEnd != null and outTimeEnd != ''"> AND date_format(outTime,'%Y-%m-%d') &lt;= #{outTimeEnd} </if>
+            <if test="proNO != null and proNO != ''"> and proNO = #{proNO} </if>
+        </where>
+          ORDER BY outTime DESC, (proNO+0)	<!-- 按出入库时间和物料编码排序  -->
+    </select>
+</mapper>

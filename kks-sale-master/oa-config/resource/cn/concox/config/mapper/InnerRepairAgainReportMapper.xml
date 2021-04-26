@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.InnerRepairAgainReportMapper">
+
+	<resultMap id="queryList_resultMap" type="InnerRepairAgainReport" ></resultMap>
+   
+
+    <!-- ============================================   interface  Start ============================================ -->
+    <select id="getCountRepair"  resultType="Integer" parameterType="InnerRepairAgainReport">
+	    SELECT COUNT(1) FROM t_sale_workflow  AS tsw 
+		LEFT JOIN t_sale_workflow_repair AS tswr ON  tsw.id = tswr.wfId 
+		<where>
+			 tswr.repairAgainCount >= 0 
+			<if test="StratTime != null "> AND tsw.acceptanceTime &gt;=  #{StratTime}  </if> 
+			<if test="EndTime != null "> AND tsw.acceptanceTime &lt;=  #{EndTime}  </if> 
+		</where> 
+    </select>
+    
+    <select id="getRepairAgainList"  resultType="InnerRepairAgainReport">
+	    SELECT repairB.engineer,repairB.sumcount AS returnTimes, repairA.sumcount AS returnTimesA,
+			 (SELECT(CONCAT(FORMAT((repairA.sumcount/repairB.sumcount*100),0),'%'))) as returnTimesP
+		FROM 
+		(
+			SELECT tswr.engineer,COUNT(tswr.engineer) AS sumcount 
+			FROM  t_sale_workflow_repair AS tswr, t_sale_workflow AS tsw
+			<where>
+				 tswr.wfId =tsw.id AND tswr.repairAgainCount >=1
+				<if test="StratTime != null "> AND tsw.acceptanceTime &gt;= #{StratTime}  </if> 
+				<if test="EndTime != null "> AND tsw.acceptanceTime &lt;= #{EndTime}  </if> 
+			</where> 
+			GROUP BY tswr.engineer
+		) repairA 
+		RIGHT JOIN (
+			SELECT tswr.engineer,COUNT(tswr.engineer) AS sumcount 
+			FROM t_sale_workflow_repair AS tswr, t_sale_workflow AS tsw
+			<where>
+			 	tswr.wfId =tsw.id AND tswr.repairAgainCount >=0
+				<if test="StratTime != null  "> AND tsw.acceptanceTime &gt;= #{StratTime}  </if> 
+				<if test="EndTime != null "> AND tsw.acceptanceTime &lt;= #{EndTime}  </if>
+			</where> 
+			GROUP BY tswr.engineer
+		) repairB 
+		ON repairA.engineer=repairB.engineer
+		ORDER BY returnTimesA DESC
+    </select>
+   
+    <!-- ============================================   interface  End ============================================ -->
+</mapper>

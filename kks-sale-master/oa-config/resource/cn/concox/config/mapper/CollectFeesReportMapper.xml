@@ -1,0 +1,1072 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.CollectFeesReportMapper">
+	<resultMap id="queryList_resultMap" type="CollectFeesReport"></resultMap>
+	<!--售后收费年报表  -->
+	<!-- <select id="getCollectFeesYearReportList" resultMap="queryList_resultMap" parameterType="CollectFeesReport">
+		SELECT a.* from (
+			(
+				SELECT '销售配件收费' AS moneyType, sum(xspj.payPrice) AS sumMoney, (SELECT MONTH(xspj.payDate)) AS payMonth
+				FROM t_sale_xspjcosts xspj
+				WHERE (SELECT YEAR(xspj.payDate)) = #{searchMonth}
+				GROUP BY (SELECT MONTH(xspj.payDate))
+			)
+			
+			UNION
+			
+			(
+				SELECT '非保机器收费' AS moneyType, sum(totalpay.repairMoney) AS sumMoney, (SELECT MONTH(totalpay.payTime)) AS payMonth
+				FROM t_sale_workflow_totalpay totalpay
+				WHERE (SELECT YEAR(totalpay.payTime)) = #{searchMonth} AND totalpay.isPay=0
+				GROUP BY (SELECT MONTH(totalpay.payTime))
+			)
+			
+			UNION
+			
+			(
+				SELECT
+					'平台充值收费' AS moneyType, sum(recharge.totalCollection) AS sumMoney, (SELECT MONTH(recharge.rechargeDate)) AS payMonth
+				FROM t_sale_recharge recharge
+				WHERE (SELECT YEAR(recharge.rechargeDate)) = #{searchMonth}
+				GROUP BY (SELECT MONTH(recharge.rechargeDate))
+			)
+			
+			UNION
+			
+			(
+				SELECT '手机卡充值收费' AS moneyType, sum(phone.payable) AS sumMoney, (SELECT MONTH(phone.rechargeDate)) AS payMonth
+				FROM t_sale_recharge_phone phone
+				WHERE (SELECT YEAR(phone.rechargeDate)) = #{searchMonth}
+				GROUP BY (SELECT MONTH(phone.rechargeDate))
+			)
+			
+			UNION
+			
+			(
+				SELECT '物联网卡充值收费' AS moneyType, sum(wlwk.payable) AS sumMoney, (SELECT MONTH(wlwk.rechargeDate)) AS payMonth
+				FROM t_sale_recharge_wlwk wlwk
+				WHERE (SELECT YEAR(wlwk.rechargeDate)) = #{searchMonth}
+				GROUP BY (SELECT MONTH(wlwk.rechargeDate))
+			)
+
+			UNION
+			
+			(
+				SELECT b.moneyType AS moneyType, b.sumMoney AS sumMoney, b.payMonth AS payMonth FROM
+				(
+					SELECT t.moneyType AS moneyType, (t.sumMoney+x.sumMoney) AS sumMoney, t.payMonth AS payMonth FROM
+					(
+						SELECT '运费' AS moneyType, IFNULL(sum(totalpay.logCost),0) AS sumMoney, (SELECT MONTH(totalpay.payTime)) AS payMonth
+						FROM t_sale_workflow_totalpay AS totalpay
+						WHERE (SELECT YEAR(totalpay.payTime)) = #{searchMonth}
+						GROUP BY (SELECT MONTH(totalpay.payTime))
+					)t	
+					LEFT JOIN
+					(
+						SELECT '运费' AS moneyType, IFNULL(sum(xspj.logCost),0) AS sumMoney, (SELECT MONTH(xspj.payDate)) AS payMonth
+						FROM t_sale_xspjcosts xspj
+						WHERE xspj.repairNumber IS NULL AND (SELECT YEAR(xspj.payDate)) = #{searchMonth}
+						GROUP BY (SELECT MONTH(xspj.payDate))
+					)x
+					ON t.payMonth = x.payMonth
+					
+					UNION
+					
+					SELECT x.moneyType, (t.sumMoney+x.sumMoney) AS sumMoney, x.payMonth FROM
+					(
+						SELECT '运费' AS moneyType, IFNULL(sum(xspj.logCost),0) AS sumMoney, (SELECT MONTH(xspj.payDate)) AS payMonth
+						FROM t_sale_xspjcosts xspj
+						WHERE xspj.repairNumber IS NULL AND (SELECT YEAR(xspj.payDate)) = #{searchMonth}
+						GROUP BY (SELECT MONTH(xspj.payDate))
+					)x
+					LEFT JOIN 
+					(
+						SELECT '运费' AS moneyType, IFNULL(sum(totalpay.logCost),0) AS sumMoney, (SELECT MONTH(totalpay.payTime)) AS payMonth
+						FROM t_sale_workflow_totalpay AS totalpay
+						WHERE (SELECT YEAR(totalpay.payTime)) = #{searchMonth}
+						GROUP BY (SELECT MONTH(totalpay.payTime))
+						)t	
+					ON t.payMonth = x.payMonth
+				)b
+			)
+			
+			UNION
+			
+			(
+				SELECT c.moneyType AS moneyType, c.sumMoney AS sumMoney, c.payMonth AS payMonth FROM
+				(
+					SELECT t.moneyType AS moneyType, (t.sumMoney+x.sumMoney) AS sumMoney, t.payMonth AS payMonth FROM
+					(
+						SELECT '税费' AS moneyType, IFNULL(sum(totalpay.ratePrice),0) AS sumMoney, (SELECT MONTH(totalpay.payTime)) AS payMonth
+						FROM t_sale_workflow_totalpay AS totalpay
+						WHERE (SELECT YEAR(totalpay.payTime)) = #{searchMonth}
+						GROUP BY (SELECT MONTH(totalpay.payTime))
+					)t	
+					LEFT JOIN
+					(
+						SELECT '税费' AS moneyType, IFNULL(sum(xspj.ratePrice),0) AS sumMoney, (SELECT MONTH(xspj.payDate)) AS payMonth
+						FROM t_sale_xspjcosts xspj
+						WHERE xspj.repairNumber IS NULL AND (SELECT YEAR(xspj.payDate)) = #{searchMonth}
+						GROUP BY (SELECT MONTH(xspj.payDate))
+					)x
+					ON t.payMonth = x.payMonth
+					
+					UNION
+					
+					SELECT x.moneyType, (t.sumMoney+x.sumMoney) AS sumMoney, x.payMonth FROM
+					(
+						SELECT '税费' AS moneyType, IFNULL(sum(xspj.ratePrice),0) AS sumMoney, (SELECT MONTH(xspj.payDate)) AS payMonth
+						FROM t_sale_xspjcosts xspj
+						WHERE xspj.repairNumber IS NULL AND (SELECT YEAR(xspj.payDate)) = #{searchMonth}
+						GROUP BY (SELECT MONTH(xspj.payDate))
+					)x
+					LEFT JOIN 
+					(
+						SELECT '税费' AS moneyType, IFNULL(sum(totalpay.ratePrice),0) AS sumMoney, (SELECT MONTH(totalpay.payTime)) AS payMonth
+						FROM t_sale_workflow_totalpay AS totalpay
+						WHERE (SELECT YEAR(totalpay.payTime)) = #{searchMonth}
+						GROUP BY (SELECT MONTH(totalpay.payTime))
+						)t	
+					ON t.payMonth = x.payMonth
+				)c
+			)
+		)a 
+		WHERE a.sumMoney is NOT NULL  AND a.sumMoney &lt;&gt;0
+		order by a.payMonth, a.moneyType
+	</select> -->
+	
+		<!-- 新售后收费年报表 -->
+	<select id="getCollectFeesYearReportList" resultMap="queryList_resultMap" parameterType="CollectFeesReport">
+	SELECT r.payMonth, r.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge, tl.tlogCost, tr.tratePrice, xl.xlogCost, xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM 
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) r
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m')) m
+			ON r.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) c
+			ON r.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) p
+			ON r.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) w
+			ON r.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tl
+			ON r.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tr
+			ON r.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xl
+			ON r.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xr
+			ON r.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) po
+			ON r.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) wl
+			ON r.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) re
+			ON r.payTimes = re.payTimes
+	WHERE (SELECT YEAR(CONCAT(r.payTimes,'-01'))) = #{searchMonth}
+	UNION
+
+	SELECT m.payMonth, m.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM 
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m')) m
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) r
+			ON m.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) c
+			ON m.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) p
+			ON m.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) w
+			ON m.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tl
+			ON m.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tr
+			ON m.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xl
+			ON m.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xr
+			ON m.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) po
+			ON m.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) wl
+			ON m.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) re
+			ON m.payTimes = re.payTimes
+	WHERE (SELECT YEAR(CONCAT(m.payTimes,'-01'))) = #{searchMonth}
+	UNION
+
+	SELECT c.payMonth, c.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) c
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m')) m
+			ON c.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) r
+			ON c.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) p
+			ON c.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) w
+			ON c.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tl
+			ON c.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tr
+			ON c.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xl
+			ON c.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xr
+			ON c.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) po
+			ON c.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) wl
+			ON c.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) re
+			ON c.payTimes = re.payTimes
+	WHERE (SELECT YEAR(CONCAT(c.payTimes,'-01'))) = #{searchMonth}
+	UNION
+
+	SELECT p.payMonth, p.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) p
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m')) m
+			ON p.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) c
+			ON p.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) r
+			ON p.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) w
+			ON p.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tl
+			ON p.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tr
+			ON p.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xl
+			ON p.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xr
+			ON p.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) po
+			ON p.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) wl
+			ON p.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) re
+			ON p.payTimes = re.payTimes
+	WHERE (SELECT YEAR(CONCAT(p.payTimes,'-01'))) = #{searchMonth}
+	UNION
+
+	SELECT w.payMonth, w.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) w
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m')) m
+			ON w.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) c
+			ON w.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) p
+			ON w.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) r
+			ON w.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tl
+			ON w.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tr
+			ON w.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xl
+			ON w.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xr
+			ON w.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) po
+			ON w.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) wl
+			ON w.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) re
+			ON w.payTimes = re.payTimes
+	WHERE (SELECT YEAR(CONCAT(w.payTimes,'-01'))) = #{searchMonth}
+	UNION
+
+	SELECT tl.payMonth, tl.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tl
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m')) m
+			ON tl.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) c
+			ON tl.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) p
+			ON tl.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) w
+			ON tl.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) r
+			ON tl.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tr
+			ON tl.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xl
+			ON tl.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xr
+			ON tl.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) po
+			ON tl.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) wl
+			ON tl.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) re
+			ON tl.payTimes = re.payTimes
+	WHERE (SELECT YEAR(CONCAT(tl.payTimes,'-01'))) = #{searchMonth}
+	UNION
+
+	SELECT tr.payMonth, tr.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tr
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m')) m
+			ON tr.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) c
+			ON tr.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) p
+			ON tr.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) w
+			ON tr.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tl
+			ON tr.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) r
+			ON tr.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xl
+			ON tr.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xr
+			ON tr.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) po
+			ON tr.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) wl
+			ON tr.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) re
+			ON tr.payTimes = re.payTimes
+	WHERE (SELECT YEAR(CONCAT(tr.payTimes,'-01'))) = #{searchMonth}
+	UNION
+
+	SELECT xl.payMonth, xl.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xl
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m')) m
+			ON xl.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) c
+			ON xl.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) p
+			ON xl.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) w
+			ON xl.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tl
+			ON xl.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tr
+			ON xl.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) r
+			ON xl.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xr
+			ON xl.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) po
+			ON xl.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) wl
+			ON xl.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) re
+			ON xl.payTimes = re.payTimes
+	WHERE (SELECT YEAR(CONCAT(xl.payTimes,'-01'))) = #{searchMonth}
+	UNION
+
+	SELECT xr.payMonth, xr.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xr
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m')) m
+			ON xr.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) c
+			ON xr.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) p
+			ON xr.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) w
+			ON xr.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tl
+			ON xr.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tr
+			ON xr.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xl
+			ON xr.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) r
+			ON xr.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) po
+			ON xr.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) wl
+			ON xr.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) re
+			ON xr.payTimes = re.payTimes
+		WHERE (SELECT YEAR(CONCAT(xr.payTimes,'-01'))) = #{searchMonth}
+			UNION
+
+	SELECT re.payMonth, re.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) re
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xr
+			ON re.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m')) m
+			ON re.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) c
+			ON re.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) p
+			ON re.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) w
+			ON re.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tl
+			ON re.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tr
+			ON re.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xl
+			ON re.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) r
+			ON re.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) po
+			ON re.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) wl
+			ON re.payTimes = wl.payTimes
+		WHERE (SELECT YEAR(CONCAT(re.payTimes,'-01'))) = #{searchMonth}
+			UNION
+
+	SELECT po.payMonth, po.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) po
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xr
+			ON po.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m')) m
+			ON po.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) c
+			ON po.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) p
+			ON po.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) w
+			ON po.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tl
+			ON po.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tr
+			ON po.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xl
+			ON po.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) r
+			ON po.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) wl
+			ON po.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) re
+			ON po.payTimes = re.payTimes
+		WHERE (SELECT YEAR(CONCAT(po.payTimes,'-01'))) = #{searchMonth}
+			UNION
+
+	SELECT wl.payMonth, wl.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) wl
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xr
+			ON wl.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m')) m
+			ON wl.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) c
+			ON wl.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) p
+			ON wl.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%m') AS payMonth,date_format(wlwk.rechargeDate,'%Y-%m') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m')) w
+			ON wl.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tl
+			ON wl.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) tr
+			ON wl.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%m') AS payMonth,date_format(xspj.payDate,'%Y-%m') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m')) xl
+			ON wl.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%m') AS payMonth,date_format(totalpay.payTime,'%Y-%m') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m')) r
+			ON wl.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%m') AS payMonth,date_format(phone.rechargeDate,'%Y-%m') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m')) po
+			ON wl.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%m') AS payMonth,date_format(recharge.rechargeDate,'%Y-%m') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m')) re
+			ON wl.payTimes = re.payTimes
+		WHERE (SELECT YEAR(CONCAT(wl.payTimes,'-01'))) = #{searchMonth}
+	GROUP BY payMonth
+	ORDER BY payMonth
+	</select>
+	
+	<!-- 售后收费月报表 -->
+	<select id="getCollectFeesReportList" resultMap="queryList_resultMap" parameterType="CollectFeesReport">
+	SELECT r.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) r
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) m
+			ON r.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) c
+			ON r.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) p
+			ON r.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) w
+			ON r.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tl
+			ON r.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tr
+			ON r.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xl
+			ON r.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xr
+			ON r.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) po
+			ON r.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) wl
+			ON r.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) re
+			ON r.payTimes = re.payTimes
+	WHERE (SELECT YEAR(r.payTimes)) = (SELECT YEAR(CONCAT(#{searchTime},'-01'))) AND (SELECT MONTH(r.payTimes)) = (SELECT MONTH(CONCAT(#{searchTime},'-01')))
+
+	UNION
+
+	SELECT m.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) m
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) r
+			ON m.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) c
+			ON m.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) p
+			ON m.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) w
+			ON m.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tl
+			ON m.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tr
+			ON m.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xl
+			ON m.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xr
+			ON m.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) po
+			ON m.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) wl
+			ON m.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) re
+			ON m.payTimes = re.payTimes
+	WHERE (SELECT YEAR(m.payTimes)) = (SELECT YEAR(CONCAT(#{searchTime},'-01'))) AND (SELECT MONTH(m.payTimes)) = (SELECT MONTH(CONCAT(#{searchTime},'-01')))
+
+	UNION
+
+	SELECT c.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) c
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) m
+			ON c.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) r
+			ON c.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) p
+			ON c.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) w
+			ON c.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tl
+			ON c.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tr
+			ON c.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xl
+			ON c.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xr
+			ON c.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) po
+			ON c.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) wl
+			ON c.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) re
+			ON c.payTimes = re.payTimes
+	WHERE (SELECT YEAR(c.payTimes)) = (SELECT YEAR(CONCAT(#{searchTime},'-01'))) AND (SELECT MONTH(c.payTimes)) = (SELECT MONTH(CONCAT(#{searchTime},'-01')))
+
+	UNION
+
+	SELECT p.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) p
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) m
+			ON p.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) c
+			ON p.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) r
+			ON p.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) w
+			ON p.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tl
+			ON p.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tr
+			ON p.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xl
+			ON p.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xr
+			ON p.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) po
+			ON p.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) wl
+			ON p.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) re
+			ON p.payTimes = re.payTimes
+	WHERE (SELECT YEAR(p.payTimes)) = (SELECT YEAR(CONCAT(#{searchTime},'-01'))) AND (SELECT MONTH(p.payTimes)) = (SELECT MONTH(CONCAT(#{searchTime},'-01')))
+
+	UNION
+
+	SELECT w.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) w
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) m
+			ON w.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) c
+			ON w.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) p
+			ON w.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) r
+			ON w.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tl
+			ON w.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tr
+			ON w.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xl
+			ON w.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xr
+			ON w.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) po
+			ON w.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) wl
+			ON w.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) re
+			ON w.payTimes = re.payTimes
+	WHERE (SELECT YEAR(w.payTimes)) = (SELECT YEAR(CONCAT(#{searchTime},'-01'))) AND (SELECT MONTH(w.payTimes)) = (SELECT MONTH(CONCAT(#{searchTime},'-01')))
+
+	UNION
+
+	SELECT tl.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tl
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) m
+			ON tl.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) c
+			ON tl.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) p
+			ON tl.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) w
+			ON tl.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) r
+			ON tl.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tr
+			ON tl.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xl
+			ON tl.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xr
+			ON tl.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) po
+			ON tl.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) wl
+			ON tl.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) re
+			ON tl.payTimes = re.payTimes
+	WHERE (SELECT YEAR(tl.payTimes)) = (SELECT YEAR(CONCAT(#{searchTime},'-01'))) AND (SELECT MONTH(tl.payTimes)) = (SELECT MONTH(CONCAT(#{searchTime},'-01')))
+
+	UNION
+
+	SELECT tr.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tr
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) m
+			ON tr.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) c
+			ON tr.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) p
+			ON tr.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) w
+			ON tr.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tl
+			ON tr.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) r
+			ON tr.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xl
+			ON tr.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xr
+			ON tr.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) po
+			ON tr.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) wl
+			ON tr.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) re
+			ON tr.payTimes = re.payTimes
+	WHERE (SELECT YEAR(tr.payTimes)) = (SELECT YEAR(CONCAT(#{searchTime},'-01'))) AND (SELECT MONTH(tr.payTimes)) = (SELECT MONTH(CONCAT(#{searchTime},'-01')))
+
+	UNION
+
+	SELECT xl.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xl
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) m
+			ON xl.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) c
+			ON xl.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) p
+			ON xl.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) w
+			ON xl.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tl
+			ON xl.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tr
+			ON xl.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) r
+			ON xl.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xr
+			ON xl.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) po
+			ON xl.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) wl
+			ON xl.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) re
+			ON xl.payTimes = re.payTimes
+	WHERE (SELECT YEAR(xl.payTimes)) = (SELECT YEAR(CONCAT(#{searchTime},'-01'))) AND (SELECT MONTH(xl.payTimes)) = (SELECT MONTH(CONCAT(#{searchTime},'-01')))
+
+	UNION
+
+	SELECT xr.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xr
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) m
+			ON xr.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) c
+			ON xr.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) p
+			ON xr.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) w
+			ON xr.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tl
+			ON xr.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tr
+			ON xr.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xl
+			ON xr.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) r
+			ON xr.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) po
+			ON xr.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) wl
+			ON xr.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) re
+			ON xr.payTimes = re.payTimes
+		WHERE (SELECT YEAR(xr.payTimes)) = (SELECT YEAR(CONCAT(#{searchTime},'-01'))) AND (SELECT MONTH(xr.payTimes)) = (SELECT MONTH(CONCAT(#{searchTime},'-01')))
+		
+		
+		
+	UNION
+
+	SELECT po.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) po
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xr
+			ON po.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) m
+			ON po.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) c
+			ON po.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) p
+			ON po.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) w
+			ON po.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tl
+			ON po.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tr
+			ON po.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xl
+			ON po.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) r
+			ON po.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) wl
+			ON po.payTimes = wl.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) re
+			ON po.payTimes = re.payTimes
+		WHERE (SELECT YEAR(po.payTimes)) = (SELECT YEAR(CONCAT(#{searchTime},'-01'))) AND (SELECT MONTH(po.payTimes)) = (SELECT MONTH(CONCAT(#{searchTime},'-01')))
+		
+		
+	UNION
+
+	SELECT wl.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) wl
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xr
+			ON wl.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) m
+			ON wl.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) c
+			ON wl.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) p
+			ON wl.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) w
+			ON wl.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tl
+			ON wl.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tr
+			ON wl.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xl
+			ON wl.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) r
+			ON wl.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) po
+			ON wl.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) re
+			ON wl.payTimes = re.payTimes
+		WHERE (SELECT YEAR(wl.payTimes)) = (SELECT YEAR(CONCAT(#{searchTime},'-01'))) AND (SELECT MONTH(wl.payTimes)) = (SELECT MONTH(CONCAT(#{searchTime},'-01')))
+		
+		
+	UNION
+
+	SELECT re.payTimes, r.repairPay, m.materialPay, c.rechargePay, p.phoneRecharge, w.wlwkRecharge,tl.tlogCost,tr.tratePrice,xl.xlogCost,xr.xratePrice, po.phoneRatePrice, wl.wlwkRatePrice, re.reRatePrice FROM
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.ratePrice) AS reRatePrice FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) re
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.ratePrice) AS xratePrice FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xr
+			ON re.payTimes = xr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.payPrice) AS materialPay FROM t_sale_xspjcosts xspj GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) m
+			ON re.payTimes = m.payTimes
+			LEFT JOIN
+			(SELECT date_format(recharge.rechargeDate,'%Y-%m-%d') AS payTimes,sum(recharge.totalCollection) AS rechargePay FROM t_sale_recharge recharge GROUP BY date_format(recharge.rechargeDate,'%Y-%m-%d')) c
+			ON re.payTimes = c.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.payable) AS phoneRecharge FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) p
+			ON re.payTimes = p.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.payable) AS wlwkRecharge FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) w
+			ON re.payTimes = w.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.logCost) AS tlogCost FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tl
+			ON re.payTimes = tl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.ratePrice) AS tratePrice FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) tr
+			ON re.payTimes = tr.payTimes
+			LEFT JOIN
+			(SELECT date_format(xspj.payDate,'%Y-%m-%d') AS payTimes,sum(xspj.logCost) AS xlogCost FROM t_sale_xspjcosts xspj WHERE xspj.repairNumber IS NULL GROUP BY date_format(xspj.payDate,'%Y-%m-%d')) xl
+			ON re.payTimes = xl.payTimes
+			LEFT JOIN
+			(SELECT date_format(totalpay.payTime,'%Y-%m-%d') AS payTimes,sum(totalpay.repairMoney) AS repairPay FROM t_sale_workflow_totalpay totalpay WHERE totalpay.isPay=0 GROUP BY date_format(totalpay.payTime,'%Y-%m-%d')) r
+			ON re.payTimes = r.payTimes
+			LEFT JOIN
+			(SELECT date_format(phone.rechargeDate,'%Y-%m-%d') AS payTimes,sum(phone.ratePrice) AS phoneRatePrice FROM t_sale_recharge_phone phone GROUP BY date_format(phone.rechargeDate,'%Y-%m-%d')) po
+			ON re.payTimes = po.payTimes
+			LEFT JOIN
+			(SELECT date_format(wlwk.rechargeDate,'%Y-%m-%d') AS payTimes,sum(wlwk.ratePrice) AS wlwkRatePrice FROM t_sale_recharge_wlwk wlwk GROUP BY date_format(wlwk.rechargeDate,'%Y-%m-%d')) wl
+			ON re.payTimes = wl.payTimes
+		WHERE (SELECT YEAR(re.payTimes)) = (SELECT YEAR(CONCAT(#{searchTime},'-01'))) AND (SELECT MONTH(re.payTimes)) = (SELECT MONTH(CONCAT(#{searchTime},'-01')))
+	ORDER BY payTimes
+	</select>
+</mapper>

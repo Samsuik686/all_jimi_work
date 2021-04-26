@@ -1,0 +1,1035 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.HwmReportMapper">
+
+	<resultMap id="queryList_resultMap" type="HwmReport"></resultMap>
+
+	<resultMap id="queryDateList_resultMap" type="DateReport"></resultMap>
+
+	<select id="getReceiveList" resultMap="queryDateList_resultMap"
+		parameterType="DateReport">
+		SELECT
+		v.model as model,
+		cast(GROUP_CONCAT(v.days,'-',v.num ORDER BY v.days) as char) as
+		daysNum,
+		SUM(v.num) AS totalNum
+		FROM
+		(select tz.model AS
+		model,count(tw.xhId) AS
+		num,date_format(tw.acceptanceTime,'%d') AS days
+		from (t_sale_workflow as tw left join t_sale_zbxhmanage as tz
+		on((tz.mId =
+		tw.xhId)))
+		<where>
+			AND date_format(tw.acceptanceTime,'%Y-%m') = #{dateTime}
+			<if test="model != null and model != ''">
+				AND tz.model like concat('%','${model}','%')
+			</if>
+			<if test="startTime != null and startTime != ''">
+				AND date_format(tw.acceptanceTime,'%Y-%m-%d') &gt;= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND date_format(tw.acceptanceTime,'%Y-%m-%d') &lt;= #{endTime}
+			</if>
+		</where>
+		 
+		group by tz.model,date_format(tw.acceptanceTime,'%d')) v
+		GROUP BY v.model ORDER BY v.days
+	</select>
+	
+	<select id="getReceiveYearList" resultMap="queryDateList_resultMap"
+		parameterType="DateReport">
+		SELECT
+		v.model as model,
+		cast(GROUP_CONCAT(v.days,'-',v.num ORDER BY v.days) as char) as
+		daysNum,
+		SUM(v.num) AS totalNum
+		FROM
+		(select tz.model AS
+		model,count(tw.xhId) AS
+		num,date_format(tw.acceptanceTime,'%m') AS days
+		from (t_sale_workflow as tw left join t_sale_zbxhmanage as tz
+		on((tz.mId =
+		tw.xhId))) 
+		<where>
+			AND  date_format(tw.acceptanceTime,'%Y') =#{dateTime}
+			<if test="model != null and model != ''">
+				AND tz.model like concat('%','${model}','%')
+			</if>
+			<if test="startTime != null and startTime != ''">
+				AND date_format(tw.acceptanceTime,'%Y-%m-%d') &gt;= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND date_format(tw.acceptanceTime,'%Y-%m-%d') &lt;= #{endTime}
+			</if>
+		</where>
+		group by tz.model,date_format(tw.acceptanceTime,'%m')) v
+		GROUP BY v.model ORDER BY v.days
+	</select>
+	
+	<select id="getDeliverList" resultMap="queryDateList_resultMap"
+		parameterType="DateReport">
+		SELECT v.model as model,
+		CAST(GROUP_CONCAT(v.days,'-',v.num ORDER BY v.days) as char) as
+		daysNum,
+		SUM(v.num) AS totalNum
+		FROM
+		(SELECT
+		 z.model as model,
+		count(w.id) AS num,
+		date_format(wp.packTime,'%d') AS days
+		FROM
+		(t_sale_workflow w
+		INNER
+		JOIN t_sale_workflow_pack wp ON wp.repairnNmber = w.repairnNmber
+		LEFT JOIN t_sale_zbxhmanage z
+		ON w.xhId = z.mId)
+		<where>
+			AND date_format(wp.packTime,'%Y-%m') = #{dateTime}
+			AND w.state = -1
+			<if test="model != null and model != ''">
+				AND z.model like concat('%','${model}','%')
+			</if>
+			<if test="startTime != null and startTime != ''">
+				AND date_format(wp.packTime,'%Y-%m-%d') &gt;= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND date_format(wp.packTime,'%Y-%m-%d') &lt;= #{endTime}
+			</if>
+		</where>		
+		group by z.model,date_format(wp.packTime,'%d') ORDER BY days) v
+		GROUP BY
+		v.model ORDER BY v.days
+	</select>
+	
+	<select id="getDeliverYearList" resultMap="queryDateList_resultMap"
+		parameterType="DateReport">
+		SELECT v.model as model,
+		CAST(GROUP_CONCAT(v.days,'-',v.num ORDER BY v.days) as char) as
+		daysNum,
+		SUM(v.num) AS totalNum
+		FROM
+		(SELECT
+		z.model as model,
+		count(w.id) AS num,
+		date_format(wp.packTime,'%m') AS days
+		FROM
+		(t_sale_workflow w
+		INNER
+		JOIN t_sale_workflow_pack wp ON wp.repairnNmber = w.repairnNmber
+		LEFT JOIN t_sale_zbxhmanage z
+		ON w.xhId = z.mId)
+		<where>
+			AND  date_format(wp.packTime,'%Y') = #{dateTime}
+			AND w.state = -1
+			<if test="model != null and model != ''">
+				AND z.model like concat('%','${model}','%')
+			</if>
+			<if test="startTime != null and startTime != ''">
+				AND date_format(wp.packTime,'%Y-%m-%d') &gt;= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				AND date_format(wp.packTime,'%Y-%m-%d') &lt;= #{endTime}
+			</if>
+		</where>
+		group by z.model,date_format(wp.packTime,'%m') ORDER BY days) v
+		GROUP BY
+		v.model ORDER BY v.days
+	</select>
+
+	<select id="getClassifyModelList" resultMap="queryList_resultMap"
+		parameterType="HwmReport">
+		SELECT
+		sz.model,
+		count(sz.model) as 'usage'
+		FROM
+		t_sale_workflow sw
+		LEFT JOIN t_sale_zbxhmanage sz ON sz.mId = sw.xhId
+		<where>
+<!-- 			sw.state = -1 -->
+			<if test="startTime != null and startTime != ''">
+				and date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				and date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{endTime}
+			</if>
+			<if test="isWarranty != null and isWarranty != '' ">
+				and sw.isWarranty = #{isWarranty}
+			</if>
+			AND sz.model IS NOT NULL
+		</where>
+		group BY sz.model
+		ORDER BY count(sz.model) DESC
+	</select>
+	
+	<select id="getClassifyModelTotal" resultType="Long"
+		parameterType="HwmReport">
+		SELECT
+		count(sz.model) as 'usage'
+		FROM
+		t_sale_workflow sw
+		LEFT JOIN t_sale_zbxhmanage sz ON sz.mId = sw.xhId
+		<where>
+<!-- 			sw.state = -1 -->
+			<if test="startTime != null and startTime != ''">
+				and date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				and date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{endTime}
+			</if>
+			<if test="isWarranty != null and isWarranty != '' ">
+				and sw.isWarranty = #{isWarranty}
+			</if>
+			AND sz.model IS NOT NULL
+		</where>
+	</select>
+	<!-- 超天未完成 老-->
+	<select id="getTimeoutAcceptList" resultMap="queryList_resultMap"
+		parameterType="HwmReport">
+		SELECT
+		sw.id,
+		ss.cusName,
+		sz.model,
+		sw.imei,
+		sw.repairnNmber,
+		sw.acceptanceTime,
+		sw.state,
+		sw.accepter,
+		sw.remark,
+		sw.dutyOfficer,
+		sw.timeoutRemark,
+		sw.timeoutReason,
+		swp.packer,
+		swf.finChecker,
+		swf.finDesc,
+		swr.engineer,
+		swr.repairRemark,
+		swf.finDesc As finRemark,
+		swpe.onePriceRemark As onePriceRemark,
+		swpe.offer,
+		swp.packTime
+		FROM
+		t_sale_workflow AS sw
+		LEFT JOIN t_sale_sxdwmanage AS ss ON sw.sxdwId = ss.cId
+		LEFT JOIN t_sale_zbxhmanage AS sz ON sw.xhId = sz.mId
+		LEFT JOIN t_sale_workflow_pack AS swp ON swp.repairnNmber = sw.repairnNmber
+		LEFT JOIN t_sale_workflow_ficheck AS swf ON swf.wfId = sw.id
+		LEFT JOIN t_sale_workflow_repair AS swr ON swr.wfId = sw.id
+		LEFT JOIN t_sale_workflow_price AS swpe ON swpe.wfId = sw.id
+		<where>
+			sw.customerStatus = 'normal' <!-- 无名件不算入 -->
+			 <if test="cusName != null and cusName != ''"> and ss.cusName like concat('%', '${cusName}', '%') </if>
+			 <if test="repairnNmber != null and repairnNmber != ''"> and sw.repairnNmber = #{repairnNmber}</if>
+			<!-- <if test="timeoutState != null and timeoutState == 1"> and sw.state &lt;&gt; -1</if>
+			<choose> -->
+				<if test="(timeoutState != null and timeoutState == 2 ) or (repairNumberState != null and repairNumberState == 21)">
+	            	and sw.state = -1
+	            </if>
+	            <if test="timeoutState != null and timeoutState == 0 and repairNumberState != null and repairNumberState !='' and repairNumberState == 20">
+	           		and sw.state = 0
+	            </if>
+	            <if test="timeoutState != null and timeoutState == 1 and repairNumberState != null and repairNumberState !='' and repairNumberState == 0">
+	           		and sw.state &lt;&gt; -1
+	            </if>
+	            <if test="timeoutState != null and timeoutState == 1 and repairNumberState != null and repairNumberState !='' and repairNumberState != 0">
+	           	 	and sw.state = #{repairNumberState}
+	            </if>
+       		<!-- </choose>  -->
+
+	       	<if test ="treeDate != null and treeDate != '' ">AND date_format(sw.acceptanceTime,'%Y-%m-%d') = #{treeDate}</if>
+			<if test="startTime != null and startTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{startTime}</if>
+			<if test="endTime != null and endTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{endTime}</if>
+			AND ( (
+					(HOUR(sw.acceptanceTime) &gt; 12 AND DAYOFWEEK(sw.acceptanceTime) &lt;= 3 AND (((packTime IS NULL AND DATEDIFF(IF((HOUR(NOW()) &gt;= 18), (date_add(NOW(), interval 8 hour)), NOW()), sw.acceptanceTime) &gt;= 4) OR (packTime IS NOT NULL AND DATEDIFF(packTime,sw.acceptanceTime) &gt;= 4) ) ) )
+					OR
+					( HOUR(sw.acceptanceTime) &gt; 12 AND DAYOFWEEK(sw.acceptanceTime) &gt; 3 AND (packTime IS NULL AND DATEDIFF(IF((HOUR(NOW()) &gt;= 18), (date_add(NOW(), interval 8 hour)), NOW()), sw.acceptanceTime) &gt; 5) OR (packTime IS NOT NULL AND DATEDIFF(packTime,sw.acceptanceTime) &gt; 5) )
+				 )
+				  OR
+				 (
+				 	(HOUR(sw.acceptanceTime) &lt;= 12 AND DAYOFWEEK(sw.acceptanceTime) &lt;= 3 AND ((packTime IS NULL AND DATEDIFF(IF((HOUR(NOW()) &gt;= 18), (date_add(NOW(), interval 8 hour)), NOW()), sw.acceptanceTime) &gt;= 3) OR (packTime IS NOT NULL AND DATEDIFF(packTime,sw.acceptanceTime) &gt;= 3) ) )
+					OR
+					(HOUR(sw.acceptanceTime) &lt;= 12 AND DAYOFWEEK(sw.acceptanceTime) &gt; 3 AND ((packTime IS NULL AND DATEDIFF(IF((HOUR(NOW()) &gt;= 18), (date_add(NOW(), interval 8 hour)), NOW()), sw.acceptanceTime) &gt; 4) OR (packTime IS NOT NULL AND DATEDIFF(packTime,sw.acceptanceTime) &gt; 4) ) )
+				 )
+			 )
+			<!--  AND sw.state &lt;&gt; -1 -->
+		</where>
+		ORDER BY sw.acceptanceTime desc
+	</select>
+	<!-- 超天未完成 新-->
+	<select id="getAllTimeoutAcceptList" resultMap="queryList_resultMap"
+			parameterType="HwmReport">SELECT
+		sw.id,
+		ss.cusName,
+		sz.model,
+		sw.imei,
+		sw.repairnNmber,
+		sw.acceptanceTime,
+		sw.sendPackTime,
+		sw.state,
+		sw.accepter,
+		sw.remark,
+		sw.dutyOfficer,
+		sw.timeoutRemark,
+		sw.timeoutReason,
+		sw.timeoutDays,
+		sw.backTime timeoutBackTime,
+		swp.packer,
+		swf.finChecker,
+		swf.finDesc,
+		swf.createTime as sendFicheckTime,
+		swr.engineer,
+		swr.repairRemark,
+		swf.finDesc As finRemark,
+		swpe.onePriceRemark As onePriceRemark,
+		swpe.offer,
+		swp.packTime,
+		tswt.payTime,
+		swpe.createTime as sendPriceTime
+		FROM
+		t_sale_workflow AS sw
+		LEFT JOIN t_sale_sxdwmanage AS ss ON sw.sxdwId = ss.cId
+		LEFT JOIN t_sale_zbxhmanage AS sz ON sw.xhId = sz.mId
+		LEFT JOIN t_sale_workflow_pack AS swp ON swp.repairnNmber = sw.repairnNmber
+		LEFT JOIN t_sale_workflow_ficheck AS swf ON swf.wfId = sw.id
+		LEFT JOIN t_sale_workflow_repair AS swr ON swr.wfId = sw.id
+		LEFT JOIN t_sale_workflow_price AS swpe ON swpe.wfId = sw.id
+		LEFT JOIN t_sale_workflow_test AS swt ON sw.id = swt.wfId
+		LEFT JOIN t_sale_workflow_totalpay AS tswt ON (sw.repairnNmber = tswt.repairNumber AND tswt.payTime is not null)
+		<where><!-- 无名件不算入 -->
+			sw.customerStatus = 'normal' AND sw.timeoutDays > 0
+			<!-- imei-->
+			<if test="po.imei != null and po.imei!=''">
+				AND sw.imei = #{po.imei}
+			</if>
+			<!-- 送修单位 -->
+			<if test="po.cusName != null and po.cusName != ''">
+				AND	ss.cusName like concat('%', '${po.cusName}', '%')
+			</if>
+			<!-- 送修批次-->
+			<if test="po.repairnNmber != null and po.repairnNmber != ''"> and sw.repairnNmber = #{po.repairnNmber}</if>
+			<!-- 状态 -->
+			<choose>
+				<!-- 未完成。未发送到装箱工站或者到了装箱工站没有填写超期原因的-->
+				<when test="po.timeoutState == 1">
+					AND (sw.sendPackTime is null OR sw.timeoutReason is null)
+				</when>
+				<!-- 已完成 到了装箱工站并且填写了超期原因-->
+				<when test="po.timeoutState == 2">
+					AND (sw.sendPackTime is not null AND sw.timeoutReason is not null)
+				</when>
+			</choose>
+			<!-- 工站 -->
+			<choose>
+				<when test="po.workStation == 1"><!-- 受理 -->
+					AND sw.state IN(0,17)
+				</when>
+				<when test="po.workStation == 2"><!-- 分拣 -->
+					AND sw.state IN(1,18)
+				</when>
+				<when test="po.workStation == 3"><!-- 维修-->
+					AND (
+					sw.state IN(2,5,10,11,12,16)
+					OR (sw.state=4 AND swpe.priceState = -1)
+					OR (sw.state=6 AND swf.state = -1)
+					OR (sw.state=8 AND sw.machina_in_pack !='Y')
+					)
+				</when>
+				<when test="po.workStation == 4"><!--报价-->
+					AND (sw.state IN(3,9,14) OR (sw.state = 4 AND swr.repairState=-1))
+				</when>
+				<when test="po.workStation == 5"><!-- 终检-->
+					AND (
+					sw.state =13
+					OR (sw.state = 6 AND swr.repairState=-1)
+					OR (sw.state = 7 AND sw.machina_in_pack !='Y')
+					)
+				</when>
+				<when test="po.workStation == 6">
+					AND sw.state IN(15,19)
+				</when>
+				<when test="po.workStation == 7">
+					AND sw.sendPackTime is not null
+				</when>
+			</choose>
+			<!-- 进度 -->
+			<if test="po.repairNumberState != null" >
+				and sw.state = #{po.repairNumberState}
+			</if>
+			<!-- 维修人员 -->
+			<if test="po.engineer != null and po.engineer != ''">
+				AND swr.engineer = #{po.engineer}
+			</if>
+			<!-- 侧边栏日期 -->
+			<if test ="po.treeDate != null and po.treeDate != '' ">AND date_format(sw.acceptanceTime,'%Y-%m-%d') = #{
+				po.treeDate}</if>
+			<!-- 开始时间 -->
+			<if test="po.startTime != null and po.startTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{
+				po.startTime}</if>
+			<!-- 结束时间 -->
+			<if test="po.endTime != null and po.endTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{
+				po.endTime}</if>
+			<!-- 超期原因 全部/未填/已填-->
+			<choose>
+				<!-- 未填 -->
+				<when test="po.timeoutReasonState == 0">
+					AND (sw.timeoutReason is null OR sw.timeoutReason ='无')
+				</when>
+				<!-- 已填-->
+				<when test="po.timeoutReasonState == 1">
+					AND (sw.timeoutReason is not null AND sw.timeoutReason != '无')
+				</when>
+			</choose>
+		</where>
+		ORDER BY sw.acceptanceTime asc
+	</select>
+	<select id="getAllTimeoutAcceptPage" resultMap="queryList_resultMap" parameterType="HwmReport">
+		SELECT
+		sw.id,
+		ss.cusName,
+		sz.model,
+		sw.imei,
+		sw.repairnNmber,
+		sw.acceptanceTime,
+		sw.state,
+		sw.accepter,
+		sw.remark,
+		sw.dutyOfficer,
+		sw.timeoutRemark,
+		sw.timeoutReason,
+		sw.timeoutDays,
+		sw.backTime timeoutBackTime,
+		swp.packer,
+		swf.finChecker,
+		swf.finDesc,
+		swf.createTime as sendFicheckTime,
+		swr.engineer,
+		swr.repairRemark,
+		swf.finDesc As finRemark,
+		swpe.onePriceRemark As onePriceRemark,
+		swpe.offer,
+		swp.packTime,
+		tswt.payTime,
+		swpe.createTime as sendPriceTime
+		FROM
+		t_sale_workflow AS sw
+		LEFT JOIN t_sale_sxdwmanage AS ss ON sw.sxdwId = ss.cId
+		LEFT JOIN t_sale_zbxhmanage AS sz ON sw.xhId = sz.mId
+		LEFT JOIN t_sale_workflow_pack AS swp ON swp.repairnNmber = sw.repairnNmber
+		LEFT JOIN t_sale_workflow_ficheck AS swf ON swf.wfId = sw.id
+		LEFT JOIN t_sale_workflow_repair AS swr ON swr.wfId = sw.id
+		LEFT JOIN t_sale_workflow_price AS swpe ON swpe.wfId = sw.id
+		LEFT JOIN t_sale_workflow_test AS swt ON sw.id = swt.wfId
+		LEFT JOIN t_sale_workflow_totalpay AS tswt ON (sw.repairnNmber = tswt.repairNumber AND tswt.payTime is not null)
+		<where><!-- 无名件不算入 -->
+			sw.customerStatus = 'normal' AND sw.timeoutDays > 0
+			<!-- imei-->
+			<if test="po.imei != null and po.imei!=''">
+				AND sw.imei = #{po.imei}
+			</if>
+			<!-- 送修单位 -->
+			<if test="po.cusName != null and po.cusName != ''">
+			AND	ss.cusName like concat('%', '${po.cusName}', '%')
+			</if>
+			<!-- 送修批次-->
+			<if test="po.repairnNmber != null and po.repairnNmber != ''"> and sw.repairnNmber = #{po.repairnNmber}</if>
+			<!-- 状态 -->
+			<choose>
+				<!-- 未完成。未发送到装箱工站或者到了装箱工站没有填写超期原因的-->
+				<when test="po.timeoutState == 1">
+					AND (sw.sendPackTime is null OR sw.timeoutReason is null)
+				</when>
+				<!-- 已完成 到了装箱工站并且填写了超期原因-->
+				<when test="po.timeoutState == 2">
+					AND (sw.sendPackTime is not null AND sw.timeoutReason is not null)
+				</when>
+			</choose>
+			<!-- 工站 -->
+			<choose>
+				<when test="po.workStation == 1"><!-- 受理 -->
+					AND sw.state IN(0,17)
+				</when>
+				<when test="po.workStation == 2"><!-- 分拣 -->
+					AND sw.state IN(1,18)
+				</when>
+				<when test="po.workStation == 3"><!-- 维修-->
+					AND (
+					sw.state IN(2,5,10,11,12,16)
+					OR (sw.state=4 AND swpe.priceState = -1)
+					OR (sw.state=6 AND swf.state = -1)
+					OR (sw.state=8 AND sw.machina_in_pack !='Y')
+					)
+				</when>
+				<when test="po.workStation == 4"><!--报价-->
+					AND (sw.state IN(3,9,14) OR (sw.state = 4 AND swr.repairState=-1))
+				</when>
+				<when test="po.workStation == 5"><!-- 终检-->
+					AND (
+					sw.state =13
+					OR (sw.state = 6 AND swr.repairState=-1)
+					OR (sw.state = 7 AND sw.machina_in_pack !='Y')
+					)
+				</when>
+				<when test="po.workStation == 6">
+					AND sw.state IN(15,19)
+				</when>
+				<when test="po.workStation == 7">
+					AND sw.sendPackTime is not null
+				</when>
+			</choose>
+			<!-- 进度 -->
+			<if test="po.repairNumberState != null" >
+				and sw.state = #{po.repairNumberState}
+			</if>
+			<!-- 维修人员 -->
+			<if test="po.engineer != null and po.engineer != ''">
+				AND swr.engineer = #{po.engineer}
+			</if>
+			<!-- 侧边栏日期 -->
+			<if test ="po.treeDate != null and po.treeDate != '' ">AND date_format(sw.acceptanceTime,'%Y-%m-%d') = #{
+				po.treeDate}</if>
+			<!-- 开始时间 -->
+			<if test="po.startTime != null and po.startTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{
+				po.startTime}</if>
+			<!-- 结束时间 -->
+			<if test="po.endTime != null and po.endTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{
+				po.endTime}</if>
+			<!-- 超期原因 全部/未填/已填-->
+			<choose>
+				<!-- 未填 -->
+				<when test="po.timeoutReasonState == 0">
+					AND (sw.timeoutReason is null OR sw.timeoutReason ='无')
+				</when>
+				<!-- 已填-->
+				<when test="po.timeoutReasonState == 1">
+					AND (sw.timeoutReason is not null AND sw.timeoutReason != '无')
+				</when>
+			</choose>
+		</where>
+		ORDER BY sw.acceptanceTime asc
+	</select>
+
+	<select id="getTimeoutAcceptListPage" resultMap="queryList_resultMap"
+		parameterType="HwmReport">
+		SELECT
+		sw.id,
+		ss.cusName,
+		sz.model,
+		sw.imei,
+		sw.repairnNmber,
+		sw.acceptanceTime,
+		sw.state,
+		sw.accepter,
+		sw.remark,
+		sw.dutyOfficer,
+		sw.timeoutRemark,
+		sw.timeoutReason,
+		swp.packer,
+		swp.packTime,
+		swf.finChecker,
+		swf.finDesc,
+		swr.engineer,
+		swr.repairRemark,
+		swf.finDesc As finRemark,
+		swpe.onePriceRemark As onePriceRemark,
+		swpe.offer
+		FROM
+		t_sale_workflow AS sw
+		LEFT JOIN t_sale_sxdwmanage AS ss ON sw.sxdwId = ss.cId
+		LEFT JOIN t_sale_zbxhmanage AS sz ON sw.xhId = sz.mId
+		LEFT JOIN t_sale_workflow_pack AS swp ON swp.repairnNmber = sw.repairnNmber
+		LEFT JOIN t_sale_workflow_ficheck AS swf ON swf.wfId = sw.id
+		LEFT JOIN t_sale_workflow_repair AS swr ON swr.wfId = sw.id
+		LEFT JOIN t_sale_workflow_price AS swpe ON swpe.wfId = sw.id
+		<where>
+			sw.customerStatus = 'normal' <!-- 无名件不算入 -->
+			<if test="po.imei != null and po.imei != ''"> and sw.imei = #{po.imei} </if>
+			<if test="po.cusName != null and po.cusName != ''"> and ss.cusName like concat('%', '${po.cusName}', '%') </if>
+		 	<if test="po.repairnNmber != null and po.repairnNmber != ''"> and sw.repairnNmber = #{po.repairnNmber}</if>
+			<if test="(po.timeoutState != null and po.timeoutState == 2 ) or (po.repairNumberState != null and po.repairNumberState == 21)"> 
+            	and sw.state = -1 
+            </if> 
+            <if test="po.timeoutState != null and po.timeoutState == 0 and po.repairNumberState != null and po.repairNumberState == 20"> 
+            	and sw.state = 0 
+            </if>
+            <if test="po.timeoutState != null and po.timeoutState == 1 and po.repairNumberState != null and po.repairNumberState !='' and po.repairNumberState == 0"> 
+           		and sw.state &lt;&gt; -1  
+            </if>  
+            <if test="po.timeoutState != null and po.timeoutState == 1 and po.repairNumberState != null and po.repairNumberState !='' and po.repairNumberState != 0"> 
+           	 	and sw.state = #{po.repairNumberState} 
+            </if>  
+			
+	       	<if test ="po.treeDate != null and po.treeDate != '' ">AND date_format(sw.acceptanceTime,'%Y-%m-%d') = #{po.treeDate}</if>
+			<if test="po.startTime != null and po.startTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{po.startTime}</if>
+			<if test="po.endTime != null and po.endTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{po.endTime}</if>
+			AND ( (
+					(HOUR(sw.acceptanceTime) &gt; 12 AND DAYOFWEEK(sw.acceptanceTime) &lt;= 3 AND (((packTime IS NULL AND DATEDIFF(IF((HOUR(NOW()) &gt;= 18), (date_add(NOW(), interval 8 hour)), NOW()), sw.acceptanceTime) &gt;= 4) OR (packTime IS NOT NULL AND DATEDIFF(packTime, sw.acceptanceTime) &gt;= 4) ) ) )
+					OR
+					(HOUR(sw.acceptanceTime) &gt; 12 AND DAYOFWEEK(sw.acceptanceTime) &gt; 3 AND (packTime IS NULL AND DATEDIFF(IF((HOUR(NOW()) &gt;= 18), (date_add(NOW(), interval 8 hour)), NOW()), sw.acceptanceTime) &gt; 5) OR (packTime IS NOT NULL AND DATEDIFF(packTime, sw.acceptanceTime) &gt; 5) )
+				 )
+				  OR 
+				 (
+				 	(HOUR(sw.acceptanceTime) &lt;= 12 AND DAYOFWEEK(sw.acceptanceTime) &lt;= 3 AND ((packTime IS NULL AND DATEDIFF(IF((HOUR(NOW()) &gt;= 18), (date_add(NOW(), interval 8 hour)), NOW()), sw.acceptanceTime) &gt;= 3) OR (packTime IS NOT NULL AND DATEDIFF(packTime, sw.acceptanceTime) &gt;= 3) ) )
+					OR
+					(HOUR(sw.acceptanceTime) &lt;= 12 AND DAYOFWEEK(sw.acceptanceTime) &gt; 3 AND ((packTime IS NULL AND DATEDIFF(IF((HOUR(NOW()) &gt;= 18), (date_add(NOW(), interval 8 hour)), NOW()), sw.acceptanceTime) &gt; 4) OR (packTime IS NOT NULL AND DATEDIFF(packTime, sw.acceptanceTime) &gt; 4) ) )
+				 ) 
+			 )
+			<!-- AND sw.state &lt;&gt; -1 -->
+		</where>
+		ORDER BY sw.acceptanceTime desc
+	</select>
+	
+	<!-- 根据imei查询出维修总明细 (二次返修)-->
+	<select id="getRepairDetailList" resultMap="queryList_resultMap" parameterType="String">
+		SELECT
+			sw.repairnNmber, ss.cusName, sz.model, sw.imei, sw.returnTimes,
+			sz.createType,sb.gName as createTypeName,
+			CASE sw.isWarranty
+			WHEN 0 THEN '保内'
+			ELSE '保外'
+			END AS isWarranty ,
+			sw.remark, sw.acceptanceTime, swrd.cjgzDesc, swrd.zzgzDesc,
+			swr.solution AS dealMethod, swr.solutionTwo,
+			swp.packTime, swr.isPrice, swr.engineer,swt.test_result as testResult ,swt.test_person as testPerson,
+			'已发货' as state,swf.finChecker AS finChecker,sw.sendPackTime AS sendPackTime
+		FROM t_sale_workflow AS sw
+		INNER JOIN t_sale_zbxhmanage AS sz ON sz.mId = sw.xhId
+		INNER JOIN t_sale_basegroup AS sb ON sz.createType = sb.gId
+		INNER JOIN t_sale_sxdwmanage AS ss ON sw.sxdwId = ss.cId
+		INNER JOIN t_sale_workflow_related as swrd ON swrd.id = sw.rfild
+		INNER JOIN t_sale_workflow_pack as swp ON swp.repairnNmber = sw.repairnNmber
+		INNER JOIN t_sale_workflow_repair as swr ON swr.wfId = sw.id
+		LEFT JOIN t_sale_workflow_test as swt ON swt.wfId = sw.id
+		LEFT JOIN t_sale_workflow_ficheck as swf ON swf.wfId = sw.id
+		<where>
+			swp.packTime >= (DATE_SUB(swp.packTime,INTERVAL 3 MONTH)) AND sw.imei IN (${imeis})
+			AND sw.remark NOT LIKE '%不支持物联网卡%' 
+			AND NOT FIND_IN_SET((SELECT iid FROM t_sale_cjgzmanage cjgz WHERE initheckFault ='客户要求换主板'),swrd.cjgzDesc) 
+			AND swr.solution NOT LIKE '%放弃维修%'
+			<if test="startTime != null and startTime != ''">
+				AND date_format(sw.acceptanceTime, '%Y-%m-%d')  &gt;= date_format(DATE_SUB(#{startTime}, INTERVAL 3 MONTH),'%Y-%m-%d')
+			</if>
+			<if test="endTime != null and endTime != ''">
+					AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{endTime}
+			</if>
+		</where>
+		ORDER BY sw.imei, sw.returnTimes
+	</select>
+	
+	<!-- 查询所有符合条件的imei -->
+	<select id="getImeiListForRepairDetail" resultType="String" parameterType="HwmReport">
+		SELECT sw.imei
+		FROM t_sale_workflow AS sw
+		LEFT JOIN t_sale_zbxhmanage AS sz ON sz.mId = sw.xhId
+		LEFT JOIN t_sale_sxdwmanage AS ss ON sw.sxdwId = ss.cId
+		LEFT JOIN t_sale_workflow_related AS swrd ON swrd.id = sw.rfild
+		LEFT JOIN t_sale_workflow_pack AS swp ON swp.repairnNmber = sw.repairnNmber
+		LEFT JOIN t_sale_workflow_repair AS swr ON swr.wfId = sw.id
+		<where>
+<!-- AND sw.state = -1 -->
+			<if test="isWarranty != null and isWarranty != '' ">
+				AND sw.isWarranty = #{isWarranty}
+			</if>
+			<if test="isPrice != null and isPrice != '' ">
+				AND swr.isPrice = #{isPrice}
+			</if>
+			<if test="freeRepair != null and freeRepair != ''  and freeRepair == 0 ">
+				AND swrd.wxbjDesc IS NULL
+			</if>
+			<if test="freeRepair != null and freeRepair != ''  and freeRepair == 1 ">
+				AND swrd.wxbjDesc IS NOT NULL
+			</if>
+			<choose>
+				<when test="repairTimeType !=null and repairTimeType == 1 ">
+					<if test="startTime != null and startTime != ''">
+						AND date_format(swp.packTime,'%Y-%m-%d') &gt;= #{startTime}
+					</if>
+					<if test="endTime != null and endTime != ''">
+						AND date_format(swp.packTime,'%Y-%m-%d') &lt;= #{endTime}
+					</if>
+				</when>
+				<when test="repairTimeType != null and repairTimeType == 2">
+					<if test="startTime != null and startTime != ''">
+						AND date_format(sw.sendPackTime,'%Y-%m-%d') &gt;= #{startTime}
+					</if>
+					<if test="endTime != null and endTime != ''">
+						AND date_format(sw.sendPackTime,'%Y-%m-%d') &lt;= #{endTime}
+					</if>
+				</when>
+				<otherwise>
+					<if test="startTime != null and startTime != ''">
+						AND date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{startTime}
+					</if>
+					<if test="endTime != null and endTime != ''">
+						AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{endTime}
+					</if>
+				</otherwise>
+			</choose>
+<!--			<if test="startTime != null and startTime != ''">-->
+<!--				AND date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{startTime}-->
+<!--			</if>-->
+<!--			<if test="endTime != null and endTime != ''">-->
+<!--				AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{endTime}-->
+<!--			</if>-->
+			
+			<if test="repairnNmber != null and repairnNmber != ''">
+				AND sw.repairnNmber = #{repairnNmber}
+			</if>
+			<if test="model != null and model != ''">
+				AND sz.model = #{model}
+			</if>
+			
+			<if test="compare == null and returnTimes != null and returnTimes != '' ">
+				AND sw.returnTimes = #{returnTimes}	
+			</if>
+			<if test="compare == 0 and returnTimes != null and returnTimes != ''">
+				AND sw.returnTimes &gt; #{returnTimes}
+			</if>
+			<if test="compare == 1 and returnTimes != null and returnTimes != ''">
+				AND sw.returnTimes &lt; #{returnTimes}
+			</if>
+			<if test="compare == 2 and returnTimes != null and returnTimes != ''">
+				AND sw.returnTimes &gt;= #{returnTimes}
+			</if>
+			<if test="compare == 3 and returnTimes != null and returnTimes != ''">
+				AND sw.returnTimes &lt;= #{returnTimes}
+			</if> 
+				
+			<if test="cusName != null and cusName != ''">
+				AND ss.cusName like concat('%','${cusName}','%') 
+			</if>					
+		</where>
+	</select>
+	
+	<!-- 默认的维修总明细 -->
+	<select id="getRepairDetailListPage" resultMap="queryList_resultMap"
+		parameterType="HwmReport">
+		SELECT sw.repairnNmber, ss.cusName, sz.model, sz.createType,
+		sb.gName as createTypeName,sw.imei, sw.returnTimes,
+		CASE sw.isWarranty
+		WHEN 0 THEN
+			'保内'
+		ELSE
+			'保外'
+		END AS isWarranty
+		,
+		sw.remark, sw.acceptanceTime, swrd.cjgzDesc, swrd.zzgzDesc, swr.solution AS dealMethod,
+		swr.solutionTwo, swp.packTime, swr.isPrice, swr.engineer,swr.repairRemark,swt.test_result AS testResult,
+		swt.test_person AS testPerson,swf.finChecker AS finChecker,sw.sendPackTime AS sendPackTime,
+		CASE sw.state
+        WHEN -1 THEN
+            '已发货'
+        ELSE
+            '未发货'
+        END AS state
+        
+		FROM t_sale_workflow AS sw
+		LEFT JOIN t_sale_zbxhmanage AS sz ON sz.mId = sw.xhId
+		LEFT JOIN t_sale_basegroup AS sb ON sz.createType = sb.gId
+		LEFT JOIN t_sale_sxdwmanage AS ss ON sw.sxdwId = ss.cId
+		LEFT JOIN t_sale_workflow_related as swrd ON swrd.id = sw.rfild
+		LEFT JOIN t_sale_workflow_pack as swp ON swp.repairnNmber = sw.repairnNmber
+		LEFT JOIN t_sale_workflow_repair as swr ON swr.wfId = sw.id
+		LEFT JOIN t_sale_workflow_test as swt ON swt.wfId = sw.id
+		LEFT JOIN t_sale_workflow_ficheck as swf ON sw.id = swf.wfId
+		<where>
+		<!--              AND sw.state = -1 -->
+			<if test="po.isWarranty != null and po.isWarranty != '' ">
+				AND sw.isWarranty = #{po.isWarranty}
+			</if>
+			<if test="po.isPrice != null and po.isPrice != '' ">
+				AND swr.isPrice = #{po.isPrice}
+			</if>
+			<if test="po.freeRepair != null and po.freeRepair != ''  and po.freeRepair == 0 ">
+				AND swrd.wxbjDesc IS NULL
+			</if>
+			<if test="po.freeRepair != null and po.freeRepair != ''  and po.freeRepair == 1 ">
+				AND swrd.wxbjDesc IS NOT NULL
+			</if>
+			<choose>
+				<when test="po.repairTimeType !=null and po.repairTimeType == 1 ">
+					<if test="po.startTime != null and po.startTime != ''">
+						AND date_format(swp.packTime,'%Y-%m-%d') &gt;= #{po.startTime}
+					</if>
+					<if test="po.endTime != null and po.endTime != ''">
+						AND date_format(swp.packTime,'%Y-%m-%d') &lt;= #{po.endTime}
+					</if>
+				</when>
+				<when test="po.repairTimeType !=null and po.repairTimeType == 2">
+					<if test="po.startTime != null and po.startTime != ''">
+						AND date_format(sw.sendPackTime,'%Y-%m-%d') &gt;= #{po.startTime}
+					</if>
+					<if test="po.endTime != null and po.endTime != ''">
+						AND date_format(sw.sendPackTime,'%Y-%m-%d') &lt;= #{po.endTime}
+					</if>
+				</when>
+				<otherwise>
+					<if test="po.startTime != null and po.startTime != ''">
+						AND date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{po.startTime}
+					</if>
+					<if test="po.endTime != null and po.endTime != ''">
+						AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{po.endTime}
+					</if>
+				</otherwise>
+			</choose>
+<!--			<if test="po.startTime != null and po.startTime != ''">-->
+<!--				AND date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{po.startTime}-->
+<!--			</if>-->
+<!--			<if test="po.endTime != null and po.endTime != ''">-->
+<!--				AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{po.endTime}-->
+<!--			</if>-->
+			
+			<if test="po.repairnNmber != null and po.repairnNmber != ''">
+				AND sw.repairnNmber = #{po.repairnNmber}
+			</if>
+			<if test="po.model != null and po.model != ''">
+				AND sz.model = #{po.model}
+			</if>	
+			
+			<if test="po.compare == null and po.returnTimes != null and po.returnTimes != '' ">
+				AND sw.returnTimes = #{po.returnTimes}	
+			</if>
+			<if test="po.compare == 0 and po.returnTimes != null and po.returnTimes != ''">
+				AND sw.returnTimes &gt; #{po.returnTimes}
+			</if>
+			<if test="po.compare == 1 and po.returnTimes != null and po.returnTimes != ''">
+				AND sw.returnTimes &lt; #{po.returnTimes}
+			</if>
+			<if test="po.compare == 2 and po.returnTimes != null and po.returnTimes != ''">
+				AND sw.returnTimes &gt;= #{po.returnTimes}
+			</if>
+			<if test="po.compare == 3 and po.returnTimes != null and po.returnTimes != ''">
+				AND sw.returnTimes &lt;= #{po.returnTimes}
+			</if>
+			
+			<if test="po.cusName != null and po.cusName != ''">
+				AND ss.cusName like concat('%','${po.cusName}','%') 
+			</if>			
+		</where>
+		ORDER BY sw.acceptanceTime DESC, sw.repairnNmber DESC
+	</select>
+	
+	<select id="getCJGZList" resultType="Cjgzmanage">
+		Select  
+		iid,
+		faultClass,
+		initheckFault,
+		description
+		from t_sale_cjgzmanage where iid in 
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">  
+		  #{item}  
+		 </foreach>
+	</select>
+	
+	<select id="getZZGZList" resultType="Zgzmanage">
+		Select  
+		id,
+		faultType,
+		proceMethod,
+		modelType,
+		remark
+		from t_sale_zgzmanage where id in 
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">  
+		  #{item}  
+		 </foreach>
+	</select>
+	
+	
+	<!-- ============================================ interface End ============================================ -->
+
+	<!-- 超天存在的维修人员 -->
+	<select id="selectTimeoutEngineer" resultType="String">
+	SELECT tmp.engineer FROM(
+		SELECT
+		swr.engineer
+		FROM
+		t_sale_workflow AS sw
+		LEFT JOIN t_sale_sxdwmanage AS ss ON sw.sxdwId = ss.cId
+		LEFT JOIN t_sale_zbxhmanage AS sz ON sw.xhId = sz.mId
+		LEFT JOIN t_sale_workflow_pack AS swp ON swp.repairnNmber = sw.repairnNmber
+		LEFT JOIN t_sale_workflow_ficheck AS swf ON swf.wfId = sw.id
+		LEFT JOIN t_sale_workflow_repair AS swr ON swr.wfId = sw.id
+		LEFT JOIN t_sale_workflow_price AS swpe ON swpe.wfId = sw.id
+		LEFT JOIN t_sale_workflow_test AS swt ON sw.id = swt.wfId
+		<where>
+			<!-- 无名件不算入 -->
+			sw.customerStatus = 'normal' AND sw.timeoutDays >0
+			<!-- imei-->
+			<if test="po.imei != null and po.imei!=''">
+				AND sw.imei = #{po.imei}
+			</if>
+			<!-- 送修单位 -->
+			<if test="po.cusName != null and po.cusName != ''">
+				AND ss.cusName like concat('%', '${po.cusName}', '%')
+			</if>
+			<!-- 送修批次-->
+			<if test="po.repairnNmber != null and po.repairnNmber != ''"> and sw.repairnNmber = #{po.repairnNmber}</if>
+			<!-- 状态 -->
+			<choose>
+				<!-- 未完成。未发送到装箱工站或者到了装箱工站没有填写超期原因的-->
+				<when test="po.timeoutState == 1">
+					AND (sw.sendPackTime is null OR sw.timeoutReason is null)
+				</when>
+				<!-- 已完成 到了装箱工站并且填写了超期原因-->
+				<when test="po.timeoutState == 2">
+					AND (sw.sendPackTime is not null AND sw.timeoutReason is not null)
+				</when>
+			</choose>
+			<!-- 工站 -->
+			<choose>
+				<when test="po.workStation == 1"><!-- 受理 -->
+					AND sw.state IN(0,17)
+				</when>
+				<when test="po.workStation == 2"><!-- 分拣 -->
+					AND sw.state IN(1,18)
+				</when>
+				<when test="po.workStation == 3"><!-- 维修-->
+					AND (
+					sw.state IN(2,5,10,11,12,16)
+					OR (sw.state=4 AND swpe.priceState = -1)
+					OR (sw.state=6 AND swf.state = -1)
+					OR (sw.state=8 AND sw.machina_in_pack !='Y')
+					)
+				</when>
+				<when test="po.workStation == 4"><!--报价-->
+					AND (sw.state IN(3,9,14) OR (sw.state = 4 AND swr.repairState=-1))
+				</when>
+				<when test="po.workStation == 5"><!-- 终检-->
+					AND (
+					sw.state =13
+					OR (sw.state = 6 AND swr.repairState=-1)
+					OR (sw.state = 7 AND sw.machina_in_pack !='Y')
+					)
+				</when>
+				<when test="po.workStation == 6">
+					AND sw.state IN(15,19)
+				</when>
+				<when test="po.workStation == 7">
+					AND sw.sendPackTime is not null
+				</when>
+			</choose>
+			<!-- 进度 -->
+			<if test="po.repairNumberState != null" >
+				and sw.state = #{po.repairNumberState}
+			</if>
+			<!-- 侧边栏日期 -->
+			<if test ="po.treeDate != null and po.treeDate != '' ">AND date_format(sw.acceptanceTime,'%Y-%m-%d') = #{
+				po.treeDate}</if>
+			<!-- 开始时间 -->
+			<if test="po.startTime != null and po.startTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{
+				po.startTime}</if>
+			<!-- 结束时间 -->
+			<if test="po.endTime != null and po.endTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{
+				po.endTime}</if>
+			<!-- 超期原因 全部/未填/已填-->
+			<choose>
+				<!-- 未填 -->
+				<when test="po.timeoutReasonState == 0">
+					AND sw.timeoutReason is null OR sw.timeoutReason ='无')
+				</when>
+				<!-- 已填-->
+				<when test="po.timeoutReasonState == 1">
+					AND sw.timeoutReason is not null AND sw.timeoutReason !='无')
+				</when>
+			</choose>
+		</where>
+		)AS tmp where tmp.engineer is not null GROUP by tmp.engineer
+	</select>
+	<!-- 超天存在的进度 -->
+	<select id="selectTimeoutState" resultType="Integer">
+		SELECT tmp.state FROM(
+		SELECT
+		sw.state
+		FROM
+		t_sale_workflow AS sw
+		LEFT JOIN t_sale_sxdwmanage AS ss ON sw.sxdwId = ss.cId
+		LEFT JOIN t_sale_zbxhmanage AS sz ON sw.xhId = sz.mId
+		LEFT JOIN t_sale_workflow_pack AS swp ON swp.repairnNmber = sw.repairnNmber
+		LEFT JOIN t_sale_workflow_ficheck AS swf ON swf.wfId = sw.id
+		LEFT JOIN t_sale_workflow_repair AS swr ON swr.wfId = sw.id
+		LEFT JOIN t_sale_workflow_price AS swpe ON swpe.wfId = sw.id
+		LEFT JOIN t_sale_workflow_test AS swt ON sw.id = swt.wfId
+		<where><!-- 无名件不算入 -->
+			sw.customerStatus = 'normal' AND sw.timeoutDays >0
+			<!-- imei-->
+			<if test="po.imei != null and po.imei!=''">
+				AND sw.imei = #{po.imei}
+			</if>
+			<!-- 送修单位 -->
+			<if test="po.cusName != null and po.cusName != ''">
+				AND ss.cusName like concat('%', '${po.cusName}', '%')
+			</if>
+			<!-- 送修批次-->
+			<if test="po.repairnNmber != null and po.repairnNmber != ''"> and sw.repairnNmber = #{po.repairnNmber}</if>
+			<!-- 状态 -->
+			<choose>
+				<!-- 未完成。未发送到装箱工站或者到了装箱工站没有填写超期原因的-->
+				<when test="po.timeoutState == 1">
+					AND (sw.sendPackTime is null OR sw.timeoutReason is null)
+				</when>
+				<!-- 已完成 到了装箱工站并且填写了超期原因-->
+				<when test="po.timeoutState == 2">
+					AND (sw.sendPackTime is not null AND sw.timeoutReason is not null)
+				</when>
+			</choose>
+			<!-- 工站 -->
+			<choose>
+				<when test="po.workStation == 1"><!-- 受理 -->
+					AND sw.state IN(0,17)
+				</when>
+				<when test="po.workStation == 2"><!-- 分拣 -->
+					AND sw.state IN(1,18)
+				</when>
+				<when test="po.workStation == 3"><!-- 维修-->
+					AND (
+					sw.state IN(2,5,10,11,12,16)
+					OR (sw.state=4 AND swpe.priceState = -1)
+					OR (sw.state=6 AND swf.state = -1)
+					OR (sw.state=8 AND sw.machina_in_pack !='Y')
+					)
+				</when>
+				<when test="po.workStation == 4"><!--报价-->
+					AND (sw.state IN(3,9,14) OR (sw.state = 4 AND swr.repairState=-1))
+				</when>
+				<when test="po.workStation == 5"><!-- 终检-->
+					AND (
+					sw.state =13
+					OR (sw.state = 6 AND swr.repairState=-1)
+					OR (sw.state = 7 AND sw.machina_in_pack !='Y')
+					)
+				</when>
+				<when test="po.workStation == 6">
+					AND sw.state IN(15,19)
+				</when>
+				<when test="po.workStation == 7">
+					AND sw.sendPackTime is not null
+				</when>
+			</choose>
+			<!-- 维修人员 -->
+			<if test="po.engineer != null and po.engineer != ''">
+				AND swr.engineer = #{po.engineer}
+			</if>
+			<!-- 侧边栏日期 -->
+			<if test ="po.treeDate != null and po.treeDate != '' ">AND date_format(sw.acceptanceTime,'%Y-%m-%d') = #{
+				po.treeDate}</if>
+			<!-- 开始时间 -->
+			<if test="po.startTime != null and po.startTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{
+				po.startTime}</if>
+			<!-- 结束时间 -->
+			<if test="po.endTime != null and po.endTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{
+				po.endTime}</if>
+			<!-- 超期原因 全部/未填/已填-->
+			<choose>
+				<!-- 未填 -->
+				<when test="po.timeoutReasonState == 0">
+					AND sw.timeoutReason is null OR sw.timeoutReason ='无')
+				</when>
+				<!-- 已填-->
+				<when test="po.timeoutReasonState == 1">
+					AND sw.timeoutReason is not null AND sw.timeoutReason !='无')
+				</when>
+			</choose>
+		</where>
+		)AS tmp GROUP by tmp.state
+	</select>
+</mapper>

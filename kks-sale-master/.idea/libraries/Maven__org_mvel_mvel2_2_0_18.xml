@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.mvel:mvel2:2.0.18">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../Program Files/apache-maven-3.6.3/.m2/org/mvel/mvel2/2.0.18/mvel2-2.0.18.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../../Program Files/apache-maven-3.6.3/.m2/org/mvel/mvel2/2.0.18/mvel2-2.0.18-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../Program Files/apache-maven-3.6.3/.m2/org/mvel/mvel2/2.0.18/mvel2-2.0.18-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

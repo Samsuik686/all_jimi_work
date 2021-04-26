@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC 
+	"-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+	"http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+	<package name="struts-base" extends="json-default">
+		<!-- <result-types> -->
+		<!-- <result-type name="methodNameDispatcher" -->
+		<!-- class="com.accp.wes.util.struts2.results.MethodNameMappingServletDispatcherResult"> -->
+		<!-- </result-type> -->
+		<!-- <result-type name="methodNameRedirect" -->
+		<!-- class="com.accp.wes.util.struts2.results.MethodNameMappingServletRedirectResult"> -->
+		<!-- </result-type> -->
+		<!-- <result-type name="json" -->
+		<!-- class="com.accp.wes.util.struts2.results.JsonResult"> -->
+		<!-- </result-type> -->
+		<!-- </result-types> -->
+
+		<interceptors>
+			<!-- 记录日志的拦截器 -->
+			<interceptor name="log4j"
+				class="cn.cicove.common.util.struts2.interceptor.Log4jInterceptor">
+			</interceptor>
+
+			<!-- 分页PageBean拦截器 -->
+			<!-- <interceptor name="pageBeanInterceptor" -->
+			<!-- class="com.accp.wes.util.struts2.interceptor.PageBeanInterceptor"> -->
+			<!-- <param name="includeMethods"></param> -->
+
+			<!-- </interceptor> -->
+
+			<!-- 权限认证拦截器 -->
+			<!-- <interceptor name="authenticationInterceptor" -->
+			<!-- class="authenticationInterceptor"> -->
+			<!-- </interceptor> -->
+
+			<!--会话校验拦截器用来检查用户是否已登陆或会话已过期 -->
+			<interceptor name="sessionValidateInterceptor"
+				class="cn.cicove.common.util.struts2.interceptor.SessionValidateInterceptor">
+				<!--需要登录的方法请放到这个列表，注意此处需要写Action类里面的方法名字，而不是浏览器访问的请求名字 -->
+				<!-- <param name="includeMethods">regLogin,login</param> -->
+				<param name="includeMethods">index</param>
+			</interceptor>
+
+			<!-- 定义一个拦截器栈 -->
+			<interceptor-stack name="myDefaultStack">
+				<interceptor-ref name="sessionValidateInterceptor" />
+				<!-- <interceptor-ref name="authenticationInterceptor" /> -->
+				<!-- <interceptor-ref name="pageBeanInterceptor" /> -->
+				<interceptor-ref name="defaultStack" />
+				<interceptor-ref name="log4j" />
+			</interceptor-stack>
+		</interceptors>
+		<!-- 包中默认的拦截器(或拦截器栈)，会对所有没单独定义的Action生效 -->
+		<default-interceptor-ref name="myDefaultStack"></default-interceptor-ref>
+
+		<!-- 定义了一个全局的JSON结果集，并对其参数赋了默认值 -->
+		<global-results>
+			<result name="jsonresult" type="json">
+				<param name="root">resultData</param>
+				<param name="excludeNullProperties">true</param>
+			</result>
+
+			<result name="authenticationFailed">
+				/common/authenticationFailed.jsp
+			</result>
+			<result name="timeout">/common/timeout.jsp</result>
+		</global-results>
+		<action name="validCode" class="validateImage"></action>
+	</package>
+</struts>

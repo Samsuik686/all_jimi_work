@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="oa-vo" />
+        <module name="common" />
+        <module name="oa-app" />
+        <module name="oa-config" />
+        <module name="oa-web" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="common" target="1.8" />
+      <module name="oa-app" target="1.8" />
+      <module name="oa-config" target="1.8" />
+      <module name="oa-vo" target="1.8" />
+      <module name="oa-web" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="common" options="-extdirs D:\all_jimi_work\kks-sale-master\common/libs" />
+    </option>
+  </component>
+</project>

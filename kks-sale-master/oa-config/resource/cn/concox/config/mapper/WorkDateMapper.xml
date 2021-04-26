@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.WorkDateMapper">
+    <select id="selectWorkDate" resultType="WorkDate">
+        SELECT * FROM t_sale_workdate tsw
+        WHERE 1=1
+        <if test="po.id != null">
+            AND tsw.id = #{po.id}
+        </if>
+        <if test="po.startTime !=null ">
+            AND tsw.normalDate &gt;= #{po.startTime}
+        </if>
+        <if test="po.endTime != null">
+            AND tsw.normalDate &lt;=#{po.endTime}
+        </if>
+        <if test="po.workType != null and po.workType != 4" >
+            AND tsw.workType = #{po.workType}
+        </if>
+        <if test="po.userType != null and po.userType != 0">
+            AND tsw.userType = #{po.userType}
+        </if>
+        <if test="po.weekDay != null and po.weekDay !=0">
+            AND tsw.weekDay = #{po.weekDay}
+        </if>
+    </select>
+    <select id="selectWorkTypeById" resultType="WorkDate">
+        SELECT *FROM t_sale_workdate WHERE id=#{id}
+    </select>
+    <select id="selectWorkTypeByDate" resultType="Integer">
+        SELECT workType FROM t_sale_workdate tsw
+        WHERE tsw.date = #{date}
+    </select>
+
+    <select id="selectWorkDateByDate" resultType="WorkDate">
+        SELECT * FROM t_sale_workdate tsw
+        WHERE tsw.date = #{date}
+    </select>
+
+    <select id="selectUserWorkDateByDate" resultType="WorkDate">
+        SELECT * FROM t_sale_workdate tsw
+        WHERE tsw.date = #{date} AND tsw.userType = #{userType}
+    </select>
+
+    <update id="updateWorkDateByDate">
+        UPDATE t_sale_workdate tsw
+        SET tsw.workType = #{workType}
+        WHERE tsw.normalDate = #{normalDate} AND tsw.userType = #{userType}
+    </update>
+
+    <update id="update">
+        UPDATE t_sale_workdate tsw
+        SET tsw.workType = #{workType}
+        WHERE tsw.id = #{id}
+    </update>
+
+    <select id="selectHolidayBetween" resultType="WorkDate">
+        SELECT *FROM t_sale_workdate tsw
+        WHERE tsw.normalDate &gt;= #{fromDate} AND tsw.normalDate &lt; #{toDate} AND tsw.userType=1
+        AND tsw.workType IN (0,2,3) ORDER BY tsw.normalDate asc LIMIT #{num}
+    </select>
+
+    <select id="selectCount" resultType="java.lang.Integer">
+        SELECT count(1) FROM t_sale_workdate
+    </select>
+    <insert id="insert" parameterType="cn.concox.vo.basicdata.WorkDate">
+        INSERT INTO t_sale_workdate(normalDate,workType,userType,weekday) values(#{po.normalDate},#{po.workType},#{po.userType},#{po.weekDay})
+    </insert>
+</mapper>

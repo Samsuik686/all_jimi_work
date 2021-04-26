@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.QueryRepairStateMapper">
+	<resultMap id="queryList_resultMap" type="QueryRepairState"></resultMap>
+
+	<select id="queryList" parameterType="QueryRepairState" resultMap="queryList_resultMap">
+		SELECT wf.id, wf.acceptanceTime, wf.imei,zbxh.marketModel,sxdw.cusName,sxdw.phone,sxdw.address,wf.state,wf.lockId, wf.bluetoothId,
+		rel.sjfjDesc,rel.wxbjDesc,re.solution,zz.zzgzDesc
+		FROM t_sale_workflow wf
+		LEFT JOIN t_sale_workflow_repair re ON re.id=wf.rfild
+		LEFT JOIN t_sale_workflow_related rel ON rel.id=wf.rfild
+		LEFT JOIN t_sale_related_zzgz zz ON zz.rfild=wf.id
+		LEFT JOIN t_sale_sxdwmanage sxdw ON wf.sxdwId=sxdw.cId
+		LEFT JOIN t_sale_zbxhmanage zbxh on wf.xhId=zbxh.mId
+		<where>
+			<if test="imei != null and imei != ''"> wf.imei = #{imei}</if>
+			<if test="lockId != null and lockId != ''"> and wf.lockId = #{lockId}</if>
+		</where>
+	</select>
+</mapper>

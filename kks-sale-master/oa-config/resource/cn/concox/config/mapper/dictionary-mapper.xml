@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.system.mapper.DictionaryMapper">
+<resultMap type="Dictionary" id="resultMap_dictionary">
+		<result property="dicId" column="dicId"/>
+		<result property="proTypeId" column="proTypeId"/>
+		<result property="itemName" column="itemName"/>
+		<result property="itemValue" column="itemValue"/>
+		<result property="descrp" column="descrp"/>
+		<result property="sn" column="sn"/>
+		<result property="orderindex" column="orderindex"/>
+	<!--一对多 -->
+	<collection property="children" column="dicId" javaType="ArrayList"  select="queryListByParent"></collection>
+	</resultMap>
+	
+	<select id="queryList" resultMap="resultMap_dictionary" parameterType="Dictionary">
+		 select dicId,proTypeId,itemName,itemValue,descrp,sn,orderindex from t_oa_dictionary
+		 	<where>
+		 		<if test="dicId != null">
+		 			dicId=#{dicId}
+		 		</if>
+		 		<if test="proTypeId != null">
+		 		and proTypeId=#{proTypeId}
+		 		</if>
+		 	</where>
+	</select>
+	
+     <select id="queryListByParent" resultMap="resultMap_dictionary" parameterType="java.lang.Integer">
+		select dicId,proTypeId,itemName,itemValue,descrp,sn,orderindex from t_oa_dictionary
+			where proTypeId=#{dicId} order by orderindex asc
+	</select>
+	
+	<select id="queryDictionaryById" resultType="Dictionary"  parameterType="java.lang.Integer">
+		select dicId,proTypeId,itemName,itemValue,descrp,sn,orderindex from t_oa_dictionary
+			where dicId=#{dicId} 
+	</select>
+	
+	<select id="queryDictionaryBySN" resultMap="resultMap_dictionary"  parameterType="Dictionary">
+		select dicId,proTypeId,itemName,itemValue,descrp,sn,orderindex from t_oa_dictionary
+			<where>
+		 		<if test="dicId != null">
+		 			proTypeId=#{dicId}
+		 		</if>
+		 		<if test="sn != null">
+		 		and proTypeId= (select dicId from t_oa_dictionary where sn=#{sn})
+		 		</if>
+		 	</where>
+	</select>
+	
+	<insert id="insert" parameterType="Dictionary">
+		insert into t_oa_dictionary(proTypeId,itemName,itemValue,descrp,sn,orderindex)
+		values(#{proTypeId},#{itemName},#{itemValue},#{descrp},#{sn},#{orderindex})
+	</insert>
+	
+     <delete id="delete" parameterType="Dictionary">
+		delete from t_oa_dictionary where dicId=#{dicId}
+	</delete>
+	
+	 <delete id="deletechildren" parameterType="Dictionary">
+		delete from t_oa_dictionary where proTypeId=#{dicId}
+	</delete>
+	
+	<update id="update" parameterType="Dictionary" >
+	update t_oa_dictionary set itemName=#{itemName},itemValue=#{itemValue},descrp=#{descrp},sn=#{sn},orderindex=#{orderindex}
+         where dicId=#{dicId}
+    </update>
+    
+    
+     <select id="queryByItemSN" resultType="Dictionary" parameterType="Dictionary">
+		 select  itemName  from t_oa_dictionary where  sn=#{sn}
+	</select>    
+	     
+	
+</mapper>

@@ -1,0 +1,61 @@
+body {
+font: normal 11px auto "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+}
+
+a {
+color: #c75f3e;
+}
+
+#mytable {
+width: 1030px;
+overflow:auto;
+padding: 0;
+margin: 0;
+}
+#mytable th {
+font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+color: #4f6b72;
+border-right: 1px solid #C1DAD7;
+border-bottom: 1px solid #C1DAD7;
+border-top: 1px solid #C1DAD7;
+letter-spacing: 2px;
+text-transform: uppercase;
+text-align:center;
+background: #CAE8EA no-repeat;
+height:30px;
+}
+
+#mytable th.nobg {
+border-top: 0;
+border-left: 0;
+border-right: 1px solid #C1DAD7;
+background: none;
+
+}
+#mytable td {
+	border-right: 1px solid #C1DAD7;
+	border-bottom: 1px solid #C1DAD7;
+	background: #fff;
+	height:26px;
+	text-align:center;
+	cursor:hand;
+}
+#mytable td.alt {
+background: #F5FAFA;
+}
+#mytable th.spec {
+border-left: 1px solid #C1DAD7;
+border-top: 0;
+background: #fff no-repeat;
+font: bold;
+}
+
+#mytable th.specalt {
+border-left: 1px solid #C1DAD7;
+border-top: 0;
+background: #f5fafa no-repeat;
+font: bold 12px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+}
+ 
+ 
+ 

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.jboss.bpm:gwt-console-rpc:2.4.8.Final">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../Program Files/apache-maven-3.6.3/.m2/org/jboss/bpm/gwt-console-rpc/2.4.8.Final/gwt-console-rpc-2.4.8.Final.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../../Program Files/apache-maven-3.6.3/.m2/org/jboss/bpm/gwt-console-rpc/2.4.8.Final/gwt-console-rpc-2.4.8.Final-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../Program Files/apache-maven-3.6.3/.m2/org/jboss/bpm/gwt-console-rpc/2.4.8.Final/gwt-console-rpc-2.4.8.Final-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

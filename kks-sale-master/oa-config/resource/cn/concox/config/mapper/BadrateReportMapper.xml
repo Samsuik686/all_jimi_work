@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.BadrateReportMapper">
+
+	<resultMap id="queryList_resultMap" type="BadRateReport" ></resultMap>
+    
+    
+    <select id="badrateList" resultMap="queryList_resultMap" parameterType="BadRateReport">
+    	select b.model, SUM(b.acmite) AS repairs, SUM(b.goodsNumber) AS goods,CONCAT(ROUND(SUM(b.acmite)/SUM(b.goodsNumber)*100,2),'%') percent from (
+			SELECT z.model, w.acmite, w.xhId, z.goodsNumber from 
+				(select count(returnTimes) acmite,xhId, isWarranty  from t_sale_workflow WHERE 1=1
+					<if test="isWarranty != null and isWarranty != '' ">
+						and isWarranty = #{isWarranty}
+					</if> 
+				GROUP BY xhId ) w LEFT JOIN 
+				(select zb.model, kg.goodsNumber, zb.mid from  t_sale_zbxhmanage zb LEFT JOIN kkssale_goods kg ON kg.mcType = zb.marketModel 
+				) z 
+			ON w.xhId = z.mid  GROUP BY w.xhId
+		) b 
+		<where>
+			<if test="model != null and model != ''"> 
+			    AND b.model = #{model} 
+			</if> 
+		</where>
+		GROUP BY b.model ORDER BY repairs DESC
+    </select>
+    
+    <select id="listAllMcType" resultType="java.lang.String">
+		SELECT
+		    DISTINCT(sz.marketModel)
+		FROM
+		    t_sale_workflow
+		LEFT JOIN 
+		    t_sale_zbxhmanage sz ON mId = xhId
+		GROUP BY
+		    xhId
+    </select>
+    
+    <update id="updateGoods">
+		UPDATE 
+		    kkssale_goods
+		SET 
+		    goodsNumber = #{number},
+		    _MASK_SYNC_V2 = NOW()
+		WHERE
+		    mcType = #{mcType}
+    </update>
+    
+    <insert id="insertGoods">
+		INSERT INTO 
+		kkssale_goods 
+		(
+		    mcType, 
+		    goodsNumber,
+		    _MASK_SYNC_V2
+		)
+		VALUES
+		(
+		    #{mcType},
+		    #{number},
+		    NOW()
+		)
+    </insert>
+    
+</mapper>

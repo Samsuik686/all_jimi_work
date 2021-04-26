@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.workflow.mapper.WorkflowPackMapper">
+
+   <resultMap id="queryList_resultMap" type="WorkflowPack" >
+   </resultMap>
+    <select id="queryList" resultMap="queryList_resultMap" parameterType="WorkflowPack">
+    	<include refid="selectAllFields"></include>
+    	<where>
+            <if test="repairnNmber != null and repairnNmber != ''"> and repairnNmber like concat('%', '${repairnNmber}', '%') </if>
+            <if test="expressCompany != null and expressCompany != ''"> and expressCompany like concat('%', '${expressCompany}', '%') </if>
+            <if test="expressNO != null and expressNO != ''"> and expressNO like concat('%', '${expressNO}', '%') </if>
+            <if test="packingNO != null and packingNO != ''"> and packingNO like concat('%', '${packingNO}', '%') </if>
+            <if test="packer != null and packer != ''"> and packer like concat('%', '${packer}', '%') </if>
+            <if test="shipper != null and shipper != ''">  and shipper like concat('%', '${shipper}', '%') </if>
+            <if test="packTime != null"> and packTime = #{packTime} </if>
+            <if test="packState != null"> and packState = #{packState} </if>
+            <if test="createTime != null"> and createTime = #{createTime} </if>
+            <if test="updateTime != null"> and updateTime = #{updateTime} </if>
+          </where>
+          ORDER BY createTime DESC
+    </select>
+    
+   <sql id="selectAllFields">
+   		SELECT id, 
+            repairnNmber, expressCompany, expressNO, packingNO, packer, shipper, 
+            packTime, packState, createTime, updateTime, packRemark
+        FROM t_sale_workflow_pack
+   </sql>
+   
+   <select id="exists" parameterType="String" resultType="boolean">
+        SELECT CASE WHEN count(1) > 0 THEN 1 ELSE 0 END FROM t_sale_workflow_pack 
+        WHERE id = #{id}
+    </select>
+   
+   <select id="getT" parameterType="Integer" resultType="WorkflowPack">
+        <include refid="selectAllFields" />
+      	WHERE id = #{id}
+   </select>
+   
+    
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WorkflowPack">
+       INSERT INTO t_sale_workflow_pack (id,
+            repairnNmber, expressCompany, expressNO, packingNO,packer,  shipper, 
+            packTime,packState, createTime , updateTime ,packRemark
+        ) VALUES (#{id},
+        	#{repairnNmber},
+            #{expressCompany}, #{expressNO}, #{packingNO}, #{packer},  #{shipper}, 
+            #{packTime}, #{packState}, #{createTime}, #{updateTime} ,#{packRemark}
+        )
+    </insert>
+    
+     <update id="update" parameterType="WorkflowPack">
+        UPDATE t_sale_workflow_pack
+        <set>
+            <if test="expressCompany != null and expressCompany != ''"> expressCompany = #{expressCompany}, </if>
+            <if test="expressNO != null and expressNO != ''"> expressNO = #{expressNO}, </if>
+            <if test="packingNO != null and packingNO != ''"> packingNO = #{packingNO}, </if>
+             <if test="packer != null and packer != ''"> packer = #{packer}, </if>
+            <if test="shipper != null and shipper != ''"> shipper = #{shipper}, </if>
+            <if test="packState != null and packState != ''"> packState = #{packState}, </if>
+            <if test="packTime != null"> packTime = #{packTime}, </if>
+            <if test="createTime != null"> createTime = #{createTime}, </if> 
+            <if test="updateTime != null"> updateTime = #{updateTime}, </if>
+            <if test="packRemark != null"> packRemark = #{packRemark},</if>
+        </set>
+        WHERE repairnNmber = #{repairnNmber}
+    </update>
+    
+    <!-- ===========================装箱树 start========================================= -->
+        <!-- 查询装箱未完成的月份  -->
+    <select id="getPackTimeList" parameterType="String" resultType="String">
+       SELECT DATE_FORMAT(createTime,'%Y-%m') 
+       FROM t_sale_workflow_pack
+		WHERE packState = #{type}
+		GROUP BY DATE_FORMAT(createTime,'%Y-%m')
+	   	ORDER BY DATE_FORMAT(createTime,'%Y-%m') desc
+    </select>
+    
+    <!-- 查询选定月的未完成所有日期-->
+    <select id="getPackTimeByTreetime" parameterType="String" resultType="String">
+        SELECT DATE_FORMAT(createTime,'%Y-%m-%d')
+		 FROM t_sale_workflow_pack
+		WHERE packState = #{type} AND DATE_FORMAT(createTime,'%Y-%m') = #{treeTime}
+	 	 GROUP BY DATE_FORMAT(createTime,'%Y-%m-%d')
+	   	ORDER BY DATE_FORMAT(createTime,'%Y-%m-%d') desc
+    </select>
+    
+     <!-- 查询装箱完成的月份  -->
+    <select id="getPackedTimeList" parameterType="String" resultType="String">
+       SELECT DATE_FORMAT(packTime,'%Y-%m') 
+       FROM t_sale_workflow_pack
+		WHERE packState = #{type}
+		GROUP BY DATE_FORMAT(packTime,'%Y-%m')
+	   	ORDER BY DATE_FORMAT(packTime,'%Y-%m') desc
+    </select>
+    
+    <!-- 查询选定月的完成所有日期-->
+    <select id="getPackedTimeByTreetime" parameterType="String" resultType="String">
+        SELECT DATE_FORMAT(packTime,'%Y-%m-%d')
+		 FROM t_sale_workflow_pack
+		WHERE packState = #{type} AND DATE_FORMAT(packTime,'%Y-%m') = #{treeTime}
+	 	 GROUP BY DATE_FORMAT(packTime,'%Y-%m-%d')
+	   	ORDER BY DATE_FORMAT(packTime,'%Y-%m-%d') desc
+    </select>
+     <!-- ===========================装箱树 end========================================= -->
+</mapper>

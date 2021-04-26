@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.LockIdUrlMapper">
+
+   <resultMap id="LockIdUrl" type="LockIdUrl" >
+   </resultMap>
+   
+   <sql id="selectAllFields">
+   		SELECT id, urlPrefix FROM t_sale_lockidurl_prefix
+   </sql>
+   
+   	<select id="getLockIdUrlList" parameterType="LockIdUrl" resultMap="LockIdUrl">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.urlPrefix!= null and po.urlPrefix != ''"> and urlPrefix like concat('%', '${po.urlPrefix}', '%') </if>
+		</where>
+		order by id desc
+	</select>
+	
+   <select id="getT" parameterType="int" resultType="LockIdUrl">
+        <include refid="selectAllFields" />
+         WHERE id = #{id}
+   </select>
+   
+    <delete id="delete" parameterType="LockIdUrl">
+    	 DELETE FROM t_sale_lockidurl_prefix
+    	 WHERE id = #{id}
+    </delete>
+    
+    <insert id="insert" parameterType="LockIdUrl">
+    	INSERT INTO t_sale_lockidurl_prefix (
+    		id, urlPrefix
+        ) VALUES (
+        	#{id}, #{urlPrefix}
+        )
+    </insert>
+    
+    <update id="update" parameterType="LockIdUrl">
+    	UPDATE t_sale_lockidurl_prefix
+        <set>
+            <if test="urlPrefix != null and urlPrefix != ''"> urlPrefix = #{urlPrefix}, </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <select id="queryList" resultMap="LockIdUrl" parameterType="LockIdUrl">
+    	<include refid="selectAllFields" />
+        where urlPrefix = #{urlPrefix}
+    </select>
+    
+    <!-- 获取匹配长度最长的一条数据 -->
+	<select id="matchLongStr" parameterType="String" resultType="LockIdUrl">
+		SELECT id, urlPrefix
+		FROM t_sale_lockidurl_prefix
+		WHERE INSTR(#{urlPrefix}, urlPrefix)
+		ORDER BY urlPrefix DESC
+		LIMIT 1
+	</select>
+    
+    
+  	<!-- 根据urlPrefix判断是否是同一数据 -->
+	<select id="isExists" parameterType="LockIdUrl" resultType="int">
+		SELECT count(1) FROM t_sale_lockidurl_prefix
+		WHERE urlPrefix = #{urlPrefix}
+		<if test ="id !=null"> AND id != #{id} </if>
+	</select>   
+</mapper>

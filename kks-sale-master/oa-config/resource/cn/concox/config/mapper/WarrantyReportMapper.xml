@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.WarrantyReportMapper">
+	<resultMap id="queryList_resultMap" type="WarrantyReport"></resultMap>
+
+	<select id="getWarrantyReportPage" resultMap="queryList_resultMap" parameterType="WarrantyReport">
+		 select * from
+		 (
+			 SELECT * FROM (
+				(
+					SELECT
+						CONVERT(wf.id,CHAR) AS warrId,CONVERT(wf.state,CHAR) AS state, wf.imei AS imei,wf.repairnNmber as repairNumber,
+						sxdw.cusName AS cusName,zbxh.model AS modelType,totalpay.createTime AS priceDate, rep.solution AS solution, 
+						CONVERT(CONCAT(wf.isWarranty , rep.isRW),CHAR) AS priceReason,
+						related.zzgzDesc AS zzgzDesc, '1' AS number, price.repairMoney AS unitPrice,
+						price.repairMoney AS totalMoney, totalpay.payReason AS payReason, totalpay.remAccount AS remAccount,
+						totalpay.payTime AS payDate, totalpay.isPay AS isPay, totalpay.priceRemark AS priceRemark
+					FROM t_sale_workflow wf
+					LEFT JOIN t_sale_sxdwmanage sxdw ON sxdw.cId = wf.sxdwId
+					LEFT JOIN t_sale_zbxhmanage zbxh ON zbxh.mId = wf.xhId
+					LEFT JOIN t_sale_workflow_price price ON price.wfId = wf.id
+					LEFT JOIN t_sale_workflow_repair rep ON rep.wfId = wf.id
+					LEFT JOIN t_sale_workflow_totalpay totalpay ON totalpay.repairNumber = wf.repairnNmber
+					LEFT JOIN t_sale_workflow_related related ON related.id = wf.rfild
+					<where>
+						<if test="po.startTime != null and po.startTime != ''"> AND date_format(totalpay.payTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+						<if test="po.endTime != null and po.endTime != ''"> AND date_format(totalpay.payTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+						<if test="po.payType != null and po.payType!=''"> and totalpay.remAccount = #{po.payType}</if>
+						<if test="po.cusName != null and po.cusName != ''"> and sxdw.cusName like concat('%', '${po.cusName}', '%') </if>
+						AND totalpay.isPay = 0 AND price.isPay = 0
+					</where> 
+					GROUP BY warrId, wf.repairnNmber
+				) 
+				 
+				UNION
+				
+				(
+					SELECT
+						'运费' AS warrId,'运费' AS state, '运费' AS imei,totalpay.repairNumber as repairNumber,
+						 sxdw.cusName AS cusName,'运费' AS modelType,totalpay.createTime AS priceDate,
+						'运费' AS priceReason, '运费' AS solution,
+						'运费' AS zzgzDesc,'1' AS number, totalpay.logCost AS unitPrice,
+						totalpay.logCost AS totalpayMoney, '运费' AS payReason,totalpay.remAccount AS remAccount,
+				  		totalpay.payTime AS payDate, totalpay.isPay AS isPay, totalpay.priceRemark AS priceRemark
+				  	FROM t_sale_workflow_totalpay totalpay
+					LEFT JOIN t_sale_workflow wf on totalpay.repairNumber=wf.repairnNmber
+					LEFT JOIN t_sale_sxdwmanage sxdw ON sxdw.cId = wf.sxdwId
+					LEFT JOIN t_sale_workflow_repair rep ON rep.wfId = wf.id
+					<where>
+						<if test="po.startTime != null and po.startTime != ''"> AND date_format(totalpay.payTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+						<if test="po.endTime != null and po.endTime != ''"> AND date_format(totalpay.payTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+						<if test="po.payType != null and po.payType!=''"> and totalpay.remAccount = #{po.payType}</if>
+						<if test="po.cusName != null and po.cusName != ''"> and sxdw.cusName like concat('%', '${po.cusName}', '%') </if>
+						AND totalpay.isPay = 0 AND totalpay.logCost &gt; 0 
+					</where>
+					GROUP BY wf.repairnNmber
+				)
+				
+				UNION
+				
+				(
+					SELECT
+						'税费' AS warrId,'税费' AS state, '税费' AS imei,totalpay.repairNumber as repairNumber,
+						 sxdw.cusName AS cusName,'税费' AS modelType,totalpay.createTime AS priceDate,
+						'税费' AS priceReason, '税费' AS solution,
+						'税费' AS zzgzDesc,'1' AS number, totalpay.ratePrice AS unitPrice,
+						totalpay.ratePrice AS totalpayMoney, '税费' AS payReason,totalpay.remAccount AS remAccount,
+				  		totalpay.payTime AS payDate, totalpay.isPay AS isPay, totalpay.priceRemark AS priceRemark
+				  	FROM t_sale_workflow_totalpay totalpay
+					LEFT JOIN t_sale_workflow wf on totalpay.repairNumber=wf.repairnNmber
+					LEFT JOIN t_sale_sxdwmanage sxdw ON sxdw.cId = wf.sxdwId
+					LEFT JOIN t_sale_workflow_repair rep ON rep.wfId = wf.id
+					<where>
+						<if test="po.startTime != null and po.startTime != ''"> AND date_format(totalpay.payTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+						<if test="po.endTime != null and po.endTime != ''"> AND date_format(totalpay.payTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+						<if test="po.payType != null and po.payType!=''"> and totalpay.remAccount = #{po.payType}</if>
+						<if test="po.cusName != null and po.cusName != ''"> and sxdw.cusName like concat('%', '${po.cusName}', '%') </if>
+						AND totalpay.isPay = 0 AND totalpay.ratePrice &gt; 0 
+					</where>
+					GROUP BY wf.repairnNmber
+				)
+			)c
+			ORDER BY c.payDate DESC
+		 )imei
+		  where 1=1
+		    <if test="po.imei !=null and po.imei != ''">
+		      and imei in
+		      <foreach collection="po.imeis" item="imei" index="index"
+		               open="(" close=")" separator=",">
+		        '${imei}'
+		      </foreach>
+		    </if>
+		ORDER BY imei.payDate DESC
+	</select>
+	
+	<select id="getWarrantyReportList" resultMap="queryList_resultMap" parameterType="WarrantyReport">
+		  SELECT * FROM (
+			(
+				SELECT
+					CONVERT(wf.id,CHAR) AS warrId,CONVERT(wf.state,CHAR) AS state, wf.imei AS imei,wf.repairnNmber as repairNumber,
+					sxdw.cusName AS cusName,zbxh.model AS modelType,totalpay.createTime AS priceDate, rep.solution AS solution,
+					CONVERT(CONCAT(wf.isWarranty , rep.isRW),CHAR) AS priceReason,
+					related.zzgzDesc AS zzgzDesc, '1' AS number, price.repairMoney AS unitPrice,
+					price.repairMoney AS totalMoney, totalpay.payReason AS payReason, totalpay.remAccount AS remAccount,
+					totalpay.payTime AS payDate, totalpay.isPay AS isPay, totalpay.priceRemark AS priceRemark
+				FROM t_sale_workflow wf
+				LEFT JOIN t_sale_sxdwmanage sxdw ON sxdw.cId = wf.sxdwId
+				LEFT JOIN t_sale_zbxhmanage zbxh ON zbxh.mId = wf.xhId
+				LEFT JOIN t_sale_workflow_price price ON price.wfId = wf.id
+				LEFT JOIN t_sale_workflow_repair rep ON rep.wfId = wf.id
+				LEFT JOIN t_sale_workflow_totalpay totalpay ON totalpay.repairNumber = wf.repairnNmber
+				LEFT JOIN t_sale_workflow_related related ON related.id = wf.rfild
+				<where>
+					<if test="startTime != null and startTime != ''"> AND date_format(totalpay.payTime,'%Y-%m-%d') &gt;= #{startTime} </if>
+					<if test="endTime != null and endTime != ''"> AND date_format(totalpay.payTime,'%Y-%m-%d') &lt;= #{endTime} </if>
+					<if test="payType != null and payType!=''"> and totalpay.remAccount = #{payType}</if>
+					<if test="cusName != null and cusName != ''"> and sxdw.cusName like concat('%', '${cusName}', '%') </if>
+					AND totalpay.isPay = 0 AND price.isPay = 0
+				</where> 
+				GROUP BY warrId, wf.repairnNmber
+			) 
+			 
+			UNION
+			
+			(
+				SELECT
+					'运费' AS warrId,'运费' AS state, '运费' AS imei,totalpay.repairNumber as repairNumber,
+					 sxdw.cusName AS cusName,'运费' AS modelType,totalpay.createTime AS priceDate,
+					'运费' AS priceReason, '运费' AS solution,
+					'运费' AS zzgzDesc,'1' AS number, totalpay.logCost AS unitPrice,
+					totalpay.logCost AS totalpayMoney, '运费' AS payReason,totalpay.remAccount AS remAccount,
+			  		totalpay.payTime AS payDate, totalpay.isPay AS isPay, totalpay.priceRemark AS priceRemark
+			  	FROM t_sale_workflow_totalpay totalpay
+				LEFT JOIN t_sale_workflow wf on totalpay.repairNumber=wf.repairnNmber
+				LEFT JOIN t_sale_sxdwmanage sxdw ON sxdw.cId = wf.sxdwId
+				LEFT JOIN t_sale_workflow_repair rep ON rep.wfId = wf.id
+				<where>
+					<if test="startTime != null and startTime != ''"> AND date_format(totalpay.payTime,'%Y-%m-%d') &gt;= #{startTime} </if>
+					<if test="endTime != null and endTime != ''"> AND date_format(totalpay.payTime,'%Y-%m-%d') &lt;= #{endTime} </if>
+					<if test="payType != null and payType!=''"> and totalpay.remAccount = #{payType}</if>
+					<if test="cusName != null and cusName != ''"> and sxdw.cusName like concat('%', '${cusName}', '%') </if>
+					AND totalpay.isPay = 0 AND totalpay.logCost &gt; 0 
+				</where>
+				GROUP BY wf.repairnNmber
+			)
+			
+			UNION
+			
+			(
+				SELECT
+					'税费' AS warrId,'税费' AS state, '税费' AS imei,totalpay.repairNumber as repairNumber,
+					 sxdw.cusName AS cusName,'税费' AS modelType,totalpay.createTime AS priceDate,
+					'税费' AS priceReason, '税费' AS solution,
+					'税费' AS zzgzDesc,'1' AS number, totalpay.ratePrice AS unitPrice,
+					totalpay.ratePrice AS totalpayMoney, '税费' AS payReason,totalpay.remAccount AS remAccount,
+			  		totalpay.payTime AS payDate, totalpay.isPay AS isPay, totalpay.priceRemark AS priceRemark
+			  	FROM t_sale_workflow_totalpay totalpay
+				LEFT JOIN t_sale_workflow wf on totalpay.repairNumber=wf.repairnNmber
+				LEFT JOIN t_sale_sxdwmanage sxdw ON sxdw.cId = wf.sxdwId
+				LEFT JOIN t_sale_workflow_repair rep ON rep.wfId = wf.id
+				<where>
+					<if test="startTime != null and startTime != ''"> AND date_format(totalpay.payTime,'%Y-%m-%d') &gt;= #{startTime} </if>
+					<if test="endTime != null and endTime != ''"> AND date_format(totalpay.payTime,'%Y-%m-%d') &lt;= #{endTime} </if>
+					<if test="payType != null and payType!=''"> and totalpay.remAccount = #{payType}</if>
+					<if test="cusName != null and cusName != ''"> and sxdw.cusName like concat('%', '${cusName}', '%') </if>
+					AND totalpay.isPay = 0 AND totalpay.ratePrice &gt; 0 
+				</where>
+				GROUP BY wf.repairnNmber
+			)
+		)c
+		ORDER BY c.payDate DESC
+	</select>
+	
+	<!-- 最终故障 -->
+	 <select id="getFaultName" resultType="String" parameterType="String">
+	   		SELECT GROUP_CONCAT(zzgz.faultType SEPARATOR' | ') FROM t_sale_zgzmanage AS zzgz 
+			WHERE  zzgz.Id IN 
+			<foreach collection="array" item="id" open="(" separator="," close=")">
+				#{id}
+			</foreach>
+	 </select> 
+</mapper>

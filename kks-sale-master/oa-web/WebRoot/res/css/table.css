@@ -1,0 +1,17 @@
+
+.tablecss{
+border-left: 1px solid #99BBE8; 
+border-top: 1px solid #99BBE8;
+border-right: 1px solid #99BBE8; 
+border-bottom: 1px solid #99BBE8;
+border-collapse:collapse;
+}
+
+td { 
+border-left: 1px solid #99BBE8; 
+border-top: 1px solid #99BBE8;
+border-right: 1px solid #99BBE8; 
+border-bottom: 1px solid #99BBE8; 
+font-size:11px; 
+padding: 3px 0px 3px 0px;  
+} 

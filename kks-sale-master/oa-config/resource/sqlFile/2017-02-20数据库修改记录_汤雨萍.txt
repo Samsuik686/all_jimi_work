@@ -1,0 +1,81 @@
+
+-- 2017-02-17 汤雨萍  发货十五天后客户未评价的设备默认给好评
+
+ALTER TABLE t_sale_feedback ADD COLUMN updateTime datetime DEFAULT NULL COMMENT '修改时间';
+
+CREATE TABLE sys_sequence(
+	ID VARCHAR(32),
+	NAME VARCHAR(50),
+	CURRENT_VALUE INT(11) NOT NULL DEFAULT 0,
+	INCREMENT INT(11) NOT NULL DEFAULT 1,
+	PRIMARY KEY (NAME)
+);
+
+INSERT INTO sys_sequence VALUES(REPLACE(UUID(),'-',''),'t_sale_feedback',4,1);
+
+
+DROP FUNCTION IF EXISTS nextval;
+CREATE FUNCTION `nextval`(seq_name VARCHAR(50)) RETURNS int(11)
+BEGIN
+	UPDATE sys_sequence SET CURRENT_VALUE = CURRENT_VALUE + INCREMENT where NAME = seq_name;
+	RETURN currval(seq_name);
+END;
+
+DROP FUNCTION IF EXISTS currval;
+CREATE FUNCTION `currval`(seq_name VARCHAR(50)) RETURNS int(11)
+BEGIN
+	DECLARE CUR_VALUE INTEGER; 
+	SET CUR_VALUE = 0 ;
+	SELECT CURRENT_VALUE INTO CUR_VALUE FROM sys_sequence WHERE NAME = seq_name;
+	RETURN CUR_VALUE;
+END;
+
+
+DROP PROCEDURE IF EXISTS proc_update_updateFeedback;
+CREATE PROCEDURE proc_update_updateFeedback()
+BEGIN
+	DECLARE f_repairnNumber VARCHAR(255);
+
+	DECLARE cur1 CURSOR FOR SELECT repairnNmber from t_sale_workflow_pack WHERE repairnNmber NOT IN (SELECT repairnNmber from t_sale_feedback) AND DATEDIFF(CURRENT_DATE(),DATE_FORMAT(packTime,'%Y-%m-%d')) > 15 AND packState = 1;
+	
+	DECLARE CONTINUE HANDLER FOR SQLSTATE '02000' SET @CURSOR_STOP_FLAG = true;
+	
+	SET @CURSOR_STOP_FLAG =false;
+ 
+    OPEN cur1;
+		FETCH cur1 INTO f_repairnNumber;
+		WHILE !@CURSOR_STOP_FLAG DO
+			INSERT INTO t_sale_feedback VALUES ((SELECT nextval('t_sale_feedback') id),f_repairnNumber,0,0,'系统默认评价',NULL,NOW(),NULL,NOW());
+		FETCH cur1 INTO f_repairnNumber;
+		END WHILE;	
+	CLOSE cur1;
+END;
+
+--2017-2-22 19:05:47  黄刚强   数据库添加字段
+ALTER TABLE t_sale_workflow_totalpay ADD COLUMN ratePrice DECIMAL(8,2) COMMENT '税费';
+ALTER TABLE t_sale_xspjcosts ADD COLUMN receipt INT(4) COMMENT '是否开发票 0:是; 1:否';
+ALTER TABLE t_sale_xspjcosts ADD COLUMN rate DECIMAL(8,2) COMMENT '税率';
+ALTER TABLE t_sale_xspjcosts ADD COLUMN sumPrice DECIMAL(8,2) COMMENT '总费用';
+ALTER TABLE t_sale_xspjcosts ADD COLUMN ratePrice DECIMAL(8,2) COMMENT '税费';
+--单台设备备注字段名修改
+ALTER TABLE t_sale_workflow_price CHANGE COLUMN one_price_remark onePriceRemark VARCHAR(255);
+
+
+-- 2017-02-22 测试工站表
+
+CREATE TABLE t_sale_workflow_test(
+	tid INT(11) NOT NULL AUTO_INCREMENT,
+	wfId INT(11) COMMENT '主表ID',
+	test_result VARCHAR(500) DEFAULT NULL COMMENT '测试结果',
+	test_time datetime DEFAULT NULL COMMENT '测试时间',
+	test_person VARCHAR(32) DEFAULT NULL COMMENT '测试人',
+	test_status INT(11) DEFAULT NULL COMMENT '测试工站状态 -1:已发送, 0；已受理，测试中，1：待维修，测试中，2，待终检，测试中，3：测试完成',
+	data_source VARCHAR(32) DEFAULT NULL COMMENT '数据来源站' ,
+	send_time datetime DEFAULT NULL COMMENT '发送到测试工站时间',
+	update_datetime datetime DEFAULT NULL COMMENT '修改时间，同一台设备二次发送至测试',
+	PRIMARY KEY (tid)
+) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8 COMMENT='测试工站表';
+
+
+-- 2017-02-28
+ALTER TABLE t_sale_workflow ADD COLUMN sendStatus VARCHAR(10) COMMENT '受理站发送状态  0 未发送，1：已发送';

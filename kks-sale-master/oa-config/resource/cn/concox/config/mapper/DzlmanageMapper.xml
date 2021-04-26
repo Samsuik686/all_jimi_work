@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.DzlmanageMapper">
+	<resultMap type="Dzlmanage" id="Dzlmanage">
+	</resultMap>
+	
+    <sql id="selectAllFields">
+        SELECT dzlId, gId, dzlType,
+            proNO, proName, proSpeci, placesNO, consumption, remark, masterOrSlave, enabledFlag
+        FROM t_sale_dzlmanage
+    </sql>
+    
+    <select id="getDzlmanageList" parameterType="Dzlmanage" resultType="Dzlmanage">
+        <include refid="selectAllFields" />
+        <where>
+        	<if test="po.gId != null">
+				and gId = #{po.gId}
+			</if>
+            <if test="po.proNO != null and po.proNO != ''">
+                 and proNO like concat('%', '${po.proNO}', '%')
+            </if>
+            <if test="po.proName != null and po.proName != ''">
+                 and proName like concat('%', '${po.proName}', '%')
+            </if>
+            <if test="po.proSpeci != null and po.proSpeci != ''">
+                 and proSpeci like concat('%', '${po.proSpeci}', '%')
+            </if>
+            <if test="po.masterOrSlave != null and po.masterOrSlave != ''">
+				and masterOrSlave = #{po.masterOrSlave}
+			</if>
+			 <!-- 维修不显示禁用的项 -->
+            <if test="po.showType != null and po.showType == 'repair'"> and enabledFlag = 1</if>
+        </where>
+         order by (placesNO+0)
+    </select>
+    
+    <!-- 新增修改看是否存在gid -->
+	<select id="isExistsGid" parameterType="Dzlmanage" resultType="Integer">
+		SELECT gid from t_sale_basegroup WHERE gname = #{dzlType} AND enumSn ='BASE_DZL'
+	</select>
+	
+	<!-- 删除或修改组时查看组下是否存在数据 -->
+	<select id="getCountByGid" parameterType="Dzlmanage" resultType="int">
+		SELECT count(1) from t_sale_dzlmanage WHERE gId = #{gId}
+	</select>
+	
+	<!-- 修改分组时，改其下数据 -->
+	<update id="updateByGid" parameterType="Dzlmanage">
+      	UPDATE t_sale_dzlmanage set dzlType = (SELECT gname from t_sale_basegroup WHERE gId = #{gId}) 
+      	WHERE gId = #{gId}
+    </update>
+    
+    <insert id="insert" parameterType="Dzlmanage">
+        INSERT INTO t_sale_dzlmanage (gId, dzlType,
+            proNO, proName, proSpeci, placesNO, consumption, 
+            remark, masterOrSlave, enabledFlag
+        ) VALUES ((SELECT gid from t_sale_basegroup WHERE gname = #{dzlType} AND enumSn ='BASE_DZL'), #{dzlType},
+            #{proNO}, #{proName}, #{proSpeci}, #{placesNO}, #{consumption}, 
+            #{remark}, #{masterOrSlave}, #{enabledFlag}
+        )
+    </insert>
+
+    <update id="update" parameterType="Dzlmanage">
+        UPDATE t_sale_dzlmanage
+        <set>
+        	<if test="gId !=null"> gId = #{gId}, </if>
+        	<if test="dzlType != null and dzlType !=''"> dzlType = #{dzlType}, </if>
+            <if test="proNO != null and proNO != ''"> proNO = #{proNO}, </if>
+            <if test="proName != null and proName != ''"> proName = #{proName}, </if>
+            <if test="proSpeci != null and proSpeci != ''"> proSpeci = #{proSpeci}, </if>
+            <if test="placesNO != null and placesNO != ''"> placesNO = #{placesNO}, </if>
+            <if test="consumption != null"> consumption = #{consumption}, </if>
+            <if test="masterOrSlave != null and masterOrSlave != ''"> masterOrSlave = #{masterOrSlave}, </if>
+            <if test="remark != null"> remark = #{remark}, </if>
+            <if test="enabledFlag != null"> enabledFlag = #{enabledFlag}, </if>
+        </set>
+        WHERE dzlId = #{dzlId}
+    </update>
+    
+    <delete id="delete">
+        DELETE FROM t_sale_dzlmanage WHERE dzlId = #{dzlId}
+    </delete>
+    
+    <select id="getT" parameterType="String" resultType="Dzlmanage">
+        <include refid="selectAllFields" />
+        WHERE dzlId = #{id}
+    </select>
+    
+   <select id="getDzlByProNO" parameterType="String" resultType="Dzlmanage">
+		<include refid="selectAllFields" />
+		WHERE proNO = #{proNO}
+		LIMIT 1
+	</select>
+
+	<!-- 根据编号、序号、M|T 判断是否是同一数据-->
+	<select id="isExists" parameterType="Dzlmanage" resultType="int">
+		SELECT count(1) FROM t_sale_dzlmanage
+		WHERE proNO = #{proNO} AND placesNO = #{placesNO} AND masterOrSlave = #{masterOrSlave}
+		<if test ="dzlId !=null"> AND dzlId != #{dzlId} </if>
+	</select>
+    
+    <!-- 电子料是否被引用 -->
+	<select id="findCountByDzl" parameterType="Dzlmanage" resultType="int">
+		SELECT SUM(a.num) FROM(
+			SELECT COUNT(1) AS num FROM t_sale_workflow_related AS tswr WHERE FIND_IN_SET(#{dzlId}, tswr.dzlDesc) 
+			UNION 
+			SELECT COUNT(1) AS num FROM t_sale_material AS mat WHERE FIND_IN_SET( 
+				(SELECT proNO FROM t_sale_material where proNO = (SELECT proNO FROM t_sale_dzlmanage where dzlId = #{dzlId})) , mat.proNO)
+		) a		
+	</select>
+	
+	<!-- 电子料匹配  -->
+	<select id="getGRoupConcat" resultType="String" parameterType="String">
+   		SELECT GROUP_CONCAT(dzl.proName SEPARATOR' | ') AS pjlDesc FROM t_sale_dzlmanage AS dzl 
+		WHERE dzl.dzlId IN 
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </select>
+
+	<!-- 导入时判断数据存在后获取该条数据  -->
+    <select id="getOneDzlInfo" resultType="Dzlmanage" parameterType="String">
+   		SELECT * FROM t_sale_dzlmanage
+   		WHERE proNO = #{proNO} AND placesNO = #{placesNO} AND masterOrSlave = #{masterOrSlave}
+   		limit 1
+    </select>
+</mapper>

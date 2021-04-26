@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.workflow.mapper.WorkflowPriceMapper">
+  
+   <sql id="selectAllFields">
+        SELECT 
+        	id , wfId, remAccount, payTime, isPay, offer, priceState,
+        	repairMoney, createTime, updateTime, onePriceRemark
+        FROM t_sale_workflow_price
+    </sql>
+    
+    <insert id="insert"  useGeneratedKeys="true" keyProperty="id" parameterType="WorkflowPrice">
+        INSERT INTO t_sale_workflow_price (
+       		 id, wfId, remAccount, payTime, isPay, offer, priceState, 
+       		 repairMoney, createTime, updateTime, onePriceRemark
+        ) VALUES (
+        	#{id}, #{wfId}, #{remAccount}, #{payTime}, #{isPay}, #{offer}, #{priceState}, 
+        	#{repairMoney}, #{createTime}, #{updateTime}, #{onePriceRemark}
+        )
+    </insert>
+   
+    <update id="update" parameterType="WorkflowPrice">
+        UPDATE t_sale_workflow_price
+        <set>
+            <if test="wfId != null"> wfId = #{wfId}, </if>
+            <if test="remAccount != null and remAccount != ''"> remAccount = #{remAccount}, </if>
+            <if test="payTime != null"> payTime = #{payTime}, </if>
+            <if test="isPay != null"> isPay = #{isPay}, </if>
+            <if test="priceState != null"> priceState = #{priceState}, </if>
+            <if test="createTime != null"> createTime = #{createTime}, </if>
+            <if test="updateTime != null"> updateTime = #{updateTime}, </if>
+<!--             <if test="repairMoney != null"> repairMoney = #{repairMoney}, </if>  -->
+            <if test="onePriceRemark != null"> onePriceRemark = #{onePriceRemark}, </if>   
+        </set>
+         WHERE id = #{id}
+    </update>
+    
+    <!-- 根据送修批号更新报价人 -->
+    <update id="updateOffer" parameterType="WorkflowPrice">
+   	  UPDATE t_sale_workflow_price
+      	 set offer = #{offer}  	
+    	 where wfId IN
+		(select id from t_sale_workflow w where w.repairnNmber=#{price_repairnNmber})
+    </update>
+     
+     <select id="getT" parameterType="Integer" resultType="WorkflowPrice">
+        <include refid="selectAllFields" />
+        WHERE id = #{id}
+    </select>
+    
+     <select id="getByWfid" parameterType="Integer" resultType="WorkflowPrice">
+        <include refid="selectAllFields" />
+        WHERE wfId = #{wfId} ORDER BY wfId DESC LIMIT 1
+    </select>
+       
+      <delete id="delete">
+        DELETE FROM t_sale_workflow_price
+        WHERE id =#{id}
+    </delete>
+    
+    <delete id="delPriceByWfid" parameterType="String">
+    	 DELETE FROM t_sale_workflow_price
+        WHERE wfId IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+        	#{id}
+        </foreach>
+    </delete>
+    
+    <select id="getPricePageList" parameterType="WorkflowPrice"  resultType="WorkflowPrice">
+     SELECT
+		price.id,
+		price.wfId,
+		price.remAccount,
+		price.payTime,
+		price.isPay,
+		price.offer,
+		price.priceState,
+		price.repairMoney,
+		price.createTime,
+		price.updateTime,
+		price.onePriceRemark AS onePriceRemark,
+		swt.receipt,
+		swt.rate,
+		swt.customerReceipt,
+		swt.priceRemark,
+		swt.remAccount AS t_remAccount,
+		wf.repairnNmber AS price_repairnNmber,
+		wf.imei AS price_imei,
+		wf.lockId AS price_lockId,
+		wf.bluetoothId AS price_bluetoothId,
+		sxdw.cusName AS price_cusName,
+		rep.isRW AS w_isRW,
+		rep.engineer AS price_engineer,
+		wf.acceptRemark AS price_acceptRemark,
+		wf.remark AS price_sxRemark,
+		wp.expressNO AS price_expressNO,
+		swr.zzgzDesc AS price_zzgzDesc,
+		rep.isPrice as price_isPrice,
+		wf.payDelivery,
+		rep.repairRemark AS price_repairRemark,
+		rep.priceRemark AS price_priceRemark,
+		wf.repairNumberRemark AS price_repairNumberRemark,
+		wt.test_result AS testResult, wt.test_person AS testPerson, wt.test_time AS testTime
+	FROM
+		t_sale_workflow_price price
+	LEFT JOIN t_sale_workflow wf  ON wf.id = price.wfId
+	LEFT JOIN t_sale_workflow_repair AS rep ON wf.id = rep.wfId
+	LEFT JOIN t_sale_sxdwmanage AS sxdw ON sxdw.cId = wf.sxdwId
+	LEFT JOIN t_sale_workflow_totalpay swt ON swt.repairNumber = wf.repairnNmber
+	LEFT JOIN t_sale_workflow_pack wp ON wp.repairnNmber = wf.repairnNmber
+	LEFT JOIN t_sale_workflow_related swr ON swr.id = wf.rfild
+	LEFT JOIN
+		t_sale_workflow_test wt ON wt.wfId = price.wfId
+     <where>
+     	  <!-- 全部   | 待处理    /已处理 -->
+       	  <if test="po.priceState != null   and po.priceState == 2"> and price.priceState &gt; -1</if>
+       	  <if test="po.priceState != null   and po.priceState == 1"> and price.priceState = -1</if>
+       	  <if test="po.state != null and po.state != '' "> and price.priceState = #{po.state}</if>
+       	  <if test="po.startTime != null and po.startTime != ''"> AND date_format(price.createTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+		  <if test="po.endTime != null and po.endTime != ''"> AND date_format(price.createTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+		  <if test ="po.treeDate != null and po.treeDate != '' ">AND date_format(price.createTime,'%Y-%m-%d') = #{po.treeDate}</if>
+          <if test="po.price_repairnNmber != null and po.price_repairnNmber != ''"> and wf.repairnNmber like concat('%', '${po.price_repairnNmber}', '%') </if>
+          <if test="po.imeis != null"> 
+              and wf.imei in
+              <foreach collection="po.imeis" item="item" open="(" separator="," close=")">  
+                   ${item}
+              </foreach>
+          </if>
+          <if test="po.price_lockId != null and po.price_lockId != ''"> and wf.lockId = #{po.price_lockId} </if>
+          <if test="po.price_cusName != null and po.price_cusName != ''"> and sxdw.cusName like concat('%', '${po.price_cusName}', '%') </if>
+     </where>
+          <!-- GROUP BY wf.repairnNmber -->
+          ORDER BY wf.repairnNmber, price.createTime DESC
+    </select>
+    
+    <select id="queryListByrepairNumber" parameterType="String"  resultType="Workflow">
+     SELECT
+		wf.state, wf.repairnNmber, wf.imei, wf.lockId, wf.bluetoothId, wf.insideSoftModel,
+		wf.sxdwId, wf.xhId, wf.isWarranty, wf.lockInfo,
+		sxdw.phone AS w_phone, 
+		sxdw.cusName AS w_cusName,
+		sxdw.remark AS w_cusRemark,
+		zbxh.model AS w_model,
+		zbxh.marketModel AS w_marketModel,
+		price.id,
+		price.wfId,
+		price.remAccount,
+		price.payTime,
+		price.isPay,
+		price.offer AS w_offer,
+		price.priceState AS w_priceStateFalg,
+		rep.repairPrice As w_repairPrice,
+		CASE rep.isPrice WHEN '0' THEN  rep.sumPrice ELSE 0 END As w_sumPrice,
+		price.createTime,
+		price.updateTime,
+		price.repairMoney w_priceRepairMoney,
+		rep.isRW AS w_isRW,
+		rep.engineer AS w_engineer,
+		wf.acceptanceTime,
+		wf.acceptRemark AS acceptRemark,
+		wf.remark AS remark,
+		wp.expressNO AS w_expressNO,
+		wkr.zzgzDesc AS w_zzgzDesc,
+		wkr.wxbjDesc AS w_wxbjDesc,
+		wf.rfild,
+		rep.repairRemark AS t_repairRemark,
+		rep.priceRemark AS t_priceRemark,
+		wf.repairNumberRemark,
+		rep.repairRemark AS w_repairRemark,
+		wt.test_result AS testResult, wt.test_person AS testPerson, wt.test_time AS testTime
+	FROM t_sale_workflow AS wf
+	LEFT JOIN t_sale_sxdwmanage AS sxdw ON sxdw.cId = wf.sxdwId
+	LEFT JOIN t_sale_zbxhmanage AS zbxh ON zbxh.mId = wf.xhId
+	LEFT JOIN t_sale_workflow_related AS wkr ON wkr.id= wf.rfild
+	LEFT JOIN t_sale_workflow_price price ON wf.id = price.wfId
+	LEFT JOIN t_sale_workflow_repair AS rep ON wf.id = rep.wfId
+	LEFT JOIN t_sale_workflow_pack wp ON wp.repairnNmber = wf.repairnNmber
+	LEFT JOIN t_sale_workflow_test wt ON wt.wfId = wf.id
+	<where>
+		AND wf.repairnNmber = #{repairnNmber} 
+		<if test="state != null and state != ''"> AND wf.state = #{state}</if>
+	</where>
+    GROUP BY wf.imei
+    ORDER BY wf.state 
+    </select> 
+    
+    <!-- 查询是否需要填写物流费 -->
+   <select id="queryListLogCost" parameterType="String"  resultType="Workflow">
+    	SELECT * FROM (
+	    	SELECT wf.id,wf.repairnNmber,wf.sxdwId,sx.cusName,wf.state,wf.acceptRemark,wf.acceptanceTime,wf.payedLogCost
+	    			,sx.phone as w_phone,swt.logcost as w_logCost,swt.customerReceipt AS w_customerReceipt, swt.batchPjCosts  AS w_batchPjCosts, 
+	    			swt.remAccount AS w_remAccount, swt.priceRemark  AS w_priceRemark, swt.receipt AS w_receipt, swt.rate AS w_rate, 
+	    			swt.ratePrice AS w_ratePrice, swt.totalMoney AS w_totalMoney
+	    	from (
+					SELECT sw.id, sw.sxdwId, sw.repairnNmber, sw.state, sw.acceptRemark, sw.acceptanceTime, sw.payedLogCost ,sw.sendStatus
+						 from t_sale_workflow sw 
+						 INNER JOIN t_sale_workflow_repair swr on sw.id = swr.wfId  						 
+						 AND sw.sendStatus = 1
+						 AND swr.repairState = -1
+						 AND (swr.sumPrice IS NULL OR swr.sumPrice = 0)
+						 <if test="po.payedLogCost != null and po.payedLogCost != ''   and  po.payedLogCost == 1"> AND sw.state != -1 </if>			
+					GROUP BY sw.repairnNmber
+				) wf
+				INNER JOIN t_sale_sxdwmanage sx ON wf.sxdwId = sx.cid
+				LEFT JOIN t_sale_workflow_totalpay swt ON swt.repairnumber = wf.repairnnmber			
+			
+				 WHERE ( ( select COUNT(1) from t_sale_workflow tw,t_sale_workflow_repair wr where tw.id = wr.wfid AND tw.isWarranty = 0 AND wr.isRW = 1 AND tw.payDelivery = 'N'  AND repairnNmber = wf.repairnNmber) = 0
+	    		AND NOT EXISTS (select DISTINCT tw.repairnNmber from t_sale_workflow tw,t_sale_workflow_price wp where tw.id = wp.wfId)				
+				
+	      		) OR
+	      		(
+	      			( SELECT COUNT(1) from  t_sale_workflow_price where wfId IN (SELECT id from t_sale_workflow where repairnNmber = wf.repairnNmber) ) = 
+					(	SELECT COUNT(1) from  t_sale_workflow_repair where wfId IN (SELECT id from t_sale_workflow where repairnNmber = wf.repairnNmber)  AND isPrice = '1' )
+	      		)
+	       
+	       GROUP BY wf.repairnNmber	
+	    ) wf      
+       <where>      		
+			<if test="po.repairnNmber != null   and po.repairnNmber !=''"> AND wf.repairnNmber = #{po.repairnNmber} </if>
+			<if test="po.payedLogCost != null and po.payedLogCost != ''   and po.payedLogCost == 2 "> AND wf.payedLogCost = '' </if>
+			<if test="po.payedLogCost != null and po.payedLogCost != ''   and (po.payedLogCost ==0 or po.payedLogCost == 1)"> AND wf.payedLogCost = #{po.payedLogCost} </if>			
+       		<if test="po.w_cusName != null      and po.w_cusName !=''"> AND wf.cusName like concat('%',  #{po.w_cusName}, '%') </if>      		
+      	</where>	
+       ORDER BY wf.payedLogCost DESC
+    </select>
+    
+    <!-- 查询所有待报价批次号 -->
+    <select id="getPriceRepairNumber" resultType="Workflow" parameterType="WorkflowPrice"> 
+   	 	SELECT tsw.repairnNmber, tsw.cusName, total.isPay AS w_isAllPay, tsw.state AS w_priceState from (  	
+			SELECT tsw.* from t_sale_workflow_price twp , t_sale_workflow tsw 
+			<where>
+				AND twp.wfid = tsw.id AND ( tsw.state = 3 or tsw.state = 9 )
+				AND tsw.repairnNmber NOT IN (SELECT DISTINCT repairnNmber FROM t_sale_workflow WHERE state IN (0,1,2) 
+				AND id NOT IN (select wfId from t_sale_workflow_ficheck WHERE state = 3)) 		
+				<if test="price_cusName != null and price_cusName !='' ">AND tsw.cusName like concat('%', #{price_cusName}, '%') </if>
+			</where>
+			GROUP BY tsw.repairnNmber   ) tsw
+		LEFT JOIN t_sale_workflow_totalpay total ON tsw.repairnNmber = total.repairNumber
+		WHERE  (SELECT COUNT(1) FROM t_sale_workflow_repair where repairState = 1 AND wfid in (SELECT id from t_sale_workflow where repairnNmber = tsw.repairnNmber)) = 0
+			 	
+    </select>
+    
+    <update id="updateState" parameterType="String">
+   		 UPDATE t_sale_workflow_price
+   		SET
+   			priceState = #{priceState}
+   		WHERE  wfId IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+     </update> 
+    
+    <!--获取批次报价的维修总费用  -->
+    <select id="bathSumRepairPrice" parameterType="String" resultType="BigDecimal">
+        select sum(repairMoney) from t_sale_workflow_price
+         WHERE wfId IN (
+         	SELECT wf.id FROM t_sale_workflow wf, t_sale_workflow_price wfp 
+			WHERE
+			wf.id=wfp.wfId
+			AND wf.repairnNmber = #{repairnNmber}
+			AND wfp.ispay = '1' <!-- 未付款 -->
+			AND (wfp.priceState='0' OR wfp.priceState='2')<!-- 待报价或已报价但未付款 -->
+		)
+    </select>
+    
+    <!--获取批次报价的维修表总费用  -->
+    <select id="bathSumRepairPriceByRepair" parameterType="String" resultType="BigDecimal">
+       select sum(repairPrice) FROM t_sale_workflow_repair
+         WHERE wfId IN (
+         	SELECT wf.id FROM t_sale_workflow wf, t_sale_workflow_repair wfpr 
+			WHERE
+			wf.id = wfpr.wfId
+			AND wf.repairnNmber = #{repairnNmber}
+			AND wfpr.ispay = 1 <!-- 未付款 -->
+			AND wfpr.isPrice = 0 <!-- 未放弃报价 -->
+		)
+    </select>
+    
+    <!-- 查询批次物流费 -->
+    <select id="selLOgcostByRepairNumber" parameterType="workflowPrice" resultType="WorkflowTotalpay">
+    	select id,repairNumber,repairMoney,logCost,totalMoney,receipt,rate,batchPjCosts
+    		from t_sale_workflow_totalpay WHERE repairNumber = #{price_repairnNmber}
+    </select>
+    
+     <!-- 根据批次修改状态（已付款） -->
+     <update id="updateStateByRepairnNmber" parameterType="String">
+		UPDATE t_sale_workflow_price p
+		SET p.priceState=1,p.isPay=0
+		where (p.priceState=0 OR p.priceState=2) and p.wfId IN
+		(select id from t_sale_workflow w where w.repairnNmber=#{repairnNmber})
+    </update>
+    
+     <!-- 根据批次修改状态(未付款) -->
+     <update id="updateStateByRepairnNmberIsNotPay" parameterType="String">
+		UPDATE t_sale_workflow_price p
+		SET p.priceState=2,p.isPay=1
+		where (p.priceState=0 OR p.priceState=2) and p.wfId IN
+		(select id from t_sale_workflow w where w.repairnNmber=#{repairnNmber})
+    </update>
+    
+    <update id="updateStateByRepairnNmberIsPay">
+		UPDATE t_sale_workflow 
+   		SET
+   			state = #{state}
+   		WHERE  repairnNmber = #{repairnNmber} AND (state=3 OR state=9)
+    </update>
+    
+     <update id="updateRepairMoneyByWfid" parameterType="WorkflowPrice">
+		UPDATE t_sale_workflow_price 
+			SET repairMoney = #{repairMoney} where wfId = #{wfId}
+    </update>
+    
+    <update id="updateLogcostStatusByNmber" parameterType="String">
+		UPDATE t_sale_workflow 
+   		SET payedLogCost = #{payedLogCost}
+   		WHERE  repairnNmber = #{repairnNmber}
+    </update>
+    
+    
+ 	<!-- =======================判断需要报价的批次是否全部发送到报价 start==================================== -->  
+ 	<!-- 查询某批次在受理、分拣段以及维修、测试（受理测试、维修测试）段待报价的数量，若为0，则该批次可以报价 -->
+ 	 <select id="selectPriceCountByRepairnNmber" parameterType="String" resultType="int">
+		select IFNULL(SUM(1),0) from t_sale_workflow sw LEFT JOIN t_sale_workflow_repair swr on sw.id = swr.wfId
+		LEFT JOIN t_sale_workflow_test swt ON sw.id = swt.wfId
+		WHERE sw.repairnNmber = #{repairnNmber}
+			  and ( sw.state IN(0,1,2) OR swr.repairState IN(0,1) OR swt.test_status IN (0,1) ) 
+	
+	</select>
+    <!-- =======================判断需要报价的批次是否全部发送到报价 end==================================== --> 
+    
+    <!-- 查询该批次所有待付款数据 -->
+     <select id="getWfIdsByRepairnNmber" parameterType="String" resultType="String">
+		SELECT GROUP_CONCAT(wfId) wfId FROM t_sale_workflow_price price
+		INNER JOIN t_sale_workflow sw ON price.wfId = sw.id
+		WHERE sw.repairnNmber = #{repairnNmber} AND price.priceState = '2'
+	</select>
+	
+	<!-- 查询选中的数据是否有不是（待报价或已报价，待付款或放弃维修）的？有：不允许放弃报价发送维修 -->
+	 <select id="getCountHasNotPriceByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_price
+		WHERE wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		AND (priceState =0 OR priceState =2 OR priceState = 4)
+	</select>
+	
+	<!-- 报价工站查询选中的数据是否有不是已付款？有：不允许点击已付款，发送维修 -->
+	<select id="getCountHasNotPayByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_price
+		WHERE priceState = 1
+		AND wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<!-- 报价工站查询选中的数据是否有不是待报价？有：不允许点击待报价，发送维修 -->
+	<select id="getCountHasPriceByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_price
+		WHERE priceState = 0
+		AND wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<!-- 报价工站查询选中的数据是否有已付款的数据？有：不允许点击报价-->
+	<select id="getCountPayByRepairnNmber" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_price price
+		INNER JOIN t_sale_workflow sw ON price.wfId = sw.id
+		WHERE sw.repairnNmber = #{repairnNmber} AND price.priceState = 1
+	</select>
+	
+	<!-- 查询延保服务费 -->
+	<select id="queryProlongCost" resultType="cn.concox.vo.basicdata.ProlongCost">
+        SELECT one_year_price AS oneYearPrice, two_year_price AS twoYearPrice,  three_year_price AS threeYearPrice
+        FROM t_sale_prolong_price
+        WHERE id = 1
+    </select>
+    
+    <!-- 修改延保服务费 -->
+    <update id="updateProlongCost" parameterType="cn.concox.vo.basicdata.ProlongCost">
+        UPDATE t_sale_prolong_price
+        SET
+        one_year_price = #{oneYearPrice},
+        two_year_price = #{twoYearPrice},
+        three_year_price = #{threeYearPrice}
+        WHERE id = 1
+    </update>
+    
+    <insert id="insertProlongInfo" parameterType="cn.concox.vo.basicdata.ProlongInfo">
+        INSERT INTO t_sale_prolong(
+        imei, repairNumber, prolongYear, prolongCost, creationDate
+        ) VALUES(
+        #{imei}, #{repairNumber}, #{prolongYear}, #{prolongCost}, NOW()
+        )
+    </insert>
+    
+    <update id="updateProlongInfo" parameterType="cn.concox.vo.basicdata.ProlongCost">
+        UPDATE t_sale_prolong
+        SET
+        warrantyDate = #{warrantyDate},
+        updationDate = NOW()
+        WHERE 
+        imei = #{imei}
+    </update>
+    
+    <select id="getProlongInfo" parameterType="cn.concox.vo.basicdata.ProlongInfo" resultType="cn.concox.vo.basicdata.ProlongInfo">
+        SELECT imei, repairNumber, prolongYear, prolongCost, warrantyDate
+        FROM t_sale_prolong
+       <where>              
+            <if test="imei != null and imei !=''"> AND imei = #{imei} </if>
+            <if test="repairNumber != null and repairNumber != ''"> AND repairNumber = #{repairNumber} </if>
+        </where>    
+        ORDER BY creationDate DESC
+        LIMIT 1
+    </select>
+    
+    <update id="updateIsWarranty" >
+        UPDATE t_sale_workflow
+        SET
+        isWarranty = #{isWarranty}
+        WHERE id = #{id}
+    </update>
+    
+    <select id="getSumProlongCost" parameterType="String" resultType="BigDecimal">
+        SELECT 
+        sum(prolongCost) 
+        FROM
+        t_sale_prolong
+        WHERE
+        repairNumber = #{repairNumber}
+    </select>
+
+</mapper>

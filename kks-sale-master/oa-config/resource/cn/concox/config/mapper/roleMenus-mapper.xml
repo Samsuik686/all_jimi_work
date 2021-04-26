@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.rolePrivilege.mapper.RoleMenusMapper">
+
+    <insert id="insert" parameterType="RoleMenus">
+    	insert into t_oa_roler_menus(rolerId,parentId,menuId,functionId,creater,creatTime)
+    	values(#{rolerId,jdbcType=INTEGER},#{parentId,jdbcType=INTEGER},#{menuId,jdbcType=INTEGER},#{functionId,jdbcType=INTEGER},#{creater,jdbcType=VARCHAR},sysdate());
+    </insert> 
+   
+    <delete id="deleRoleMenus" parameterType="java.lang.Integer">
+		delete from t_oa_roler_menus where rolerId=#{rolerId}
+    </delete> 
+   
+    
+    <resultMap type="RoleMgt" id="getRolerInfo_resultMap">
+		<result property="rolerId" column="rolerId"/>
+		<result property="rolerName" column="rolerName"/>
+		<result property="rolerDesc" column="rolerDesc"/>
+		<result property="creater" column="creater"/>
+		<result property="creatTime" column="creatTime"/>
+		<result property="orderIndex" column="orderIndex"/>
+		<collection property="roleMenus" column="rolerId" javaType="ArrayList"  select="getRolerMenusByRolerId"></collection>
+	</resultMap>
+	
+	<select id="getRolerMenusByRolerId" resultType="RoleMenus" parameterType="java.lang.Integer">
+		select rolerId,parentId,menuId,functionId,creater,creatTime,orderindex from t_oa_roler_menus 
+		where rolerId=#{rolerId} order by parentId,menuId,functionId asc
+	</select>
+    
+   <select id="getRolerInfosByRolerId" resultMap="getRolerInfo_resultMap" parameterType="java.lang.Integer">
+    	SELECT rolerId,rolerName,rolerDesc,creater,creatTime,orderIndex
+		FROM t_oa_roler
+		WHERE rolerId=#{rolerId}
+   </select> 
+   
+   <select id="getRolerInfosByMenuId" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+    	SELECT rolerId
+		FROM t_oa_roler_menus
+		WHERE menuId=#{menuId}
+   </select>
+	<select id="getRolerInfosByMenuIds" resultType="Integer">
+		SELECT rolerId
+		FROM t_oa_role_menus
+		WHERE menuId IN
+		<foreach collection="list" item="menuId" open="(" close=")" separator="," >
+			#{menuId}
+		</foreach>
+	</select>
+      
+</mapper>

@@ -1,0 +1,44 @@
+-- 2017-03-06 汤雨萍
+ALTER TABLE t_sale_workflow ADD COLUMN machina_in_pack VARCHAR(10) DEFAULT NULL COMMENT '设备在装箱状态 Y：在装箱工站';
+
+-- 放弃报价操作记录，因为isprice放在repair表里面，就直接把这两个字段也放在repair表
+ALTER TABLE t_sale_workflow_repair ADD COLUMN giveup_price_person VARCHAR(30) DEFAULT NULL COMMENT '放弃报价操作人';
+ALTER TABLE t_sale_workflow_repair ADD COLUMN giveup_price_time datetime DEFAULT NULL COMMENT  '放弃报价操作时间';
+
+
+-- 异常反馈管理 走数据流
+ALTER TABLE t_sale_ycfkmanage_two RENAME t_sale_ycfkmanage_manage;
+
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN kf_status INT(11) COMMENT '客服站设备状态 0：待解决；1：已完成；';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN zd_status INT(11) COMMENT '终端站设备状态 0：待解决；1：已完成；';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN pt_status INT(11) COMMENT '平台站设备状态 0：待解决；1：已完成；';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN pz_status INT(11) COMMENT '品质站设备状态 0：待解决；1：已完成；';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN cp_status INT(11) COMMENT '产品站设备状态 0：待解决；1：已完成；';
+
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN zd_createTime datetime DEFAULT NULL COMMENT '设备发送到终端的时间';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN pt_createTime datetime DEFAULT NULL COMMENT '设备发送到平台的时间';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN pz_createTime datetime DEFAULT NULL COMMENT '设备发送到品质的时间';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN cp_createTime datetime DEFAULT NULL COMMENT '设备发送到产品的时间';
+
+
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN zd_person VARCHAR(30) COMMENT '终端站设备跟进人';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN pt_person VARCHAR(30) COMMENT '平台站设备跟进人';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN pz_person VARCHAR(30) COMMENT '品质站设备跟进人';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN cp_person VARCHAR(30) COMMENT '产品站设备跟进人';
+
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN current_site VARCHAR(40) COMMENT '设备当前所在工站';
+
+
+-- 2017-03-14 异常反馈管理添加维修和项目工站
+
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN wx_status INT(11) COMMENT '维修站设备状态 0：待解决；1：已完成；';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN xm_status INT(11) COMMENT '项目站设备状态 0：待解决；1：已完成；';
+
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN wx_createTime datetime DEFAULT NULL COMMENT '设备发送到维修的时间';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN xm_createTime datetime DEFAULT NULL COMMENT '设备发送到项目的时间';
+
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN wx_person VARCHAR(30) COMMENT '维修站设备跟进人';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN xm_person VARCHAR(30) COMMENT '项目站设备跟进人';
+
+
+

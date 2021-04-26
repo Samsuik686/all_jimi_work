@@ -1,0 +1,4 @@
+.easyui-layout .easyui-panel { padding-top:10px;}
+.easyui-layout .easyui-panel table tr td { border:none;}
+.easyui-layout .easyui-panel table tr:last-child { border-top:1px solid #ccc;}
+.datagrid-toolbar { overflow:hidden;}

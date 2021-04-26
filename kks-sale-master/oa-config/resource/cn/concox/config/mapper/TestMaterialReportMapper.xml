@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.TestMaterialReportMapper">
+
+	<resultMap id="queryList_resultMap" type="TestMaterialReport" ></resultMap>
+   
+
+    <select id="getTestMaterialReportList" parameterType="TestMaterialReport" resultType="TestMaterialReport">
+	   SELECT ams.bill, tsw.imei, ams.material_number materialNumber, ams.material_name materialName,
+	   		swrp.engineer, swrp.solution, tswr.zzgzDesc, tsw.acceptanceTime, 
+			IFNULL(tsw.salesTime,ams.out_time) AS salesTime, ams.project,
+		FIND_IN_SET(ams.material_number,tswr.sllDesc) as testMatfalg
+		FROM t_ams_test_material ams
+		LEFT JOIN t_sale_workflow tsw ON tsw.bill = ams.bill 
+		LEFT JOIN t_sale_workflow_related tswr ON tswr.id = tsw.rfild
+		LEFT JOIN t_sale_workflow_repair swrp ON swrp.wfId = tswr.id
+		<where>
+			<if test="po.bill != null and po.bill != ''"> AND ams.bill = #{po.bill}</if>
+			<if test="po.materialNumber != null and po.materialNumber != ''"> AND ams.material_number = #{po.materialNumber}  </if>
+			<if test="po.imei != null and po.imei != ''"> AND tsw.imei =  #{po.imei}  </if>
+			<if test="po.materialName != null and po.materialName != ''"> AND ams.material_name = #{po.materialName}</if>
+			<if test="po.testMatfalg != null and po.testMatfalg == 0"> AND FIND_IN_SET(ams.material_number,tswr.sllDesc) IS NOT NULL AND FIND_IN_SET(ams.material_number,tswr.sllDesc) !=''</if>
+			<if test="po.testMatfalg != null and po.testMatfalg == 1"> AND (FIND_IN_SET(ams.material_number,tswr.sllDesc) IS NULL OR FIND_IN_SET(ams.material_number,tswr.sllDesc) ='')</if>
+			<if test="po.startTime != null and po.startTime != ''"> AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &gt;=  #{po.startTime}  </if> 
+			<if test="po.endTime != null and po.endTime != ''"> AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &lt;=  #{po.endTime}  </if> 
+			<if test="po.saleStartTime != null and po.saleStartTime != ''"> AND date_format(tsw.salesTime,'%Y-%m-%d') &gt;=  #{po.saleStartTime}  </if> 
+			<if test="po.saleEndTime != null and po.saleEndTime != ''"> AND date_format(tsw.salesTime,'%Y-%m-%d') &lt;=  #{po.saleEndTime}  </if> 
+		</where> 
+		ORDER BY ams.bill, tsw.imei
+    </select>
+    
+    <select id="getTestMaterialReportRercentList" parameterType="TestMaterialReport" resultType="TestMaterialReport">
+		SELECT a.* FROM(
+			(
+				SELECT ams.bill bill, ams.project, ams.material_number materialNumber,ams.material_name materialName,COUNT(ams.material_number) matCount,
+						ams.amount amount, ams.create_user createUser,ams.create_time createTime,ams.material_specification materialSpecification,
+						ams.material_replace materialReplace,ams.place_number placeNumber, ams.supplier,ams.SMT_test_time sMTTestTime,
+						ams.SMT_work_order sMTWorkOrder, ams.assembly_test_time assemblyTestTime, ams.assembly_test_result assemblyTestTesult,
+						ams.test_result testResult, IFNULL(tsw.salesTime,ams.out_time) AS salesTime,ams.update_user updateUser, ams.out_time outTime,
+						ams.update_time updateTime,ams.SMT_test_result sMTTestResult,
+						CONCAT( CAST(COUNT(ams.material_number)/ams.amount*100 AS decimal(18,3)) ,"%") percent
+						FROM  t_sale_workflow tsw 
+						LEFT JOIN t_sale_workflow_related tswr ON tswr.id = tsw.rfild
+						LEFT JOIN t_sale_workflow_repair swrp ON swrp.wfId = tswr.id
+						INNER JOIN t_ams_test_material ams ON tsw.bill = ams.bill 
+				WHERE FIND_IN_SET(ams.material_number,tswr.sllDesc)
+				GROUP BY ams.material_number,bill
+			)
+			UNION
+			(
+				SELECT ams.bill bill, ams.project, ams.material_number materialNumber,ams.material_name materialName,0 matCount,
+						ams.amount amount, ams.create_user createUser,ams.create_time createTime,ams.material_specification materialSpecification,
+						ams.material_replace materialReplace,ams.place_number placeNumber, ams.supplier,ams.SMT_test_time sMTTestTime,
+						ams.SMT_work_order sMTWorkOrder, ams.assembly_test_time assemblyTestTime, ams.assembly_test_result assemblyTestTesult,
+						ams.test_result testResult, IFNULL(tsw.salesTime,ams.out_time) AS salesTime,ams.update_user updateUser, ams.out_time outTime,
+						ams.update_time updateTime,ams.SMT_test_result sMTTestResult,
+						CONCAT(0.00 ,"%") percent
+				FROM t_ams_test_material ams 
+						LEFT JOIN  t_sale_workflow tsw ON tsw.bill = ams.bill
+						LEFT JOIN t_sale_workflow_related tswr ON tswr.id = tsw.rfild
+						LEFT JOIN t_sale_workflow_repair swrp ON swrp.wfId = tswr.id
+				 WHERE
+				FIND_IN_SET(ams.material_number,tswr.sllDesc) IS null OR FIND_IN_SET(ams.material_number,tswr.sllDesc) = 0
+				ORDER BY ams.material_number
+			)
+		)a
+		<where>
+			<if test="po.bill != null and po.bill != ''"> AND bill = #{po.bill}</if>
+			<if test="po.materialNumber != null and po.materialNumber != ''"> AND materialNumber = #{po.materialNumber}  </if>
+			<if test="po.materialName != null and po.materialName != ''"> AND materialName like concat('%', '${po.materialName}', '%')</if>
+		</where> 
+		GROUP BY materialNumber,bill 
+		ORDER BY materialNumber
+    </select>
+</mapper>

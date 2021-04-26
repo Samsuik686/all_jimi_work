@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.cumstomFlow.mapper.CustomFlowMapper">
+
+	<select id="customFlowPageList" parameterType="cn.concox.vo.customProcess.CustomFlow"
+		resultType="cn.concox.vo.customProcess.CustomFlow">
+		SELECT name,remark,create_user AS createUser,create_date AS
+		createDate,status
+		FROM
+		t_sale_custom_flow
+		<where>
+			<if test="po.name != null and po.name != ''"> and name like concat('${po.name}', '%')</if>
+			<if test="po.createUser != null and po.createUser != ''"> and create_user like concat('${po.createUser}', '%')</if>
+			<if test="po.status != null and po.status != ''"> and status = #{po.status}</if>
+		</where>
+		ORDER BY createDate DESC
+	</select>
+
+	<select id="customFlowPageCount" parameterType="cn.concox.vo.customProcess.CustomFlow"
+		resultType="java.lang.Integer">
+		SELECT COUNT(0)
+		FROM
+		t_sale_custom_flow
+		<where>
+			<if test="po.name != null and po.name != ''"> and name = #{po.name}</if>
+			<if test="po.createUser != null and po.createUser != ''"> and create_user = #{po.createUser}</if>
+			<if test="po.status != null and po.status != ''"> and status = #{po.status}</if>
+		</where>
+		ORDER BY create_date DESC
+	</select>
+
+	<select id="customFlowPageXml" parameterType="java.lang.String"
+		resultType="java.lang.String">
+		SELECT xml
+		FROM t_sale_custom_flow
+		WHERE name = #{name}
+	</select>
+
+	<insert id="insert" parameterType="cn.concox.vo.customProcess.CustomFlow">
+		INSERT INTO t_sale_custom_flow
+		(name, remark, create_user,
+		create_date, status, xml,menu_id)
+		VALUES
+		(
+		#{name},#{remark},#{createUser},#{createDate},#{status},#{xml},#{menuId}
+		)
+	</insert>
+	
+	<insert id="insertModel" parameterType="java.util.List">
+		<![CDATA[
+			INSERT INTO t_sale_custom_model
+			(id,type,name, belong,back_nodes,menu_id)
+			VALUES
+		]]>
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+				#{item.id},#{item.type},#{item.name},#{item.belong},#{item.backNodes},#{item.menuId}
+			)
+		</foreach>
+	</insert>
+	
+	<select id="queryCustomModel" parameterType="cn.concox.vo.customProcess.CustomModel" 
+		resultType="cn.concox.vo.customProcess.CustomModel">
+		select id,type,name,belong,back_nodes AS backNodes,menu_id AS menuId
+			from t_sale_custom_model
+		<where>
+			<if test="po.id != null and po.id != ''"> and id = #{po.id}</if>
+			<if test="po.type != null"> and type = #{po.type}</if>
+			<if test="po.name != null and po.name != ''"> and name = #{po.name}</if>
+			<if test="po.belong != null and po.belong != ''"> and belong = #{po.belong}</if>
+		</where>
+	</select>
+	
+	<select id="queryCustomModelByIds" parameterType="cn.concox.vo.customProcess.CustomModel" 
+		resultType="cn.concox.vo.customProcess.CustomModel">
+		select id,type,name,belong,back_nodes AS backNodes
+			from t_sale_custom_model
+		<where>
+			<if test="po.id != null and po.id != ''"> and id = #{po.id}</if>
+			<if test="po.type != null"> and type = #{po.type}</if>
+			<if test="po.name != null and po.name != ''"> and name = #{po.name}</if>
+			<if test="po.belong != null and po.belong != ''"> and belong = #{po.belong}</if>
+			<if test="po.idList != null and po.idList.size != 0">
+				and id IN 
+				<foreach collection="po.idList" item="item" open="(" separator="," close=")">
+				 	#{item}
+				</foreach>
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryFollowers" resultType="java.lang.String">
+		SELECT distinct a.userId from t_oa_user_roler a,t_oa_roler_menus b 
+			where a.rolerId = b.rolerId and 
+			b.menuId = #{menuId};
+	</select>
+	
+	
+	<select id="selectIdNameMap" resultType="cn.concox.vo.customProcess.CustomModel">
+		select id,name from t_sale_custom_model
+	</select>
+	
+	<delete id="deleteFlow" >
+		DELETE FROM t_sale_custom_flow
+		WHERE name = #{name }
+	</delete>
+	
+	<select id="selectCustomFlow" resultType="cn.concox.vo.customProcess.CustomFlow">
+		select name,remark,create_user AS createUser,create_date AS
+			createDate,status,menu_id AS menuId
+		 from t_sale_custom_flow where
+		<if test="name != null and name != ''"> name = #{name }</if>
+	</select>
+	
+	<delete id="deleteModel">
+		DELETE FROM t_sale_custom_model WHERE belong = #{flowName }
+	</delete>
+	
+	<insert id="insertField" parameterType="java.util.List">
+		<![CDATA[
+			INSERT INTO t_sale_custom_field
+			(field_name,type,belong, isNeed,checkBox,field_order)
+			VALUES
+		]]>
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+				#{item.name},#{item.type},#{item.belong},#{item.isNeed},#{item.checkBox},#{item.order}
+			)
+		</foreach>
+	</insert>
+</mapper>

@@ -127,7 +127,7 @@ public class WorkOrderActivity extends BaseActivity {
         Log.d(WorkOrderActivity," 传递数据:line="+httpline+" pageNo="+pageNo+" httpzhidan="
                 +httpzhidan+" httpstate="+httpstate+" httpstartTime="+httpstartTime+" httpclien="+httpclient+" httpendTime="+httpendTime);
         try {
-            HttpUtil.sendOkHttpPostRequest(HttpUtrl.base_ip + "config/selectZhidan", new Callback() {
+            HttpUtil.sendOkHttpPostRequest(app.getBase_ip() + "config/selectZhidan", new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             Log.d(WorkOrderActivity, e.toString());

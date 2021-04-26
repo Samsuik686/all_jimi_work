@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.system.mapper.MenusMapper">
+	<resultMap type="Menu" id="resultMap_menus">
+		<result property="menuId" column="menuId"/>
+		<result property="parentId" column="parentId"/>
+		<result property="displayName" column="displayName"/>
+		<result property="url" column="url"/>
+		<result property="descrp" column="descrp"/>
+		<result property="sn" column="sn"/>
+		<result property="orderindex" column="orderindex"/>
+	
+		<!-- <collection property="children" column="menuId" javaType="ArrayList"  select="queryListByParent"></collection> -->
+	</resultMap>
+	
+	<select id="queryListByParent" resultMap="resultMap_menus" parameterType="java.lang.Integer">
+		select menuId,parentId,displayName,url,descrp,sn,orderindex from t_oa_menus 
+			where parentId=#{menuId} order by orderindex asc
+	</select>
+	
+	<select id="queryList" resultMap="resultMap_menus" parameterType="Menu">
+		 select menuId,parentId,displayName,url,descrp,sn,orderindex from t_oa_menus
+		 	<where>
+		 		<if test="menuId != null">
+		 			menuId=#{menuId}
+		 		</if>
+		 		<if test="parentId != null">
+		 			and parentId=#{parentId}
+		 		</if>
+		 	</where>
+		 	
+		 	 order by orderindex asc;
+	</select>
+	
+	<select id="queryUserFunctionURLsByUId" resultType="java.lang.String"  parameterType="Map">
+		SELECT C.functionURL FROM t_oa_user_roler A INNER JOIN t_oa_roler_menus B ON A.rolerId=B.rolerId
+ 		INNER JOIN t_oa_menus_details C ON B.functionId=C.functionId
+ 		WHERE A.userId=#{uId}
+	</select>
+	
+	<select id="queryParentMenuListByUId" resultMap="resultMap_menus" parameterType="Map">
+		 SELECT menuId,parentId,displayName,url,descrp,sn,orderindex FROM t_oa_menus
+		 WHERE parentId=0	
+		 and menuId in 
+		 (
+			 SELECT DISTINCT B.parentId FROM t_oa_user_roler A INNER JOIN t_oa_roler_menus B ON A.rolerId=B.rolerId
+			 WHERE A.userId=#{uId}
+		 )
+		 order by orderindex asc;
+	</select>
+	
+	<select id="queryChildMenusListByUIDAndParentMenuIds" resultMap="resultMap_menus" parameterType="Map">
+		 select menuId,parentId,displayName,url,descrp,sn,orderindex from t_oa_menus
+		 where parentId = #{parentMenuId} 
+		 and menuId in 
+		 (
+		 	SELECT DISTINCT B.menuId FROM t_oa_user_roler A INNER JOIN t_oa_roler_menus B ON A.rolerId=B.rolerId
+ 			WHERE A.userId=#{uId}
+		 )
+		 order by orderindex asc
+	</select>
+	
+
+	
+	<select id="queryMenuById" resultType="Menu"  parameterType="java.lang.Integer">
+		select menuId,parentId,displayName,url,descrp,sn,orderindex from t_oa_menus  
+			where menuId=#{menuId} order by orderindex asc
+	</select>
+	
+	<select id="queryMenuByIdChildren" resultMap="resultMap_menus" parameterType="Menu">
+		select menuId,parentId,displayName,url,descrp,sn,orderindex from t_oa_menus 
+			<where>
+		 		<if test="menuId != null">
+		 			menuId=#{menuId} order by orderindex asc
+		 		</if>
+		 		<if test="parentId != null">
+		 			and parentId=#{parentId} order by orderindex asc
+		 		</if>
+		 	</where>
+		 	
+	</select>
+	
+	<insert id="insert" parameterType="Menu">
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="menuId"> 
+        	SELECT LAST_INSERT_ID() AS menuId   
+    	</selectKey>
+		insert into t_oa_menus(parentId,displayName,url,descrp,sn,orderindex)
+		values(#{parentId},#{displayName},#{url},#{descrp},#{sn},#{orderindex})
+	</insert>
+	
+	<delete id="delete" parameterType="Menu">
+	delete from t_oa_menus where menuId=#{menuId}
+    </delete>
+	 
+	 <delete id="deleteChildren" parameterType="Menu">
+	delete from t_oa_menus where parentId=#{menuId}
+    </delete>
+	 
+	<update id="update" parameterType="Menu" >
+	update t_oa_menus set displayName=#{displayName},url=#{url},descrp=#{descrp},sn=#{sn},orderindex=#{orderindex},parentId=#{parentId}
+         where menuId=#{menuId}
+    </update>
+    
+    
+    <select id="queryAllFunctionURL" resultType="java.lang.String">
+    	SELECT DISTINCT functionURL FROM t_oa_menus_details 
+    </select>
+    
+    <select id="queryCommonFunctionURL" resultType="java.lang.String">
+    	SELECT DISTINCT functionURL FROM t_oa_menus_details 
+    	where menuId LIKE '2%'   
+    </select>
+    
+    
+	
+</mapper>

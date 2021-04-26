@@ -19,7 +19,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 //            buildConfigField("String", "BASE_URL", "\"http://10.10.11.90:8080/uw_server/\"")
 
-            buildConfigField("String", "BASE_URL", "\"http://183.236.111.164:6080/uw_server/\"")
+            buildConfigField("String", "BASE_URL", "\"http://172.26.168.228:8080/uw_server/\"")
 //            buildConfigField("String", "BASE_URL", "\"http://10.10.11.109:8080/uw_server/\"")
 
         }
@@ -28,8 +28,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 //            buildConfigField("String", "BASE_URL", "\"http://183.236.111.164:6080/uw_server/\"")
 //            buildConfigField("String", "BASE_URL", "\"http://10.10.11.90:8080/uw_server/\"")
-            buildConfigField("String", "BASE_URL", "\"http://172.26.132.9:8080/uw_server/\"")
-
+            buildConfigField("String", "BASE_URL", "\"http://172.26.168.228:8080/uw_server/\"")
+//            buildConfigField("String", "BASE_URL", "\"http://192.168.242.102:8080/uw_server/\"")
 //            buildConfigField("String", "BASE_URL", "\"http://192.168.89.89:8080/uw_server/\"")
         }
     }

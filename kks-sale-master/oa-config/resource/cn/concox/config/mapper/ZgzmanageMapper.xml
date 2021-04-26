@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.ZgzmanageMapper">
+
+   <resultMap id="queryList_resultMap" type="Zgzmanage" >
+   </resultMap>
+   
+   <sql id="selectAllFields">
+   		SELECT id, gId, faultType, proceMethod, methodNO, modelType, isSyncSolution, remark, enabledFlag
+        FROM t_sale_zgzmanage
+   </sql>
+   
+   <select id="getT" parameterType="int" resultType="Zgzmanage">
+        <include refid="selectAllFields" />
+        WHERE id = #{id}
+   </select>
+   
+    <delete id="delete" parameterType="Zgzmanage">
+    	DELETE FROM t_sale_zgzmanage
+        WHERE id = #{id}
+    </delete>
+    
+    <!-- 新增修改看是否存在gid -->
+	<select id="isExistsGid" parameterType="Zgzmanage" resultType="Integer">
+		SELECT gid from t_sale_basegroup WHERE TRIM(gname) = #{faultType} AND enumSn ='BASE_ZZGZ'
+	</select>
+	<!-- 新增修改看是否存在主板型号类别 -->
+	<select id="isExistsZBXH" parameterType="Zgzmanage" resultType="Integer">
+		SELECT gid from t_sale_basegroup WHERE TRIM(gname) = #{modelType} AND enumSn ='BASE_ZBXH'
+	</select>
+	
+	<!-- 删除或修改组时查看是组下否存在数据 -->
+	<select id="getCountByGid" parameterType="Zgzmanage" resultType="int">
+		SELECT count(1) from t_sale_zgzmanage WHERE gId = #{gId}
+	</select>
+	
+	<!-- 修改分组时，改其下数据 -->
+	<update id="updateByGid" parameterType="Zgzmanage">
+      	UPDATE t_sale_zgzmanage set faultType = (SELECT gname from t_sale_basegroup WHERE gId = #{gId}) 
+      	WHERE gId = #{gId}
+    </update>
+    
+    <insert id="insert" parameterType="Zgzmanage">
+         INSERT INTO t_sale_zgzmanage (gId, 
+          faultType, proceMethod, methodNO, modelType, isSyncSolution, remark, enabledFlag
+        ) VALUES (
+           (SELECT gid from t_sale_basegroup WHERE gname = #{faultType} AND enumSn ='BASE_ZZGZ'), 
+            #{faultType}, #{proceMethod}, #{methodNO}, #{modelType}, #{isSyncSolution}, #{remark}, #{enabledFlag}
+        )
+    </insert>
+    
+    <update id="update" parameterType="Zgzmanage">
+      	UPDATE t_sale_zgzmanage
+        <set>
+            <if test="gId != null"> gId = #{gId}, </if>
+            <if test="faultType != null and faultType != ''"> faultType = #{faultType}, </if>
+            <if test="proceMethod != null and proceMethod != ''"> proceMethod = #{proceMethod}, </if>
+            <if test="methodNO != null and methodNO != ''"> methodNO = #{methodNO}, </if>
+            <if test="modelType != null and modelType != ''"> modelType = #{modelType}, </if>
+            <if test="enabledFlag != null"> enabledFlag = #{enabledFlag}, </if>
+            <if test="isSyncSolution != null"> isSyncSolution = #{isSyncSolution}, </if>
+            <if test="remark != null"> remark = #{remark}, </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+   
+   
+   <select id="queryListPage" resultMap="queryList_resultMap" parameterType="Zgzmanage">
+       <include refid="selectAllFields" />
+       <where>
+       		<if test="po.gId != null">and gId = #{po.gId} </if>
+            <if test="po.faultType != null and po.faultType != ''">and faultType = #{po.faultType}</if>
+            <if test="po.proceMethod != null and po.proceMethod != ''">and proceMethod like concat('%', '${po.proceMethod}', '%')</if>
+            <if test="po.methodNO != null and po.methodNO != ''">and methodNO = #{po.methodNO}</if>
+            <if test="po.modelType != null and po.modelType != ''">and modelType = #{po.modelType}</if>
+            <if test="po.remark != null and po.remark != ''">and remark = #{po.remark}</if>
+             <!-- 维修不显示禁用的项 -->
+            <if test="po.showType != null and po.showType == 'repair'"> and enabledFlag = 1</if>
+		</where>
+       order by gId, (methodNO+0)	
+   </select>
+   
+   <select id="queryList" resultMap="queryList_resultMap" parameterType="Zgzmanage">
+       <include refid="selectAllFields" />
+        <where>
+			<if test="gId != null">and gId = #{gId}</if>
+            <if test="faultType != null and faultType != ''"> and faultType = #{faultType} </if>
+            <if test="proceMethod != null and proceMethod != ''"> and proceMethod like concat('%', '${proceMethod}', '%')</if>
+            <if test="methodNO != null and methodNO != ''"> and methodNO like concat('%', '${methodNO}', '%') </if>
+            <if test="modelType != null and modelType != ''"> and modelType = #{modelType} </if>
+            <if test="remark != null and remark != ''"> and remark = #{remark}</if>
+		</where>
+       order by gId, (methodNO+0)	
+   </select>
+   
+   <!--最终故障附件匹配    @author： Li.Shangzhi  @date:2016-08-17 14:28:08-->
+   <select id="getGRoupConcat" resultType="String" parameterType="String">
+   		SELECT GROUP_CONCAT(zzgz.proceMethod SEPARATOR' | ') AS `name`  FROM t_sale_zgzmanage AS zzgz 
+		WHERE  zzgz.id IN 
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </select>
+    <!--获取价格   @author： Li.Shangzhi  @date:2016-09-07 14:10:04-->
+    <select id="getSumPrices" resultType="BigDecimal" parameterType="String">
+   		SELECT SUM(price) FROM `t_sale_repair_price`
+		WHERE rid IN
+		<foreach collection="array" item="rid" open="(" separator="," close=")">
+			#{rid}
+		</foreach>
+    </select>
+     
+     
+     <!-- 故障类型、最终故障、故障编码判断是否为同一条数据 -->
+    <select id="isExists" parameterType="Zgzmanage" resultType="int">
+		SELECT count(1) FROM t_sale_zgzmanage
+		WHERE faultType = #{faultType} AND proceMethod = #{proceMethod} AND methodNO = #{methodNO} 
+		<if test ="id !=null"> AND id != #{id} </if>
+	</select>
+	
+	<select id="findCountWorkflowRelatedByzzgzDesc" parameterType="Zgzmanage" resultType="int">
+		SELECT
+ 		count(id)
+		FROM
+		t_sale_workflow_related
+		WHERE
+		FIND_IN_SET(#{id},t_sale_workflow_related.zzgzDesc) 
+	</select>
+	
+	<!-- 根据id查找最终故障 -->
+	<select id="queryListByIds" resultMap="queryList_resultMap">
+       <include refid="selectAllFields" />
+        <where>
+			<if test="ids != null and ids.length > 0">
+				id IN
+				<foreach collection="ids" item="id" open="(" separator="," close=")">
+					#{id}
+				</foreach>
+			</if>
+		</where>
+       order by gId
+   </select>
+	
+</mapper>

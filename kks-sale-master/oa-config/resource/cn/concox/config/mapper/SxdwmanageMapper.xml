@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.SxdwmanageMapper">
+	<resultMap type="Sxdwmanage" id="sxdwmanage">
+	</resultMap>
+
+	<!-- 分页查询 -->
+	<select id="getSxdwmanageListPage" parameterType="Sxdwmanage" resultMap="sxdwmanage">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.cusName != null and po.cusName != ''"> and cusName like concat('%', '${po.cusName}', '%') </if>
+			<if test="po.phone != null and po.phone != ''"> and phone = #{po.phone} </if>
+			<if test="po.linkman != null and po.linkman != ''"> and linkman like concat('%', '${po.linkman}', '%') </if>
+			<if test="po.enabledFlag != null"> AND enabledFlag = #{po.enabledFlag} </if>
+			<!-- 受理不显示禁用的项 -->
+            <if test="po.showType != null and po.showType == 'accept'"> and enabledFlag = 0</if>
+		</where>
+		order by phone
+	</select>
+
+	<select id="getT" parameterType="Integer" resultType="Sxdwmanage">
+		<include refid="selectAllFields" />
+		WHERE cId = #{id}
+	</select>
+	
+	<!-- 新增时根据手机号查询已注册的单位密码等信息 -->
+	<select id="getHasLoginPwdOneByPhone" parameterType="String" resultType="Sxdwmanage">
+		<include refid="selectAllFields" />
+		WHERE phone = #{phone} AND loginPwd IS NOT NULL
+		LIMIT 1
+	</select>
+
+	<insert id="insert" parameterType="Sxdwmanage" useGeneratedKeys="true" keyProperty="cId">
+		INSERT INTO t_sale_sxdwmanage (
+			cusName, serviceTime, linkman, phone, telephone, email, fax, address, remark,
+			createBy, createTime, enabledFlag, loginPwd, regState
+		)
+		VALUES (
+			#{cusName}, #{serviceTime}, #{linkman}, #{phone}, #{telephone}, #{email}, #{fax}, #{address}, #{remark},
+			#{createBy}, #{createTime}, #{enabledFlag}, #{loginPwd}, #{regState}
+		)
+	</insert>
+
+	<update id="update" parameterType="Sxdwmanage">
+		UPDATE t_sale_sxdwmanage
+		<set>
+			<if test="cusName != null and cusName != ''"> cusName = #{cusName}, </if>
+			<if test="serviceTime != null and serviceTime != ''"> serviceTime = #{serviceTime}, </if>
+			<if test="linkman != null and linkman != ''"> linkman = #{linkman}, </if>
+			<if test="phone != null and phone != ''"> phone = #{phone}, </if>
+			<if test="address != null and address != ''"> address = #{address}, </if>
+			<if test="updateBy != null and updateBy != ''"> updateBy = #{updateBy}, </if>
+			<if test="updateTime != null"> updateTime = #{updateTime}, </if>
+			<if test="telephone != null"> telephone = #{telephone}, </if>
+			<if test="email != null"> email = #{email}, </if>
+			<if test="fax != null"> fax = #{fax}, </if>
+			<if test="remark != null"> remark = #{remark}, </if>
+			<if test="enabledFlag != null"> enabledFlag = #{enabledFlag}, </if>
+		</set>
+		WHERE cId = #{cId}
+	</update>
+
+	<delete id="delete" parameterType="Sxdwmanage">
+		DELETE FROM t_sale_sxdwmanage where cId = #{cId}
+	</delete>
+
+	<select id="queryList"  parameterType="Sxdwmanage" resultMap="sxdwmanage">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="cusName != null and cusName != ''"> and cusName like concat('%', '${cusName}', '%') </if>
+			<if test="phone != null and phone != ''"> and phone = #{phone} </if>
+			<if test="linkman != null and linkman != ''"> and linkman like concat('%', '${linkman}', '%') </if>
+			<if test="enabledFlag != null and enabledFlag != ''"> AND enabledFlag = #{enabledFlag} </if>
+		</where>
+		order by phone
+	</select>
+
+	<sql id="selectAllFields">
+		SELECT cId, cusName, serviceTime, linkman, phone, telephone, email, fax, address, remark, createBy, updateBy, createTime, updateTime,
+			loginPwd, oldPhone, oldAddress, regState, enabledFlag
+		FROM t_sale_sxdwmanage
+	</sql>
+
+	<select id="search" resultType="Sxdwmanage">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="cusName != null and cusName != ''">
+				and cusName like concat('%', '${cusName}', '%')
+			</if>
+			<if test="serviceTime != null and serviceTime != ''">
+				and serviceTime like concat('%', '${serviceTime}', '%')
+			</if>
+			<if test="linkman != null and linkman != ''">
+				and linkman like concat('%', '${linkman}', '%')
+			</if>
+			<if test="phone != null and phone != ''">
+				and phone like concat('%', '${phone}', '%')
+			</if>
+			<if test="telephone != null and telephone != ''">
+				and telephone like concat('%', '${telephone}', '%')
+			</if>
+			<if test="email != null and email != ''">
+				and email like concat('%', '${email}', '%')
+			</if>
+			<if test="fax != null and fax != ''">
+				and fax like concat('%', '${fax}', '%')
+			</if>
+			<if test="address != null and address != ''">
+				and address like concat('%', '${address}', '%')
+			</if>
+		</where>
+		order by phone
+	</select>
+	
+	<!-- 发短信使用 -->
+	<select id="getByRepairNumber" resultType="Sxdwmanage"  parameterType="String">
+		SELECT  
+			  cId, tss.cusName, serviceTime, linkman, phone, telephone, email,
+			  fax, address
+		FROM  t_sale_workflow AS tsw, 
+		      t_sale_sxdwmanage AS tss
+		WHERE tsw.sxdwId = tss.cId
+		AND   tsw.repairnNmber= #{repairnNmber}
+		LIMIT 1;
+	</select>
+	
+	<!-- 根据客户名称是否是同一数据 -->
+	<select id="isExists" parameterType="Sxdwmanage" resultType="int">
+		SELECT count(1) FROM t_sale_sxdwmanage
+		WHERE cusName = #{cusName}
+		<if test="cId != null">
+			and cId = #{cId}
+		</if>
+	</select>
+	
+	<!-- 根据手机号查询是否存在数据 -->
+	<select id="phoneCheck" parameterType="Sxdwmanage" resultType="int">
+		SELECT count(1) FROM t_sale_sxdwmanage
+		WHERE phone = #{phone} 
+		<if test="cId != null">
+			and cId = #{cId}
+		</if>
+	</select>
+	
+	<!-- 根据地址查询是否存在数据 -->
+	<select id="addressCheck" parameterType="Sxdwmanage" resultType="int">
+		SELECT count(1) FROM t_sale_sxdwmanage
+		WHERE address = #{address}
+		<if test="cId != null">
+			and cId = #{cId}
+		</if>
+	</select>
+	
+	<select id="findCountWorkflowBysxdw" parameterType="Sxdwmanage" resultType="int">
+		SELECT
+		count(t_sale_workflow.sxdwId)
+		FROM
+		t_sale_workflow
+		WHERE
+		t_sale_workflow.sxdwId=#{cId}
+	</select>	
+	
+	<select id="findCustomerByPhone" parameterType="String" resultType="Sxdwmanage">
+		select * from t_sale_sxdwmanage where phone=#{phone} LIMIT 1
+	</select>
+	
+	<!-- =============================== 客户页面（注册，查询用户列表）  start =================================== -->
+	<select id="checkRegister" parameterType="String" resultType="Sxdwmanage">
+		SELECT cId, phone, loginPwd, regState, sxdw.cusName, linkman, address,COUNT(sw.repairnNmber) AS repairnumCount FROM t_sale_sxdwmanage sxdw
+		LEFT JOIN t_sale_workflow sw
+		ON sxdwId = cId
+		GROUP BY cId
+		HAVING phone = #{phone}
+	</select>
+	
+	<select id="getSxdwInfo" parameterType="String" resultType="Sxdwmanage">
+		SELECT cId, phone, loginPwd, regState, sxdw.cusName, linkman, address,COUNT(sw.repairnNmber) AS repairnumCount FROM t_sale_sxdwmanage sxdw
+		LEFT JOIN t_sale_workflow sw
+		ON sxdwId = cId
+		GROUP BY cId
+		HAVING cId = #{cId}
+	</select>
+	
+	<update id="updateByRegister" parameterType="Sxdwmanage">
+		UPDATE t_sale_sxdwmanage
+		<set>
+			<if test="loginPwd != null and loginPwd != ''"> loginPwd = #{loginPwd}, </if>
+			<if test="regState != null"> regState = #{regState}, </if>
+		</set>
+		WHERE phone = #{phone}
+	</update>
+	
+	<update id="updateByCustomer" parameterType="Sxdwmanage">
+		UPDATE t_sale_sxdwmanage
+		<set>
+			<if test="cusName != null and cusName != ''"> cusName = #{cusName}, </if>
+			<if test="linkman != null and linkman != ''"> linkman = #{linkman}, </if>
+			<if test="phone != null and phone != ''"> phone = #{phone}, </if>
+			<if test="address != null and address != ''"> address = #{address}, </if>
+			<if test="oldPhone != null and oldPhone != ''"> oldPhone = #{oldPhone}, </if>
+			<if test="oldAddress != null and oldAddress != ''"> oldAddress = #{oldAddress}, </if>
+		</set>
+		WHERE cId = #{cId}
+	</update>
+	
+	<!-- =============================== 客户页面  end =================================== -->
+</mapper>

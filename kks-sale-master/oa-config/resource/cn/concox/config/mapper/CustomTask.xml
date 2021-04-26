@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.cumstomFlow.mapper.CustomTaskMapper">
+
+	<resultMap id="queryCustomTaskList_resultMap" type="cn.concox.vo.customProcess.CustomTask">
+	</resultMap>
+
+	<sql id="selectAllFields">
+		select
+			id, from_model AS fromModel,flow_name AS flowName, model_id as modelId, serial, follower, creater,
+			updater, create_date AS createDate,
+			update_date AS updateDate,remark,state,params,expire_date as expireDate
+		FROM t_sale_custom_task
+	</sql>
+
+	<insert id="insert" parameterType="cn.concox.vo.customProcess.CustomTask"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_sale_custom_task
+		(
+			from_model, flow_name, model_id, serial, follower, creater, updater,
+			create_date, update_date,remark,state,params,expire_date
+		) VALUES (
+			#{fromModel},
+			#{flowName}, #{modelId}, #{serial}, #{follower}, #{creater},
+			#{updater},
+			#{createDate}, #{updateDate},
+			#{remark},#{state},#{params},#{expireDate}
+		)
+	</insert>
+
+
+	<update id="update" parameterType="cn.concox.vo.customProcess.CustomTask">
+		UPDATE t_sale_custom_task
+		<set>
+			<!-- <if test="fromModel != null"> from_model = #{fromModel}, </if>
+			<if test="flowName != null and flowName != ''"> flow_name = #{flowName}, </if>
+			<if test="modelId != null and modelId != ''"> model_id = #{modelId}, </if>
+			<if test="serial != null and serial != ''"> serial = #{serial}, </if> -->
+			<if test="follower != null and follower != ''"> follower = #{follower}, </if>
+			<!-- <if test="creater != null and creater != ''"> creater = #{creater}, </if> -->
+			<if test="updater != null and updater != ''"> updater = #{updater}, </if>
+			<!-- <if test="createDate != null"> create_date = #{createDate}, </if> -->
+			<if test="updateDate != null"> update_date = #{updateDate}, </if>
+			<if test="remark != null and remark != ''"> remark = #{remark}, </if>
+			<if test="state != null"> state = #{state} </if>
+			<if test="params != null"> params = #{params} </if>
+		</set>
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateStateFinish" >
+		UPDATE t_sale_custom_task set state = 1 where id IN
+		<foreach collection="ids" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</update>
+	
+
+	<delete id="delete" parameterType="cn.concox.vo.customProcess.CustomTask">
+		DELETE FROM t_sale_custom_task
+		WHERE id=#{id}
+	</delete>
+
+	<delete id="deleteBySerials" parameterType="String">
+		DELETE FROM t_sale_custom_task WHERE serial IN
+		<foreach collection="ids" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<delete id="deleteByFlowName" parameterType="String">
+		DELETE FROM t_sale_custom_task WHERE flow_name = #{flowName }
+	</delete>
+
+	<select id="select" parameterType="cn.concox.vo.customProcess.CustomTask"
+		resultType="cn.concox.vo.customProcess.CustomTask">
+		<include refid="selectAllFields" />
+		where id=#{id}
+	</select>
+	
+	<select id="selectByIds" resultType="cn.concox.vo.customProcess.CustomTask">
+		<include refid="selectAllFields" />
+		where id IN
+		<foreach collection="ids" item="id" open="(" separator=","
+				close=")">
+				#{id}
+		</foreach>
+	</select>
+	
+	<select id="queryCustomTaskListPage" resultMap="queryCustomTaskList_resultMap"
+		parameterType="cn.concox.vo.customProcess.CustomTask">
+		<include refid="selectAllFields" />
+			where 1=1
+		<if test="po.fromModel != null"> AND from_model = #{po.fromModel} </if>
+		<if test="po.flowName != null and po.flowName != ''"> And flow_name = #{po.flowName }</if>
+		<if test="po.modelId != null and po.modelId != ''"> And model_id = #{po.modelId }</if>
+		<if test="po.serial != null and po.serial != ''"> AND serial = #{po.serial} </if>
+		<!-- <if test="po.follower != null and po.follower != ''"> AND follower = #{po.follower } </if>
+		<if test="po.creater != null and po.creater != ''">AND creater = #{po.creater} </if> -->
+		<if test="po.updater != null and po.updater != ''">AND updater = #{po.updater} </if>
+		<if test="po.remark != null and po.remark != ''">AND remark = #{po.remark} </if>
+		<if test="po.state != null">AND state = #{po.state} </if>
+
+		<if test="po.startTime != null and po.startTime != ''"> AND date_format(create_date,'%Y-%m-%d') &gt;=
+			#{po.startTime}
+		</if>
+		<if test="po.endTime != null and po.endTime != ''"> AND date_format(create_date,'%Y-%m-%d') &lt;=
+			#{po.endTime}
+		</if>
+		<if test="po.treeDate != null and po.treeDate != ''"> AND date_format(create_date,'%Y-%m-%d') = #{po.treeDate}
+		</if>
+		<choose>
+                <when test="po.follower != null and po.follower != '' and po.creater != null and po.creater != ''">
+                    AND (creater = #{po.creater} OR follower = #{po.follower })
+                </when>
+                <otherwise>
+                	<if test="po.follower != null and po.follower != ''"> AND follower = #{po.follower } </if>
+                	<if test="po.creater != null and po.creater != ''">AND creater = #{po.creater} </if>
+                </otherwise>
+         </choose>
+		order by create_date desc
+	</select>
+
+	<insert id="insertYcfkFile" parameterType="cn.concox.vo.customProcess.CustomTaskFile">
+		INSERT INTO
+		t_sale_custom_task_file (yid, file_name, file_url, create_user,
+		create_time, file_site)
+		VALUES
+		(#{yid},#{fileName},#{fileUrl},#{createUser},#{createTime},#{fileSite})
+	</insert>
+
+	<select id="getCustomTaskFile" parameterType="java.lang.Integer"
+		resultType="cn.concox.vo.customProcess.CustomTaskFile">
+		select fid,yid,file_name AS fileName, file_url AS fileUrl,
+			create_user AS createUser,
+			create_time AS createTime, file_site AS
+			fileSite
+		from t_sale_custom_task_file where yid = #{yid}
+	</select>
+
+	<delete id="deleteFileByFid" parameterType="java.lang.Integer">
+		DELETE FROM
+		t_sale_custom_task_file WHERE fid = #{fid}
+	</delete>
+	
+	<select id="selectFileUrlByYids" parameterType="java.lang.Integer" resultType="java.lang.String">
+		SELECT DISTINCT file_url FROM t_sale_custom_task_file WHERE yid IN
+		(
+			SELECT id FROM t_sale_custom_task WHERE serial IN
+			<foreach collection="yids" item="yid" open="(" separator=","
+				close=")">
+				#{yid}
+			</foreach>
+		)
+	</select>
+
+	<delete id="deleteFileByYid" parameterType="java.lang.Integer">
+		DELETE FROM t_sale_custom_task_file WHERE yid IN
+		(
+			SELECT id FROM t_sale_custom_task WHERE serial IN
+			<foreach collection="yids" item="yid" open="(" separator=","
+				close=")">
+				#{yid}
+			</foreach>
+		)
+	</delete>
+</mapper> 

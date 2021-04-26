@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.TimeoutReasonMapper">
+    <select id="selectTimeoutReason" resultType="TimeoutReason">
+        SELECT *FROM t_sale_timeout_reason tstr
+        WHERE 1=1
+        <if test="po.id !=null">
+            AND tstr.id = #{po.id}
+        </if>
+        <if test="po.reason !=null ">
+            AND tstr.reason like CONCAT('%',#{po.reason},'%')
+        </if>
+    </select>
+
+    <delete id="deleteTimeoutReasonById">
+        DELETE FROM t_sale_timeout_reason WHERE id = #{id}
+    </delete>
+
+    <insert id="insertTimeoutReason">
+        INSERT INTO t_sale_timeout_reason(reason) values(#{po.reason})
+    </insert>
+    <update id="update">
+        UPDATE t_sale_timeout_reason tstr
+        SET tstr.reason = #{po.reason}
+        WHERE tstr.id = #{po.id}
+    </update>
+
+    <select id="hasReason" resultType="java.lang.Integer">
+        SELECT count(*) FROM t_sale_timeout_reason WHERE reason=#{reason}
+    </select>
+</mapper>

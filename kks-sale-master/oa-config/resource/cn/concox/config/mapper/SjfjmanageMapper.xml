@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.SjfjmanageMapper">
+	
+	 <resultMap id="querySjfjmanageList_resultMap" type="Sjfjmanage" >
+   </resultMap>
+ <insert id="insert" parameterType="Sjfjmanage">
+        INSERT INTO t_sale_sjfjmanage (gId,
+         category, brand, name, color, number
+        ) VALUES (
+           (SELECT gid from t_sale_basegroup WHERE gname = #{category} AND enumSn ='BASE_SJFJ'),
+            #{category}, #{brand}, #{name}, #{color}, #{number}
+        )
+    </insert>
+  
+  	<!-- 新增修改看是否存在gid -->
+	<select id="isExistsGid" parameterType="Sjfjmanage" resultType="Integer">
+		SELECT gid from t_sale_basegroup WHERE TRIM(gname) = #{category} AND enumSn ='BASE_SJFJ'
+	</select>
+	
+	<!-- 删除或修改组时查看是组下否存在数据 -->
+	<select id="getCountByGid" parameterType="Sjfjmanage" resultType="int">
+		SELECT count(1) from t_sale_sjfjmanage WHERE gId = #{gId}
+	</select>
+	
+	<!-- 修改分组时，改其下数据 -->
+	<update id="updateByGid" parameterType="Sjfjmanage">
+      	UPDATE t_sale_sjfjmanage set category = (SELECT gname from t_sale_basegroup WHERE gId = #{gId}) 
+      	WHERE gId = #{gId}
+    </update>
+	  
+    <update id="update" parameterType="Sjfjmanage">
+        UPDATE t_sale_sjfjmanage
+        <set>
+            <if test="gId != null"> gId = #{gId}, </if>
+            <if test="category != null and category != ''"> category = #{category}, </if>
+            <if test="brand != null and brand != ''"> brand = #{brand}, </if>
+            <if test="name != null and name != ''"> name = #{name}, </if>
+            <if test="color != null and color != ''"> color = #{color}, </if>
+            <if test="number != null"> number = #{number}, </if>
+        </set>
+        WHERE eid = #{eid}
+    </update>	
+    
+    <delete id="delete" parameterType="Sjfjmanage">
+    	delete  from t_sale_sjfjmanage where eid=#{eid}
+    </delete>
+    
+    <select id="select" parameterType="Sjfjmanage" resultType="Sjfjmanage">
+      select  eid,gId,category, brand, name, color, number  from  t_sale_sjfjmanage
+        WHERE eid = #{eid}
+    </select>
+    
+     <select id="querySjfjmanageListPage" resultMap="querySjfjmanageList_resultMap" parameterType="Sjfjmanage">
+        select  eid,gId,category, brand, name, color, number  from  t_sale_sjfjmanage
+        <where>
+           <if test="po.gId != null">
+				and gId = #{po.gId}
+			</if>
+            <if test="po.category != null and po.category != ''">
+                 and category like concat('%', '${po.category}', '%')
+            </if>
+            <if test="po.brand != null and po.brand != ''">
+                 and brand like concat('%', '${po.brand}', '%')
+            </if>
+            <if test="po.name != null and po.name != ''">
+                 and name like concat('%', '${po.name}', '%')
+            </if>
+            <if test="po.color != null and po.color != ''">
+                 and color like concat('%', '${po.color}', '%')
+            </if>
+            <if test="po.number != null">
+                 and number = #{po.number} 
+            </if>
+        </where>
+         order by eid desc
+    </select>
+    
+     <select id="queryList" resultMap="querySjfjmanageList_resultMap" parameterType="Sjfjmanage">
+        select  eid,gId,category, brand, name, color, number  from  t_sale_sjfjmanage
+        <where>
+           <if test="gId != null">
+				and gId = #{gId}
+			</if>
+            <if test="category != null and category != ''">
+                 and category like concat('%', '${category}', '%')
+            </if>
+            <if test="brand != null and brand != ''">
+                 and brand like concat('%', '${brand}', '%')
+            </if>
+            <if test="name != null and name != ''">
+                 and name like concat('%', '${name}', '%')
+            </if>
+            <if test="color != null and color != ''">
+                 and color like concat('%', '${color}', '%')
+            </if>
+            <if test="number != null">
+                 and number = #{number} 
+            </if>
+        </where>
+        order by  eid DESC	
+   </select>
+   
+   <!--受理   随机附件匹配    @author： Li.Shangzhi  @date:2016-08-03 14:34:34-->
+   <select id="getGRoupConcat" resultType="String" parameterType="String">
+   		SELECT GROUP_CONCAT(sjfj.`name` SEPARATOR' | ') AS `name`  FROM t_sale_sjfjmanage AS sjfj 
+		WHERE  sjfj.eid IN 
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </select> 
+    
+    <!-- 附件类别、 品牌、名称、颜色、数量判断是否是同一条数据 -->
+	<select id="isExists" parameterType="Sjfjmanage" resultType="int">
+		SELECT count(1) FROM t_sale_sjfjmanage
+		WHERE category = #{category} AND brand = #{brand} AND name = #{name} AND color = #{color} AND number = #{number}
+		<if test ="eid !=null"> AND eid != #{eid} </if>
+	</select>
+	
+	<select id="findCountWorkflowRelatedBysjfjDesc" parameterType="Sjfjmanage" resultType="int">
+		SELECT
+ 		count(id)
+		FROM
+		t_sale_workflow_related
+		WHERE
+		FIND_IN_SET(#{eid},t_sale_workflow_related.sjfjDesc) 
+	</select>
+	
+</mapper>

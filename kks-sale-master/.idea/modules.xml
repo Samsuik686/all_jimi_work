@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/oa-app/oa-app.iml" filepath="$PROJECT_DIR$/oa-app/oa-app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/oa-config/oa-config.iml" filepath="$PROJECT_DIR$/oa-config/oa-config.iml" />
+      <module fileurl="file://$PROJECT_DIR$/oa-vo/oa-vo.iml" filepath="$PROJECT_DIR$/oa-vo/oa-vo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/oa-web/oa-web.iml" filepath="$PROJECT_DIR$/oa-web/oa-web.iml" />
+    </modules>
+  </component>
+</project>

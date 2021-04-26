@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.workflow.mapper.WorkflowFicheckMapper">
+
+   <!--  @author Li.Shangzhi  	  -->
+   <!--  @date 2016-08-15 18:49:35 -->
+   <!-- ============================================   接口 interface  Start ============================================ -->
+
+   <resultMap id="queryList_resultMap" type="WorkflowFicheck" >
+   </resultMap>
+   
+   <sql id="selectAllFields">
+   		 SELECT 
+   		 	id, wfId, ispass, finDesc, finChecker, state, 
+            createTime, updateTime
+        FROM t_sale_workflow_ficheck
+   </sql>
+   
+   <select id="getT" parameterType="int" resultType="WorkflowFicheck">
+        <include refid="selectAllFields" />
+      	WHERE id = #{id}
+   </select>
+   
+   <select id="getByWfid" parameterType="int" resultType="WorkflowFicheck">
+        <include refid="selectAllFields" />
+      	WHERE wfId = #{wfId} ORDER BY createTime DESC  LIMIT 1
+   </select>
+   
+   
+    <delete id="delete" parameterType="WorkflowFicheck">
+    	DELETE FROM t_sale_workflow_ficheck
+        WHERE id = #{id}
+    </delete>
+    
+   <!-- 根据wfid 删除终检表记录 -->
+    <delete id="deleteFicheckByWfids" parameterType="String">
+    	DELETE FROM t_sale_workflow_ficheck 
+    		WHERE wfId IN
+    	<foreach collection="ids" item="id" open="(" separator="," close=")">
+    		#{id}
+    	</foreach>
+    </delete>
+    
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WorkflowFicheck">
+         INSERT INTO t_sale_workflow_ficheck (id,
+            wfId, ispass, finDesc, finChecker, state, 
+            createTime, updateTime
+        ) VALUES (#{id},
+            #{wfId}, #{ispass}, #{finDesc}, #{finChecker}, #{state}, 
+            #{createTime}, #{updateTime}
+        )
+    </insert>
+    
+    <update id="update" parameterType="WorkflowFicheck">
+         UPDATE t_sale_workflow_ficheck
+        <set>
+            <if test="wfId != null"> wfId = #{wfId}, </if>
+            <if test="ispass != null"> ispass = #{ispass}, </if>
+            <if test="finChecker != null and finChecker != ''"> finChecker = #{finChecker}, </if>
+            <if test="state != null"> state = #{state}, </if>
+            <if test="createTime != null"> createTime = #{createTime}, </if>
+            <if test="updateTime != null"> updateTime = #{updateTime}, </if>
+            <if test="finDesc != null"> finDesc = #{finDesc}, </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <select id="getFicheckPage" resultMap="queryList_resultMap" parameterType="WorkflowFicheck">
+    	SELECT 
+   				tswf.id,tswf.wfId,tsw.repairnNmber as repairnNmber,tswf.ispass, tswf.finDesc, tswf.finChecker, tswf.createTime,
+   				tswf.createTime,tswf.updateTime,tswf.state,tswr.engineer as fin_engineer,total.payTime AS fin_payTime
+		FROM t_sale_workflow_ficheck AS tswf 
+	 	LEFT JOIN t_sale_workflow AS tsw ON tswf.wfId = tsw.id
+		LEFT JOIN t_sale_workflow_totalpay AS total ON total.repairNumber = tsw.repairnNmber
+	 	LEFT JOIN t_sale_workflow_repair AS tswr ON tswr.wfId = tsw.id
+        <where>
+       		 tswf.wfId = tsw.id
+            <if test="po.ispass 	 != null"> and tswf.ispass = #{po.ispass} </if>
+            <if test="po.finDesc 	 != null and po.finDesc 	!= ''"> and tswf.finDesc like concat('%', '${po.finDesc}', '%') </if>
+            <if test="po.finChecker != null and po.finChecker != ''"> and tswf.finChecker like concat('%', '${po.finChecker}', '%') </if>
+            <if test="po.createTime != null"> and tswf.createTime = #{po.createTime}  </if>
+            <if test="po.updateTime != null"> and tswf.updateTime = #{po.updateTime}  </if>
+            <if test="po.imei != null and po.imei != ''"> and tsw.imei like concat('%', '${po.imei}', '%')</if>
+            <if test="po.lockId != null and po.lockId != ''"> and tsw.lockId = #{po.lockId}</if>
+            <if test="po.repairnNmber != null and po.repairnNmber != ''"> and tsw.repairnNmber like concat('%', '${po.repairnNmber}', '%')</if>
+            
+             <!-- 全部   | 待处理    /已处理 -->
+       	    <if test="po.state != null and po.state != ''  and po.state == 2"> and tswf.state &gt; -1</if>
+       	    <if test="po.state != null and po.state != ''  and po.state == 1"> and tswf.state = -1</if>
+       	    <if test="po.startTime != null and po.startTime != ''"> AND date_format(tswf.createTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+		    <if test="po.endTime != null and po.endTime != ''"> AND date_format(tswf.createTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+		    <if test ="po.treeDate != null and po.treeDate != '' ">AND date_format(tsw.acceptanceTime,'%Y-%m-%d')= #{po.treeDate}  </if>
+            <if test ="po.searchMorOrAft != null and po.searchMorOrAft != '' and po.searchMorOrAft == 'mor' ">
+            	AND HOUR(tsw.acceptanceTime) &lt; 13
+            </if>
+            <if test ="po.searchMorOrAft != null and po.searchMorOrAft != '' and po.searchMorOrAft == 'aft' ">
+            	AND HOUR(tsw.acceptanceTime) &gt;= 13
+            </if>
+        </where>
+         ORDER BY  tswf.createTime desc
+    </select>
+    
+    <select id="getFicheckList" resultMap="queryList_resultMap" parameterType="WorkflowFicheck">
+    	SELECT 
+   				tswf.id,tswf.wfId,tsw.repairnNmber as repairnNmber,tswf.ispass, tswf.finDesc, tswf.finChecker, tswf.createTime,
+   				tswf.createTime,tswf.updateTime,tswf.state,tswr.engineer as fin_engineer, total.payTime AS fin_payTime,
+   				tsw.acceptRemark AS f_acceptRemark, tsw.remark AS f_remark, tsw.repairNumberRemark AS f_repairNumberRemark, 
+   				tswr.repairRemark AS f_repairRemark, total.priceRemark AS f_priceRemark,
+   				wt.test_result AS testResult, wt.test_person AS testPerson, wt.test_time AS testTime
+		FROM t_sale_workflow_ficheck AS tswf 
+	 	LEFT JOIN t_sale_workflow AS tsw ON tswf.wfId = tsw.id
+		LEFT JOIN t_sale_workflow_totalpay AS total ON total.repairNumber = tsw.repairnNmber
+	 	LEFT JOIN t_sale_workflow_repair AS tswr ON tswr.wfId = tsw.id
+	 	LEFT JOIN
+		t_sale_workflow_test wt ON wt.wfId = tswf.wfId
+        <where>
+       		 tswf.wfId = tsw.id
+            <if test="ispass 	 != null"> and tswf.ispass = #{ispass} </if>
+            <if test="finDesc 	 != null and finDesc 	!= ''"> and tswf.finDesc like concat('%', '${finDesc}', '%') </if>
+            <if test="finChecker != null and finChecker != ''"> and tswf.finChecker like concat('%', '${finChecker}', '%') </if>
+            <if test="createTime != null"> and tswf.createTime = #{createTime}  </if>
+            <if test="updateTime != null"> and tswf.updateTime = #{updateTime}  </if>
+            <if test="imei != null and imei != ''"> and tsw.imei like concat('%', '${imei}', '%')</if>
+            <if test="lockId != null and lockId != ''"> and tsw.lockId = #{lockId}</if>
+            <if test="repairnNmber != null and repairnNmber != ''"> and tsw.repairnNmber like concat('%', '${repairnNmber}', '%')</if>
+            
+             <!-- 全部   | 待处理    /已处理 -->
+       	    <if test="state != null and state != ''  and state == 2"> and tswf.state &gt; -1</if>
+       	    <if test="state != null and state != ''  and state == 1"> and tswf.state = -1</if>
+       	    <if test="startTime != null and startTime != ''"> AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &gt;= #{startTime} </if>
+		    <if test="endTime != null and endTime != ''"> AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &lt;= #{endTime} </if>
+		    <if test ="treeDate != null and treeDate != '' ">AND date_format(tsw.acceptanceTime,'%Y-%m-%d')= #{treeDate} </if>
+            <if test ="searchMorOrAft != null and searchMorOrAft != '' and searchMorOrAft == 'mor' ">
+            	AND HOUR(tsw.acceptanceTime) &lt; 13
+            </if>
+            <if test ="searchMorOrAft != null and searchMorOrAft != '' and searchMorOrAft == 'aft' ">
+            	AND HOUR(tsw.acceptanceTime) &gt;= 13
+            </if>
+        </where>
+         ORDER BY  tswf.createTime desc
+    </select>
+    
+    <select id="selGiveUpPriceCount" parameterType="WorkflowFicheck" resultType="Long">
+  		 select COUNT(1) as giveupCount from t_sale_workflow_repair twr,t_sale_workflow tw 
+  		 	<where>
+       		  twr.wfId=tw.id 
+       		  and  isPrice='1'
+       		  <if test="startTime != null and startTime != ''"> AND date_format(tw.acceptanceTime,'%Y-%m-%d') &gt;= #{startTime} </if>
+		      <if test="endTime != null and endTime != ''"> AND date_format(tw.acceptanceTime,'%Y-%m-%d') &lt;= #{endTime} </if>
+		      <if test ="treeDate != null and treeDate != '' ">AND date_format(tw.acceptanceTime,'%Y-%m-%d')= #{treeDate} </if>
+              <if test ="searchMorOrAft != null and searchMorOrAft != '' and searchMorOrAft == 'mor' ">
+            	AND HOUR(tw.acceptanceTime) &lt; 13
+              </if>
+              <if test ="searchMorOrAft != null and searchMorOrAft != '' and searchMorOrAft == 'aft' ">
+            	AND HOUR(tw.acceptanceTime) &gt;= 13
+              </if>
+       		</where>
+    </select>
+     
+   <update id="updateState" parameterType="String">
+   		UPDATE t_sale_workflow_ficheck 
+   		SET
+   			state = #{state}
+   		WHERE  id IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+   </update>
+   
+    <update id="updateStateByWfid" parameterType="String">
+   		UPDATE t_sale_workflow_ficheck 
+   		SET
+   			state = #{state}
+   		WHERE  wfId IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+   </update>
+   
+  	<!-- 终检工站查询选中的数据是否有不是已终检，待维修？有：不允许点击发送维修 -->
+	<select id="getCountToRepairByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_ficheck
+		WHERE state = 2
+		AND wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<!-- 终检工站查询选中的数据是否有不是已终检，待装箱？有：不允许点击发送装箱-->
+	<select id="getCountToPackByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_ficheck
+		WHERE state = 1
+		AND wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<!-- 终检工站查询选中的数据是否有不是待终检？有：不允许点击发送测试，待终检返回维修-->
+	<select id="getCountToTestByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_ficheck
+		WHERE state = 0
+		AND wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+    <!-- ============================================   接口 interface  End ============================================ -->
+</mapper>

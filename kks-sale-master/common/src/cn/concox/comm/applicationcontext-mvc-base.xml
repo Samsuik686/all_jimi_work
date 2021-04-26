@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="  
+       http://www.springframework.org/schema/beans  
+       http://www.springframework.org/schema/beans/spring-beans-3.2.xsd  
+       http://www.springframework.org/schema/tx  
+       http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+       http://www.springframework.org/schema/aop  
+       http://www.springframework.org/schema/aop/spring-aop-3.2.xsd  
+       http://www.springframework.org/schema/context  
+       http://www.springframework.org/schema/context/spring-context-3.2.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+
+    <!-- C3P0  -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<value>classpath:c3p0-config.properties</value>
+		</property>
+	</bean>
+
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${JDBC.driverClassName}" />
+
+		<property name="jdbcUrl" value="${JDBC.url}" />
+
+		<property name="user" value="${JDBC.username}" />
+
+		<property name="password" value="${JDBC.password}" />
+
+		<property name="minPoolSize" value="${C3P0.minPoolSize}" />
+
+		<property name="preferredTestQuery" value="${C3P0.preferredTestQuery}" />
+
+		<property name="maxPoolSize" value="${C3P0.maxPoolSize}" />
+
+		<property name="initialPoolSize" value="${C3P0.initialPoolSize}" />
+
+		<property name="maxIdleTime" value="${C3P0.maxIdleTime}" />
+
+		<property name="acquireIncrement" value="${C3P0.acquireIncrement}" />
+
+		<property name="maxStatements" value="${C3P0.maxStatements}" />
+
+		<property name="maxStatementsPerConnection" value="${C3P0.maxStatementsPerConnection}" />
+
+		<property name="idleConnectionTestPeriod" value="${C3P0.idleConnectionTestPeriod}" />
+
+		<property name="acquireRetryAttempts" value="${C3P0.acquireRetryAttempts}" />
+
+		<property name="testConnectionOnCheckout" value="${C3P0.testConnectionOnCheckout}" />
+
+		<property name="acquireRetryDelay" value="${C3P0.acquireRetryDelay}" />
+
+		<property name="breakAfterAcquireFailure" value="${C3P0.breakAfterAcquireFailure}" />
+	</bean>
+
+	<!-- 创建SqlSessionFactory，同时指定数据源 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:cn/concox/config/mapper/*.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 配置事务管理器
+		注意这里的dataSource和SqlSessionFactoryBean的dataSource要一致， 
+		org.springframework.jdbc.datasource.DataSourceTransactionManager 
+		org.springframework.orm.hibernate3.HibernateTransactionManager 
+		不然事务就没有作用了
+	 -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager" />          
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- spring4.2.5 mediaType 转移到此bean下 -->
+	<bean id="contentNegotiationManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+        <property name="mediaTypes">
+            <value>
+                json=application/json
+                xml=application/xml
+                html=text/html
+            </value>
+        </property>
+        <property name="defaultContentType" value="text/html"/>
+    </bean>
+    
+	<!-- MVC Config -->
+	<bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<!-- <property name="mediaTypes">
+			<map>
+				<entry key="html" value="text/html" />
+				<entry key="json" value="application/json" />
+			</map>
+		</property> -->
+		<property name="viewResolvers">
+			<list>
+				<bean class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+				<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+					<property name="prefix" value="/" />
+					<property name="suffix" value=".jsp" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="messageConverters">
+			<list>
+				<bean
+					class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+					<property name="objectMapper" ref="objectMapper" />
+					<!-- 
+					<property name="supportedMediaTypes"> 
+						<list> 
+							<value>text/html;charset=UTF-8</value> 
+						</list> 
+					</property> 
+					-->
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="objectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
+	    <property name="simpleDateFormat" value="yyyy-MM-dd HH:mm:ss" />
+	</bean>
+
+	<!-- <bean id="jacksonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
+		<property name="dateFormat">
+			<bean class="java.text.SimpleDateFormat">
+				<constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />
+			</bean>
+		</property>
+	</bean>
+	<bean id="jacksonSerializationConfig" class="org.codehaus.jackson.map.SerializationConfig" factory-bean="jacksonObjectMapper" factory-method="getSerializationConfig" />
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" ref="jacksonSerializationConfig" />
+		<property name="targetMethod" value="setSerializationInclusion" />
+		<property name="arguments">
+			<list>
+				<value type="org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion">NON_NULL</value>
+			</list>
+		</property>
+	</bean> -->
+
+	<!-- mvc config end -->
+
+	<!-- 配置事务的传播特性 -->
+	<!-- <bean id="baseTransactionProxy" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean" 
+		abstract="true"> -->
+	<!-- <property name="transactionManager" ref="transactionManager" /> -->
+	<!-- <property name="transactionAttributes"> -->
+	<!-- <props> -->
+	<!-- <prop key="add*">PROPAGATION_REQUIRED</prop> -->
+	<!-- <prop key="edit*">PROPAGATION_REQUIRED</prop> -->
+	<!-- <prop key="remove*">PROPAGATION_REQUIRED</prop> -->
+	<!-- <prop key="insert*">PROPAGATION_REQUIRED</prop> -->
+	<!-- <prop key="update*">PROPAGATION_REQUIRED</prop> -->
+	<!-- <prop key="del*">PROPAGATION_REQUIRED</prop> -->
+	<!-- <prop key="cancel*">PROPAGATION_REQUIRED</prop> -->
+	<!-- <prop key="*">readOnly</prop> -->
+	<!-- </props> -->
+	<!-- </property> -->
+	<!-- </bean> -->
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="cn.concox" />
+		<property name="markerInterface" value="cn.concox.comm.base.rom.SqlMapper" />
+	</bean>
+
+	<context:component-scan base-package="cn.concox" use-default-filters="false">
+		<!-- 扫描符合@Service @Repository的类 -->
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service" />
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Component" />
+	</context:component-scan>
+	
+	<!--spring mvc文件上传 10485760=10M;314572800=300M  1048576 = 1M -->
+	<bean id="multipartResolver" 
+			class="org.springframework.web.multipart.commons.CommonsMultipartResolver"> 			
+		<!-- 文件上传的属性设置 -->
+		<property name="maxUploadSize" 	 value="314572800"/> 
+		<property name="maxInMemorySize" value="4096"/> 
+		<property name="defaultEncoding" value="UTF-8"/>
+	  </bean>
+		
+</beans>
+
+ 

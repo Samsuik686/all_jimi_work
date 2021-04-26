@@ -1,0 +1,69 @@
+-- 文件材料管理 2017-04-01 汤雨萍
+
+CREATE TABLE t_sale_product_material (
+	id INT(11) NOT NULL AUTO_INCREMENT,
+	project_name VARCHAR(32) DEFAULT NULL COMMENT '项目名称',
+	model VARCHAR(50) DEFAULT NULL COMMENT '主板型号',
+	market_model VARCHAR(50) DEFAULT NULL COMMENT '市场型号',
+	product_name VARCHAR(32) DEFAULT NULL COMMENT '产品名称',
+	pro_num VARCHAR(50) DEFAULT NULL COMMENT '编码',
+	pro_type VARCHAR(50) DEFAULT NULL COMMENT '类别',
+	pro_child_type VARCHAR(50) DEFAULT NULL COMMENT '子类别',
+	trademark VARCHAR(50) DEFAULT NULL COMMENT '品牌',
+	series VARCHAR(50) DEFAULT NULL COMMENT '系列',
+	pro_color VARCHAR(30) DEFAULT NULL COMMENT '颜色',
+	customer_name VARCHAR(32) DEFAULT NULL COMMENT '客户名称',
+	create_time datetime DEFAULT NULL,
+	create_user VARCHAR(32) DEFAULT NULL COMMENT '创建人',
+	update_time datetime DEFAULT NULL,
+	update_user VARCHAR(32) DEFAULT NULL,
+	PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='产品材料表';
+
+
+
+CREATE TABLE t_sale_product_material_file(
+	fid INT(11) NOT NULL AUTO_INCREMENT,
+	pid INT(11) NOT NULL COMMENT '产品材料表关联ID',
+	file_url VARCHAR(500) NOT NULL COMMENT '附件保存在服务器的路径',
+	file_name VARCHAR(200) NOT NULL COMMENT '附件名称',
+	create_user VARCHAR(32) DEFAULT NULL COMMENT '文件上传人',
+	create_time datetime DEFAULT NULL COMMENT '文件上传时间',
+	file_type VARCHAR(50) DEFAULT NULL COMMENT '附件表类型 qualityRemarkName:品质备注附件;projectRemarkName:项目备注附件;differenceName:差异说明;repairName:维修手册;dianzibomName:电子料BOM表;bomName:BOM表;
+	softDifName:软件功能差异表;proseriesName:产品系列;kfName:客服手册;explainName:说明书;softwareName:软件;productRemarkName:产品备注附件;zhilingName:指令表;functionName:功能列表;huaceName:产品画册;datumName:产品资料;
+	xiehaoTooName:写号工具;testToolName:测试工具;testName:测试作业指导书;zuzhuangName:组装作业指导书',
+	PRIMARY KEY (fid)
+)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='产品材料 所有附件记录表';
+
+
+
+-- 内部材料管理
+CREATE TABLE t_sale_interior_material (
+	id INT(11) NOT NULL AUTO_INCREMENT,
+	file_url VARCHAR(500) NOT NULL COMMENT '附件保存在服务器的路径',
+	file_name VARCHAR(200) NOT NULL COMMENT '附件名称',
+	create_user VARCHAR(32) DEFAULT NULL COMMENT '文件上传人',
+	create_time datetime DEFAULT NULL COMMENT '文件上传时间',
+	update_time datetime DEFAULT NULL,
+	update_user VARCHAR(32) DEFAULT NULL,
+	PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='内部材料表';
+
+
+-- 异常反馈添加几米工站
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN jimi_status INT(11) COMMENT '几米站站设备状态 0：待解决；1：已完成；';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN jimi_createTime datetime DEFAULT NULL COMMENT '设备发送到几米站的时间';
+ALTER TABLE t_sale_ycfkmanage_manage ADD COLUMN jimi_person VARCHAR(30) COMMENT '几米站设备跟进人';
+
+-- 异常反馈管理 文件上传表
+CREATE TABLE t_sale_ycfkmanage_file (
+	fid int(11) NOT NULL AUTO_INCREMENT ,
+	yid int(11) NOT NULL COMMENT '对应异常反馈ID',
+	file_name VARCHAR(100) DEFAULT NULL COMMENT'附件名称',
+	file_url VARCHAR(500) DEFAULT NULL COMMENT '附件路径',
+	create_user VARCHAR(30) DEFAULT NULL COMMENT '附件上传人',
+	create_time datetime DEFAULT NULL COMMENT '上传时间',
+	file_site VARCHAR(30) DEFAULT NULL COMMENT '文件上传工站',
+	PRIMARY KEY (fid)
+)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='异常反馈附件表';
+

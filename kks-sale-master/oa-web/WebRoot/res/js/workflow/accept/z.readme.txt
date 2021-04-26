@@ -1,0 +1,6 @@
+文件说明:
+	accept.js 		受理管理JS
+	enclosure.js	随机附件JS
+	Initial.js      初检故障JS
+	tree.js         树形控制JS
+	

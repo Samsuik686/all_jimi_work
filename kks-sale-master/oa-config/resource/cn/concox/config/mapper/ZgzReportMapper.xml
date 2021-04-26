@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.ZgzReportMapper">
+
+	<resultMap id="queryList_resultMap" type="ZgzReport" ></resultMap>
+   
+
+	<select id="getBreakdownList" resultMap="queryList_resultMap" parameterType="ZgzReport">
+	 (SELECT '主板故障' AS faultType,SUM(CASE WHEN zzgzDesc LIKE '%5%' THEN 1 ELSE 0 END) AS number,CONCAT(LEFT(SUM(CASE WHEN zzgzDesc LIKE '%5%' THEN 1 ELSE 0 END)/(SUM(CASE WHEN zzgzDesc LIKE '%5%' THEN 1 ELSE 0 END)+SUM(CASE WHEN zzgzDesc LIKE '%4%' THEN 1 ELSE 0 END)+SUM(CASE WHEN zzgzDesc LIKE '%3%' THEN 1 ELSE 0 END))*100,4),'%') AS percent FROM t_sale_workflow_related WHERE 1=1  <if test="startTime != null and startTime != ''"> AND createTime>#{startTime}</if> <if test="endTime != null and endTime != ''"><![CDATA[  AND createTime<#{endTime}]]></if>)
+  		 UNION 
+  		  (SELECT '软件故障' AS faultType,SUM(CASE WHEN zzgzDesc LIKE '%4%' THEN 1 ELSE 0 END) AS number,CONCAT(LEFT(SUM(CASE WHEN zzgzDesc LIKE '%4%' THEN 1 ELSE 0 END)/(SUM(CASE WHEN zzgzDesc LIKE '%5%' THEN 1 ELSE 0 END)+SUM(CASE WHEN zzgzDesc LIKE '%4%' THEN 1 ELSE 0 END)+SUM(CASE WHEN zzgzDesc LIKE '%3%' THEN 1 ELSE 0 END))*100,4),'%') AS percent FROM t_sale_workflow_related WHERE 1=1  <if test="startTime != null and startTime != ''"> AND createTime>#{startTime}</if> <if test="endTime != null and endTime != ''"><![CDATA[  AND createTime<#{endTime}]]></if>)
+  		  UNION
+  		  (SELECT '硬件故障' AS faultType,SUM(CASE WHEN zzgzDesc LIKE '%3%' THEN 1 ELSE 0 END) AS number,CONCAT(LEFT(SUM(CASE WHEN zzgzDesc LIKE '%3%' THEN 1 ELSE 0 END)/(SUM(CASE WHEN zzgzDesc LIKE '%5%' THEN 1 ELSE 0 END)+SUM(CASE WHEN zzgzDesc LIKE '%4%' THEN 1 ELSE 0 END)+SUM(CASE WHEN zzgzDesc LIKE '%3%' THEN 1 ELSE 0 END))*100,4),'%') AS percent FROM t_sale_workflow_related WHERE 1=1  <if test="startTime != null and startTime != ''"> AND createTime>#{startTime}</if> <if test="endTime != null and endTime != ''"><![CDATA[  AND createTime<#{endTime}]]></if>)
+    </select>
+    
+    
+    <select id="getBreakdownChart" resultMap="queryList_resultMap" parameterType="ZgzReport">
+    	SELECT 
+    	b.`gName` faultType,
+    	COUNT(r.`zzgzGid`) AS number,
+    	CONCAT(ROUND(LEFT(COUNT(r.`zzgzGid`)/(SELECT COUNT(r.`zzgzGid`) 
+    	FROM t_sale_workflow w,t_sale_zbxhmanage z,t_sale_related_zzgz r 
+    	WHERE w.`xhId`=z.`mId` 
+<!--     	AND w.state=-1  -->
+    	AND w.`rfild`=r.`rfild`
+    	<if test="isWarranty != null and isWarranty != '' "> AND w.isWarranty = #{isWarranty} </if> 
+    	<if test="startTime != null and startTime != ''"> AND date_format(w.acceptanceTime,'%Y-%m-%d') &gt;=#{startTime}</if> 
+    	<if test="endTime != null and endTime != ''">AND date_format(w.acceptanceTime,'%Y-%m-%d') &lt;=#{endTime}</if> )*100,5),2),'%') AS percent 
+    	FROM t_sale_workflow w,t_sale_zbxhmanage z,t_sale_related_zzgz r,t_sale_basegroup b   
+    	WHERE w.`xhId`=z.`mId` 
+<!--     	AND w.state=-1  -->
+    	AND w.`rfild`=r.`rfild` 
+    	AND b.gId=r.`zzgzGid`
+    	<if test="isWarranty != null and isWarranty != '' "> AND w.isWarranty = #{isWarranty} </if>
+    	<if test="startTime != null and startTime != ''"> AND date_format(w.acceptanceTime,'%Y-%m-%d') &gt;=#{startTime}</if> 
+    	<if test="endTime != null and endTime != ''">AND date_format(w.acceptanceTime,'%Y-%m-%d') &lt;=#{endTime} </if>  
+    	GROUP BY r.`zzgzGid`
+    	ORDER BY number DESC   
+    </select>
+   
+</mapper>

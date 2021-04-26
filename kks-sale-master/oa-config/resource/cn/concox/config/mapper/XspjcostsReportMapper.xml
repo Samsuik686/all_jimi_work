@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.XspjcostsReportMapper">
+	<resultMap id="queryList_resultMap" type="XspjcostsReport"></resultMap>
+    <!-- 分页查询 -->
+	<select id="getXspjcostsListPage" parameterType="XspjcostsReport" resultMap="queryList_resultMap">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.startTime != null and po.startTime != ''"> AND date_format(payDate,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+			<if test="po.endTime != null and po.endTime != ''"> AND date_format(payDate,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			<if test="po.payType != null and po.payType!='' "> and payMethod = #{po.payType}</if>
+			<if test="po.cusName != null and po.cusName != ''"> and cusName like concat('%', '${po.cusName}', '%') </if>
+		</where>
+		order by payDate DESC ,saleDate DESC
+	</select>
+
+    <select id="getT" resultType="XspjcostsReport">
+        <include refid="selectAllFields" />
+        WHERE saleId = #{id}
+    </select>
+
+    <select id="getByRepairNumber" parameterType="String" resultType="XspjcostsReport">
+        <include refid="selectAllFields" />
+        WHERE repairNumber = #{repairNumber}
+    </select>
+
+    <insert id="insert" parameterType="XspjcostsReport">
+        INSERT INTO t_sale_xspjcosts (
+            cusName, saleDate, marketModel, proName, number, unitPrice, payReason, payPrice, payMethod, payDate, payState, remark, 
+            expressType, expressNO, logCost, repairNumber, receipt, rate, ratePrice, sumPrice, proNO, masterOrSlave, groupPjId, groupName, createBy
+        ) VALUES (
+            #{cusName}, #{saleDate}, #{marketModel}, #{proName}, #{number}, #{unitPrice}, #{payReason}, #{payPrice}, #{payMethod}, #{payDate}, #{payState}, #{remark}, 
+            #{expressType}, #{expressNO}, #{logCost}, #{repairNumber}, #{receipt}, #{rate}, #{ratePrice}, #{sumPrice}, #{proNO}, #{masterOrSlave}, #{groupPjId}, #{groupName}, #{createBy}
+        )
+    </insert>
+
+    <update id="update" parameterType="XspjcostsReport">
+        UPDATE t_sale_xspjcosts
+        <set>
+            <if test="cusName != null and cusName != ''"> cusName = #{cusName}, </if>
+            <if test="saleDate != null"> saleDate = #{saleDate}, </if>
+            <if test="marketModel != null and marketModel != ''"> marketModel = #{marketModel}, </if>
+            <if test="proName != null and proName != ''"> proName = #{proName}, </if>
+            <if test="number != null"> number = #{number}, </if>
+            <if test="unitPrice != null"> unitPrice = #{unitPrice}, </if>
+            <if test="payReason != null and payReason != ''"> payReason = #{payReason}, </if>
+            <if test="payPrice != null"> payPrice = #{payPrice}, </if>
+            <if test="payMethod != null and payMethod != ''"> payMethod = #{payMethod}, </if>
+            <if test="payDate != null"> payDate = #{payDate}, </if>
+            <if test="receipt != null"> receipt = #{receipt}, </if>
+            <if test="rate != null"> rate = #{rate}, </if>
+            <if test="ratePrice != null"> ratePrice = #{ratePrice}, </if>
+            <if test="sumPrice != null"> sumPrice = #{sumPrice}, </if>
+            <if test="proNO != null and proNO != ''"> proNO = #{proNO}, </if>
+            <if test="masterOrSlave != null and masterOrSlave != ''"> masterOrSlave = #{masterOrSlave}, </if>
+            <if test="groupPjId != null"> groupPjId = #{groupPjId}, </if>
+            <if test="groupName != null and groupName != ''"> groupName = #{groupName}, </if>
+            <if test="payState != null">  payState = #{payState}, </if>
+            <if test="expressType != null"> expressType = #{expressType}, </if>
+            <if test="expressNO != null">  expressNO = #{expressNO}, </if>
+            <if test="logCost != null"> logCost = #{logCost}, </if>
+            <if test="remark != null"> remark = #{remark}, </if>
+        </set>
+        WHERE saleId = #{saleId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM t_sale_xspjcosts WHERE saleId = #{saleId}
+    </delete>
+
+    <select id="getAll" resultType="XspjcostsReport">
+        <include refid="selectAllFields" />
+    </select>
+
+    <sql id="selectAllFields">
+        SELECT 
+        	saleId, cusName, saleDate, marketModel, proName, number, unitPrice, payReason, payPrice, payMethod, payDate, payState, remark, 
+            expressType, expressNO, logCost, repairNumber, receipt, rate, ratePrice, sumPrice, proNO, masterOrSlave, groupPjId, groupName, createBy
+        FROM t_sale_xspjcosts
+    </sql>
+
+    <select id="queryList" parameterType="XspjcostsReport" resultMap="queryList_resultMap">
+        <include refid="selectAllFields" />
+        <where>
+            <if test="cusName != null and cusName != ''"> and cusName like concat('%', '${cusName}', '%') </if>
+			<if test="startTime != null and startTime != ''"> AND date_format(payDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> AND date_format(payDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+			<if test="payType != null and payType!=''"> and payMethod = #{payType}</if>
+        </where>
+         order by payDate DESC ,saleDate DESC
+    </select>
+    
+    <!-- 单位名称、销售日期、市场型号、物料名称、单价是否为同一条数据 -->
+    <select id="isExists" parameterType="XspjcostsReport" resultType="int">
+		SELECT count(1) FROM t_sale_xspjcosts
+		WHERE cusName = #{cusName} AND saleDate = #{saleDate} AND marketModel = #{marketModel} AND proName = #{proName} AND unitPrice = #{unitPrice}
+		<if test ="saleId !=null"> AND saleId != #{saleId} </if>
+	</select>
+</mapper>

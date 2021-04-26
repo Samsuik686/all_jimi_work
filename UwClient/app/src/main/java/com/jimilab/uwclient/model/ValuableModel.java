@@ -218,7 +218,7 @@ public class ValuableModel implements IValuableModel {
     }
     public void get_choujianokhttp(String taskId, String no, String supplierId, LoadOkhttpListener LoadOkhttpListener){
         //Precious
-        OkHttpUtils.sendOkHttpPostRequest(BuildConfig.BASE_URL + "pda/getUnScanSampleTaskMaterial", new Callback() {
+        OkHttpUtils.sendOkHttpPostRequest(BuildConfig.BASE_URL + "pda/getPreciousUnScanSampleTaskMaterial", new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         LoadOkhttpListener.onError(e.toString());
@@ -248,7 +248,8 @@ public class ValuableModel implements IValuableModel {
     public void get_pandianokhttp(String taskId, String no, String supplierId, LoadOkhttpListener LoadOkhttpListener){
         Log.d("sxmmm","taskId=="+taskId+"  no=="+no+"  supplierId=="+supplierId+ "  #TOKEN#=="+mApplication.getTOKEN());
         //Precious
-        OkHttpUtils.sendOkHttpPostRequest(BuildConfig.BASE_URL + "pda/getUnScanInventoryTaskMaterial", new Callback() {
+        Log.d("sxmmm","BASE_URL=="+BuildConfig.BASE_URL);
+        OkHttpUtils.sendOkHttpPostRequest(BuildConfig.BASE_URL + "pda/getPreciousUnScanInventoryTaskMaterial", new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         Log.d("sxmmmm", "IOException=="+e.toString());

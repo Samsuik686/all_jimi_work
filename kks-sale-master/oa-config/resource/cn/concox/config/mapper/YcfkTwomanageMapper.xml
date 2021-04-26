@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.YcfkTwomanageMapper">
+
+<resultMap id="queryYcfkTwomanageList_resultMap" type="YcfkTwomanage" >
+   </resultMap>
+   
+    <sql id="selectAllFields">
+         select  
+       		backId, model, imei, warranty, description, number, feedBackPerson, feedBackDate, recipient,levelFlag,
+       		responsibilityUnit, measures,completionDate,completionState, followupPeople, customerName, phone, remak ,
+       		current_site AS currentSite, kf_status AS customerStatus, zd_status AS termailStatus, 
+       		pt_status AS platformStatus, pz_status AS qualityStatus, cp_status AS productStatus, wx_status AS repairStatus, xm_status AS projectStatus,
+       		zd_createTime AS termailCreateTime, pt_createTime AS platformCreateTime, pz_createTime AS qualityCreateTime, 
+       		cp_createTime AS productCreateTime, wx_createTime AS repairCreateTime, xm_createTime AS projectCreateTime,jimi_createTime AS jimiCreateTime,
+       		jimi_status AS jimiStatus, market_createTime AS marketCreateTime, market_status AS marketStatus, kf_createTime AS customerCreateTime,
+       		
+       		research_createTime AS researchCreateTime,test_createTime AS testCreateTime,iot_createTime AS iotCreateTime,sim_createTime AS simCreateTime,
+       		research_status AS researchStatus,test_status AS testStatus,iot_status AS iotStatus,sim_status AS simStatus,
+       		
+       		checkResult, checker,severityFlag,analysis,strategy,copyPerson
+       		
+        FROM t_sale_ycfkmanage_manage 
+   </sql>
+   
+    <insert id="insert" parameterType="YcfkTwomanage" useGeneratedKeys="true" keyProperty="backId">
+        INSERT INTO t_sale_ycfkmanage_manage 
+        (
+            model, imei, warranty, description, number, feedBackPerson, feedBackDate, recipient,
+            responsibilityUnit, measures,completionDate,completionState, followupPeople, customerName, phone, 
+            remak, kf_status, zd_status, pt_status, current_site, zd_person, pt_person, zd_createTime, pt_createTime,
+            wx_createTime, xm_createTime, wx_status, xm_status, wx_person, xm_person, jimi_createTime, jimi_person, jimi_status,
+            market_createTime, market_person, market_status, levelFlag, kf_createTime, kf_person, checkResult, checker,
+            severityFlag,analysis,strategy,copyPerson,
+            research_status,
+            research_createTime,
+            research_person,
+			test_status,
+			test_createTime,
+			test_person,
+			iot_status,
+			iot_createTime,
+			iot_person,
+			sim_status,
+			sim_createTime,
+			sim_person
+        ) VALUES (
+            #{model}, #{imei}, #{warranty}, #{description}, #{number}, #{feedBackPerson}, #{feedBackDate}, #{recipient}, 
+            #{responsibilityUnit}, #{measures}, #{completionDate},#{completionState}, #{followupPeople}, #{customerName}, #{phone}, #{remak}, 
+            #{customerStatus}, #{termailStatus}, #{platformStatus}, #{currentSite}, #{termailPerson}, #{platformPerson},
+            #{termailCreateTime}, #{platformCreateTime}, #{repairCreateTime}, #{projectCreateTime}, #{repairStatus}, #{projectStatus},
+            #{repairPerson}, #{projectPerson}, #{jimiCreateTime}, #{jimiPerson}, #{jimiStatus},
+            #{marketCreateTime}, #{marketPerson}, #{marketStatus}, #{levelFlag}, #{customerCreateTime}, #{customerPerson}, #{checkResult}, #{checker},
+            #{severityFlag},#{analysis},#{strategy},#{copyPerson},
+            #{researchStatus},
+            #{researchCreateTime},
+            #{researchPerson},
+			#{testStatus},
+			#{testCreateTime},
+			#{testPerson},
+			#{iotStatus},
+			#{iotCreateTime},
+			#{iotPerson},
+			#{simStatus},
+			#{simCreateTime},
+			#{simPerson}
+        )
+    </insert>
+    	
+    
+	<update id="update" parameterType="YcfkTwomanage">
+        UPDATE t_sale_ycfkmanage_manage
+        <set>
+            <if test="description != null and description != ''"> description = #{description}, </if>
+            <if test="feedBackPerson != null and feedBackPerson != ''"> feedBackPerson = #{feedBackPerson}, </if>
+            <if test="completionState != null"> completionState = #{completionState}, </if>
+            <if test="levelFlag != null"> levelFlag = #{levelFlag}, </if>
+            <if test="termailStatus != null"> zd_status = #{termailStatus}, </if>
+            <if test="platformStatus != null"> pt_status = #{platformStatus}, </if>
+            <if test="qualityStatus!= null"> pz_status = #{qualityStatus}, </if>
+            <if test="productStatus != null"> cp_status = #{productStatus}, </if>
+            <if test="repairStatus != null"> wx_status = #{repairStatus}, </if>
+            <if test="projectStatus != null"> xm_status = #{projectStatus}, </if>
+            <if test="customerStatus != null"> kf_status = #{customerStatus}, </if>
+            <if test="jimiStatus != null"> jimi_status = #{jimiStatus}, </if>
+            <if test="marketStatus != null"> market_status = #{marketStatus},</if>
+            
+            <if test="researchStatus != null"> research_status = #{researchStatus}, </if>
+            <if test="testStatus != null"> test_status = #{testStatus}, </if>
+            <if test="iotStatus != null"> iot_status = #{iotStatus},</if>
+            <if test="simStatus != null"> sim_status = #{simStatus}, </if>
+ 
+            <if test="checkResult != null"> checkResult = #{checkResult},</if>
+            <if test="checker != null and checker != ''"> checker = #{checker}, </if>
+			<if test="analysis !=null and analysis != ''">analysis = #{analysis},</if>
+			<if test="strategy !=null and strategy != ''">strategy = #{strategy},</if>
+			<if test="copyPerson !=null and copyPerson != ''">copyPerson = #{copyPerson},</if>
+			severityFlag = #{severityFlag},
+             warranty = #{warranty},feedBackDate = #{feedBackDate}, recipient = #{recipient}, 
+             responsibilityUnit = #{responsibilityUnit}, measures = #{measures}, completionDate = #{completionDate}, 
+             followupPeople = #{followupPeople}, model = #{model},imei = #{imei}, number = #{number}, 
+             customerName = #{customerName}, phone = #{phone}, remak = #{remak}
+        </set>
+        WHERE backId = #{backId}
+    </update>
+    
+    <update id="sendDataToNextSite">
+    	UPDATE t_sale_ycfkmanage_manage
+    	<set>
+    		completionState = 0,
+    		<if test="po.termailStatus != null ">zd_status = #{po.termailStatus},</if>
+    		<if test="po.termailPerson != null and po.termailPerson != ''">zd_person = #{po.termailPerson},</if>
+    		<if test="po.termailCreateTime != null ">zd_createTime = #{po.termailCreateTime},</if>
+    		
+    		<if test="po.platformStatus != null">pt_status = #{po.platformStatus},</if>
+    		<if test="po.platformPerson != null and po.platformPerson != ''">pt_person = #{po.platformPerson},</if>
+    		<if test="po.platformCreateTime != null ">pt_createTime = #{po.platformCreateTime},</if>
+    		
+    		<if test="po.qualityStatus != null">pz_status = #{po.qualityStatus},</if>
+    		<if test="po.qualityPerson != null and po.qualityPerson != ''">pz_person = #{po.qualityPerson},</if>
+    		<if test="po.qualityCreateTime != null ">pz_createTime = #{po.qualityCreateTime},</if>
+    		
+    		<if test="po.productStatus != null">cp_status = #{po.productStatus},</if>
+    		<if test="po.productPerson != null and po.productPerson != ''">cp_person = #{po.productPerson},</if>
+    		<if test="po.productCreateTime != null">cp_createTime = #{po.productCreateTime},</if>
+    		
+    		<if test="po.repairStatus != null">wx_status = #{po.repairStatus},</if>
+    		<if test="po.repairPerson != null and po.repairPerson != ''">wx_person = #{po.repairPerson},</if>
+    		<if test="po.repairCreateTime != null ">wx_createTime = #{po.repairCreateTime},</if>
+    		
+    		<if test="po.projectStatus != null">xm_status = #{po.projectStatus},</if>
+    		<if test="po.projectPerson != null and po.projectPerson != ''">xm_person = #{po.projectPerson},</if>
+    		<if test="po.projectCreateTime != null">xm_createTime = #{po.projectCreateTime},</if>
+    		
+    		<if test="po.jimiStatus != null">jimi_status = #{po.jimiStatus},</if>
+    		<if test="po.jimiPerson != null and po.jimiPerson != ''">jimi_person = #{po.jimiPerson},</if>
+    		<if test="po.jimiCreateTime != null">jimi_createTime = #{po.jimiCreateTime},</if>
+    		
+    		<if test="po.marketStatus != null">market_status = #{po.marketStatus},</if>
+    		<if test="po.marketPerson != null and po.marketPerson != ''">market_person = #{po.marketPerson},</if>
+    		<if test="po.marketCreateTime != null">market_createTime = #{po.marketCreateTime},</if>
+    		
+    		<if test="po.customerStatus != null ">kf_status = #{po.customerStatus},</if>
+    		<if test="po.customerPerson != null and po.customerPerson != ''">kf_person = #{po.customerPerson},</if>
+    		<if test="po.customerCreateTime != null ">kf_createTime = #{po.customerCreateTime},</if>
+    		
+    		<if test="po.researchStatus != null">research_status = #{po.researchStatus},</if>
+    		<if test="po.researchPerson != null and po.researchPerson != ''">research_person = #{po.researchPerson},</if>
+    		<if test="po.researchCreateTime != null ">research_createTime = #{po.researchCreateTime},</if>
+    		
+    		<if test="po.testStatus != null">test_status = #{po.testStatus},</if>
+    		<if test="po.testPerson != null and po.testPerson != ''">test_person = #{po.testPerson},</if>
+    		<if test="po.testCreateTime != null ">test_createTime = #{po.testCreateTime},</if>
+    		
+    		<if test="po.iotStatus != null ">iot_status = #{po.iotStatus},</if>
+    		<if test="po.iotPerson != null and po.iotPerson != ''">iot_person = #{po.iotPerson},</if>
+    		<if test="po.iotCreateTime != null ">iot_createTime = #{po.iotCreateTime},</if>
+    		
+    		<if test="po.simStatus != null ">sim_status = #{po.simStatus},</if>
+    		<if test="po.simPerson != null and po.simPerson != ''">sim_person = #{po.simPerson},</if>
+    		<if test="po.simCreateTime != null">sim_createTime = #{po.simCreateTime},</if>
+    		
+    		<if test="po.currentSite != null and po.currentSite != ''">current_site = #{po.currentSite},</if>  		
+    		<if test="po.followupPeople != null and po.followupPeople != ''">followupPeople = #{po.followupPeople},</if>
+    		<if test="po.measures != null ">measures = #{po.measures},</if>
+			<if test="po.analysis !=null and po.analysis != ''">analysis = #{po.analysis},</if>
+			<if test="po.strategy !=null and po.strategy != ''">strategy = #{po.strategy},</if>
+			<if test="po.copyPerson !=null and po.copyPerson != ''">copyPerson = #{po.copyPerson},</if>
+    	</set>
+    	where backId IN
+    	<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		and completionState IN (0,2)
+    </update>
+    
+     <delete id="delete" parameterType="YcfkTwomanage">
+        DELETE FROM t_sale_ycfkmanage_manage WHERE backId=#{backId}
+    </delete>
+    
+    <delete id="deleteByIds" parameterType="String">
+        DELETE FROM t_sale_ycfkmanage_manage WHERE backId IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+        	#{id}
+        </foreach>
+    </delete>
+    
+    <select id="select" parameterType="YcfkTwomanage"  resultType="YcfkTwomanage">
+    select 
+      backId, model, imei, warranty, description, number, feedBackPerson, feedBackDate, recipient, levelFlag,
+      responsibilityUnit, measures, completionDate,completionState, followupPeople, customerName, phone, remak ,
+      current_site AS currentSite, checkResult, checker,analysis,severityFlag,strategy,copyPerson
+    FROM t_sale_ycfkmanage_manage where backId=#{backId}
+    </select>
+    
+     <select id="queryYcfkTwomanageListPage" resultMap="queryYcfkTwomanageList_resultMap"  parameterType="YcfkTwomanage">
+      <include refid="selectAllFields" />
+      	  where 1=1     		
+	         <if test="po.feedBackPerson != null and po.feedBackPerson != ''"> And feedBackPerson like concat('%', '${po.feedBackPerson}', '%')</if>
+	         <if test="po.model != null and po.model != ''"> AND model like concat('%', '${po.model}', '%') </if>	
+	         <if test="po.recipient != null and po.recipient != ''"> AND recipient like concat('%', '${po.recipient}', '%') </if>	
+	         <if test="po.startTime != null and po.startTime != ''"> AND date_format(feedBackDate,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+	         <if test="po.endTime != null and po.endTime != ''"> AND date_format(feedBackDate,'%Y-%m-%d') &lt;= #{po.endTime} </if>			
+		     <if test="po.treeDate != null and po.treeDate != ''"> AND date_format(feedBackDate,'%Y-%m-%d') = #{po.treeDate}</if>
+			 <if test="po.customerName != null and po.customerName != ''"> AND customerName = #{po.customerName}</if>
+			 <if test="po.phone != null and po.phone != ''"> AND phone = #{po.phone}</if>
+
+		 <choose>
+	        	<when test="po.currentSite != null and po.currentSite != ''">
+	        		<if test="po.currentSite == 'customer'">
+		        	<if test="po.completionState != null"> and kf_status = #{po.completionState}</if>
+		        	<if test="po.followupPeople != null and po.followupPeople != ''"> and kf_person like concat('%',#{po.followupPeople},'%')</if>
+		        	and kf_status IS NOT NULL
+		         	order by kf_status desc
+			        </if>
+			        <if test="po.currentSite == 'termail'">
+			        	<if test="po.completionState != null"> and zd_status = #{po.completionState}</if>
+			        	<if test="po.followupPeople != null and po.followupPeople != ''"> and zd_person like concat('%',#{po.followupPeople},'%')</if>
+			        	and zd_status IS NOT NULL
+			        	 order by zd_status desc
+			        </if>
+			        <if test="po.currentSite == 'platform'">
+				        <if test="po.completionState != null"> and pt_status = #{po.completionState}</if>
+				        <if test="po.followupPeople != null and po.followupPeople != ''"> and pt_person like concat('%',#{po.followupPeople},'%')</if>
+				        and pt_status IS NOT NULL
+				         order by pt_status desc
+			        </if>
+			        <if test="po.currentSite == 'quality'">
+				        <if test="po.completionState != null"> and pz_status = #{po.completionState}</if>
+				        <if test="po.followupPeople != null and po.followupPeople != ''"> and pz_person like concat('%',#{po.followupPeople},'%')</if>
+				        and pz_status IS NOT NULL
+				         order by pz_status desc
+			        </if>
+			        <if test="po.currentSite == 'product'">
+				        <if test="po.completionState != null"> and cp_status = #{po.completionState}</if>
+				        <if test="po.followupPeople != null and po.followupPeople != ''"> and cp_person like concat('%',#{po.followupPeople},'%')</if>
+				        and cp_status IS NOT NULL
+				         order by cp_status desc
+			        </if>
+			         <if test="po.currentSite == 'repair'">
+				        <if test="po.completionState != null"> and wx_status = #{po.completionState}</if>
+				        <if test="po.followupPeople != null and po.followupPeople != ''"> and wx_person like concat('%',#{po.followupPeople},'%')</if>
+				        and wx_status IS NOT NULL
+				         order by wx_status desc
+			        </if>
+			         <if test="po.currentSite == 'project'">
+				        <if test="po.completionState != null"> and xm_status = #{po.completionState}</if>
+				        <if test="po.followupPeople != null and po.followupPeople != ''"> and xm_person like concat('%',#{po.followupPeople},'%')</if>
+				        and xm_status IS NOT NULL
+				         order by xm_status desc
+			        </if>
+			        <if test="po.currentSite == 'jimi'">
+				        <if test="po.completionState != null"> and jimi_status = #{po.completionState}</if>
+				        <if test="po.followupPeople != null and po.followupPeople != ''"> and jimi_person like concat('%',#{po.followupPeople},'%')</if>
+				        and jimi_status IS NOT NULL
+				         order by jimi_status desc
+			        </if>
+			        <if test="po.currentSite == 'market'">
+				        <if test="po.completionState != null"> and market_status = #{po.completionState}</if>
+				        <if test="po.followupPeople != null and po.followupPeople != ''"> and market_person like concat('%',#{po.followupPeople},'%')</if>
+				        and market_status IS NOT NULL
+				         order by market_status desc
+			        </if>
+			        
+			        <if test="po.currentSite == 'research'">
+				        <if test="po.completionState != null"> and research_status = #{po.completionState}</if>
+				        <if test="po.followupPeople != null and po.followupPeople != ''"> and research_person like concat('%',#{po.followupPeople},'%')</if>
+				        and research_status IS NOT NULL
+				         order by research_status desc
+			        </if>
+			        <if test="po.currentSite == 'test'">
+				        <if test="po.completionState != null"> and test_status = #{po.completionState}</if>
+				        <if test="po.followupPeople != null and po.followupPeople != ''"> and test_person like concat('%',#{po.followupPeople},'%')</if>
+				        and test_status IS NOT NULL
+				         order by test_status desc
+			        </if>
+			        <if test="po.currentSite == 'iot'">
+				        <if test="po.completionState != null"> and iot_status = #{po.completionState}</if>
+				        <if test="po.followupPeople != null and po.followupPeople != ''"> and iot_person like concat('%',#{po.followupPeople},'%')</if>
+				        and iot_status IS NOT NULL
+				         order by iot_status desc
+			        </if>
+			        
+			        <if test="po.currentSite == 'sim'">
+				        <if test="po.completionState != null"> and sim_status = #{po.completionState}</if>
+				        <if test="po.followupPeople != null and po.followupPeople != ''"> and sim_person like concat('%',#{po.followupPeople},'%')</if>
+				        and sim_status IS NOT NULL
+				         order by sim_status desc
+			        </if>
+			        
+	        	</when>
+	        	<otherwise>
+	        		  <if test="po.ycfk_currentSite != null and po.ycfk_currentSite != ''"> and current_site = #{po.ycfk_currentSite}</if>
+	        		  <if test="po.ycfk_completionState != null"> and completionState = #{po.ycfk_completionState}</if>
+	        		  <if test="po.followupPeople != null and po.followupPeople != ''"> And followupPeople like concat('%', '${po.followupPeople}', '%')</if>
+	        		 order by feedBackDate desc 
+	        	</otherwise>
+	        </choose>
+	       
+        
+    </select>
+   
+    <!-- 反馈日期、问题描述判断是否是同一条数据 -->
+	<select id="isExists" parameterType="YcfkTwomanage" resultType="int">
+		SELECT count(1) FROM t_sale_ycfkmanage_manage
+		WHERE feedBackDate = #{feedBackDate} AND description = #{description}
+		<if test ="backId !=null"> AND backId != #{backId} </if>
+	</select>
+	
+	<insert id="insertYcfkFile" parameterType="YcfkManageFile">
+		INSERT INTO t_sale_ycfkmanage_file (yid, file_name, file_url, create_user, create_time, file_site) 
+		VALUES (#{yid},#{fileName},#{fileUrl},#{createUser},#{createTime},#{fileSite})
+	</insert>
+	
+	<select id="getYcfkManageFile" parameterType="java.lang.Integer" resultType="YcfkManageFile">
+		select fid,yid,file_name AS fileName, file_url AS fileUrl, create_user AS createUser, 
+			create_time AS createTime, file_site AS fileSite 
+			from t_sale_ycfkmanage_file where yid = #{yid}
+	</select>
+	
+	<delete id="deleteFileByFid" parameterType="java.lang.Integer">
+		DELETE FROM t_sale_ycfkmanage_file WHERE fid = #{fid}
+	</delete>
+	
+	<delete id="deleteFileByYid" parameterType="java.lang.Integer">
+		DELETE FROM t_sale_ycfkmanage_file WHERE yid IN
+		<foreach collection="yids" item="yid" open="(" separator="," close=")">
+        	#{yid}
+        </foreach>
+	</delete>
+
+	<select id="selectNotCompleteByUname" resultType="YcfkTwomanage">
+		<include refid="selectAllFields"></include>
+		WHERE 1=1
+		<choose>
+			<when test="po.currentSite != null and po.currentSite != ''">
+				<if test="po.currentSite == 'customer'">
+					<if test="po.completionState != null"> and kf_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and kf_person like concat('%',#{po.followupPeople},'%')</if>
+					and kf_status IS NOT NULL
+					order by kf_status desc
+				</if>
+				<if test="po.currentSite == 'termail'">
+					<if test="po.completionState != null"> and zd_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and zd_person like concat('%',#{po.followupPeople},'%')</if>
+					and zd_status IS NOT NULL
+					order by zd_status desc
+				</if>
+				<if test="po.currentSite == 'platform'">
+					<if test="po.completionState != null"> and pt_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and pt_person like concat('%',#{po.followupPeople},'%')</if>
+					and pt_status IS NOT NULL
+					order by pt_status desc
+				</if>
+				<if test="po.currentSite == 'quality'">
+					<if test="po.completionState != null"> and pz_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and pz_person like concat('%',#{po.followupPeople},'%')</if>
+					and pz_status IS NOT NULL
+					order by pz_status desc
+				</if>
+				<if test="po.currentSite == 'product'">
+					<if test="po.completionState != null"> and cp_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and cp_person like concat('%',#{po.followupPeople},'%')</if>
+					and cp_status IS NOT NULL
+					order by cp_status desc
+				</if>
+				<if test="po.currentSite == 'repair'">
+					<if test="po.completionState != null"> and wx_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and wx_person like concat('%',#{po.followupPeople},'%')</if>
+					and wx_status IS NOT NULL
+					order by wx_status desc
+				</if>
+				<if test="po.currentSite == 'project'">
+					<if test="po.completionState != null"> and xm_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and xm_person like concat('%',#{po.followupPeople},'%')</if>
+					and xm_status IS NOT NULL
+					order by xm_status desc
+				</if>
+				<if test="po.currentSite == 'jimi'">
+					<if test="po.completionState != null"> and jimi_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and jimi_person like concat('%',#{po.followupPeople},'%')</if>
+					and jimi_status IS NOT NULL
+					order by jimi_status desc
+				</if>
+				<if test="po.currentSite == 'market'">
+					<if test="po.completionState != null"> and market_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and market_person like concat('%',#{po.followupPeople},'%')</if>
+					and market_status IS NOT NULL
+					order by market_status desc
+				</if>
+
+				<if test="po.currentSite == 'research'">
+					<if test="po.completionState != null"> and research_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and research_person like concat('%',#{po.followupPeople},'%')</if>
+					and research_status IS NOT NULL
+					order by research_status desc
+				</if>
+				<if test="po.currentSite == 'test'">
+					<if test="po.completionState != null"> and test_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and test_person like concat('%',#{po.followupPeople},'%')</if>
+					and test_status IS NOT NULL
+					order by test_status desc
+				</if>
+				<if test="po.currentSite == 'iot'">
+					<if test="po.completionState != null"> and iot_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and iot_person like concat('%',#{po.followupPeople},'%')</if>
+					and iot_status IS NOT NULL
+					order by iot_status desc
+				</if>
+
+				<if test="po.currentSite == 'sim'">
+					<if test="po.completionState != null"> and sim_status = #{po.completionState}</if>
+					<if test="po.followupPeople != null and po.followupPeople != ''"> and sim_person like concat('%',#{po.followupPeople},'%')</if>
+					and sim_status IS NOT NULL
+					order by sim_status desc
+				</if>
+
+			</when>
+			<otherwise>
+				<if test="po.ycfk_currentSite != null and po.ycfk_currentSite != ''"> and current_site = #{po.ycfk_currentSite}</if>
+				<if test="po.ycfk_completionState != null"> and completionState = #{po.ycfk_completionState}</if>
+				<if test="po.followupPeople != null and po.followupPeople != ''"> And followupPeople like concat('%', '${po.followupPeople}', '%')</if>
+				order by feedBackDate desc
+			</otherwise>
+		</choose>
+
+	</select>
+
+	<select id="selectNotCompleteByUnameCopy" resultType="YcfkTwomanage">
+		<include refid="selectAllFields"></include>
+		WHERE  completionState =#{po.completionState}
+		and copyPerson like concat('%',#{po.copyPerson},'%')
+	</select>
+</mapper> 

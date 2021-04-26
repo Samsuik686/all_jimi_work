@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.CjgzmanageMapper">
+
+	<resultMap id="queryCjgzmanageList_resultMap" type="Cjgzmanage">
+	</resultMap>
+	<insert id="insert" parameterType="Cjgzmanage">
+		INSERT INTO t_sale_cjgzmanage (gId,
+		 faultClass, initheckFault, description, number, available
+		) VALUES (
+		(SELECT gid from t_sale_basegroup WHERE gname = #{faultClass} AND enumSn ='BASE_CCGZ'),
+		 #{faultClass}, #{initheckFault}, #{description}, #{number}, #{available}
+		)
+	</insert>
+	
+    <!-- 新增修改看是否存在gid -->
+	<select id="isExistsGid" parameterType="Cjgzmanage" resultType="Integer">
+		SELECT gid from t_sale_basegroup WHERE TRIM(gname) = #{faultClass} AND enumSn ='BASE_CCGZ'
+	</select>
+	
+	<!-- 删除或修改组时查看是组下否存在数据 -->
+	<select id="getCountByGid" parameterType="Cjgzmanage" resultType="int">
+		SELECT count(1) from t_sale_cjgzmanage WHERE gId = #{gId}
+	</select>
+	
+	<!-- 修改分组时，改其下数据 -->
+	<update id="updateByGid" parameterType="Cjgzmanage">
+      	UPDATE t_sale_cjgzmanage set faultClass = (SELECT gname from t_sale_basegroup WHERE gId = #{gId}) 
+      	WHERE gId = #{gId}
+    </update>
+	
+	<update id="update" parameterType="Cjgzmanage">
+		UPDATE t_sale_cjgzmanage
+		<set>
+			<if test="gId != null "> gId = #{gId}, </if>
+			<if test="faultClass != null and faultClass != ''"> faultClass = #{faultClass}, </if>
+			<if test="initheckFault != null and initheckFault != ''"> initheckFault = #{initheckFault}, </if>
+			<if test="number != null and number != ''"> number = #{number}, </if>
+			<if test="available != null"> available = #{available}, </if>
+			<if test="description != null"> description = #{description}, </if>
+		</set>
+		WHERE iid = #{iid}
+	</update>
+
+	<select id="select" parameterType="Cjgzmanage" resultType="Cjgzmanage">
+		select iid,gId, faultClass, initheckFault, description, number,
+		available from
+		t_sale_cjgzmanage where iid=#{iid}
+	</select>
+
+	<delete id="delete" parameterType="Cjgzmanage">
+		DELETE FROM t_sale_cjgzmanage
+		WHERE iid =#{iid}
+	</delete>
+
+	<select id="queryCjgzmanageListPage" parameterType="Cjgzmanage" resultMap="queryCjgzmanageList_resultMap">
+		select iid, faultClass, initheckFault, description, number, available
+		from
+		t_sale_cjgzmanage
+		<where>
+			<if test="po.gId != null">
+				and gId = #{po.gId}
+			</if>
+			<if test="po.initheckFault!=null  and po.initheckFault!=''">
+				and initheckFault LIKE CONCAT('%',#{po.initheckFault},'%' )
+			</if>
+			<if test="po.number != null and po.number!='' ">
+				and number LIKE CONCAT('%',#{po.number},'%' )
+			</if>
+			<!-- 受理显示未禁用的数据 -->
+			<if test="po.available != null and po.available != ''">
+				and available = #{po.available}
+			</if>
+			<!-- 批量受理选择初检故障根据关键字查询 -->
+			<if test="po.description!=null and po.description!=''">
+				and ( initheckFault LIKE CONCAT('%',#{po.description},'%' ) or
+					  description LIKE CONCAT('%',#{po.description},'%' ) or
+					  number LIKE CONCAT('%',#{po.description},'%' )
+					)
+			</if>
+		</where>
+		order by number
+
+	</select>
+
+	<select id="queryList" resultMap="queryCjgzmanageList_resultMap" parameterType="Cjgzmanage">
+		select iid, faultClass, initheckFault, description, number, available
+		from
+		t_sale_cjgzmanage
+		<where>
+			<if test="gId != null">
+				and gId = #{gId}
+			</if>
+			<if test="faultClass!=null  and faultClass!=''">
+				and faultClass LIKE CONCAT('%',#{faultClass},'%' )
+			</if>
+			<if test="initheckFault!=null and initheckFault!=''">
+				and initheckFault LIKE CONCAT('%',#{initheckFault},'%' )
+			</if>
+			<if test="number!=null and number!=''">
+				and number LIKE CONCAT('%',#{number},'%' )
+			</if>
+		</where>
+
+		order by number
+	</select>
+
+
+	<!--受理 初次故障匹配 @author： Li.Shangzhi @date:2016-08-03 14:34:34 -->
+	<select id="getGRoupConcat" resultType="String" parameterType="String">
+		SELECT GROUP_CONCAT(cjgz.initheckFault SEPARATOR' | ') AS
+		`initheckFault` FROM t_sale_cjgzmanage AS cjgz
+		WHERE cjgz.iid IN
+		<foreach collection="array" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<!-- 故障类别、初检故障、 故障编码判断是否是同一条数据 -->
+	<select id="isExists" parameterType="Cjgzmanage" resultType="int">
+		SELECT count(1) FROM t_sale_cjgzmanage
+		WHERE faultClass = #{faultClass} AND initheckFault = #{initheckFault} AND number = #{number}
+		<if test ="iid !=null"> AND iid != #{iid} </if>
+	</select>
+	
+	<select id="findCountWorkflowRelatedBycjgzDesc" parameterType="Cjgzmanage" resultType="int">
+		SELECT
+ 		count(id)
+		FROM
+		t_sale_workflow_related
+		WHERE
+		FIND_IN_SET(#{iid},t_sale_workflow_related.cjgzDesc) 
+	</select>
+	
+</mapper>
+    

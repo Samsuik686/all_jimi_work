@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>  
+	       <setting name="logImpl" value="STDOUT_LOGGING" /> 
+	       <setting name="cacheEnabled" value="true"/>
+	  	</settings>
+	<typeAliases>
+		<!-- ============================================================================================= -->
+	    <!-- 系统集成管理  START -->
+		<typeAlias alias="Menu" 	   type="cn.concox.vo.system.Menus" />
+		<typeAlias alias="MenuDetails" type="cn.concox.vo.system.MenuDetails" />
+		<typeAlias alias="Dictionary"  type="cn.concox.vo.system.Dictionary" />
+		<typeAlias alias="RoleMgt"     type="cn.concox.vo.rolePrivilege.RoleMgt" />
+		<typeAlias alias="UserRoleMgt" type="cn.concox.vo.rolePrivilege.UserRoleMgt" />
+		<typeAlias alias="MenusFunc"   type="cn.concox.vo.rolePrivilege.MenusFunction" />
+		<typeAlias alias="FuncDetails" type="cn.concox.vo.rolePrivilege.FunctionDetails" />
+		<typeAlias alias="RoleMenus"   type="cn.concox.vo.rolePrivilege.RoleMenus" />
+		<!-- 系统集成管理  END -->
+		
+		<!-- ============================================================================================= -->
+		
+		<!-- 基础数据管理  START -->
+		<typeAlias alias="Dzlmanage"   type="cn.concox.vo.basicdata.Dzlmanage" />
+		<typeAlias alias="Pjlmanage"   type="cn.concox.vo.basicdata.Pjlmanage" />
+		<typeAlias alias="Zgzmanage"   type="cn.concox.vo.basicdata.Zgzmanage" />
+		<typeAlias alias="Cjgzmanage"  type="cn.concox.vo.basicdata.Cjgzmanage" />
+		<typeAlias alias="Sjfjmanage"  type="cn.concox.vo.basicdata.Sjfjmanage" />
+		<typeAlias alias="Ycfkmanage"  type="cn.concox.vo.basicdata.Ycfkmanage" />
+		<typeAlias alias="YcfkTwomanage"  type="cn.concox.vo.basicdata.YcfkTwomanage" />
+		<typeAlias alias="YcfkBase"    type="cn.concox.vo.basicdata.YcfkBase" />
+		<typeAlias alias="Sxdwmanage"  type="cn.concox.vo.basicdata.Sxdwmanage" />
+		<typeAlias alias="Zbxhmanage"  type="cn.concox.vo.basicdata.Zbxhmanage" />
+		<typeAlias alias="Zjppmanage"  type="cn.concox.vo.basicdata.Zjppmanage" />
+		<typeAlias alias="Gzbjmanage"  type="cn.concox.vo.basicdata.Gzbjmanage" />
+		<typeAlias alias="Basegroup"  type="cn.concox.vo.basicdata.Basegroup" />
+		<typeAlias alias="RepairPriceManage"  type="cn.concox.vo.basicdata.RepairPriceManage" />
+		<typeAlias alias="RepairPriceTempManage"  type="cn.concox.vo.basicdata.RepairPriceTempManage" />
+		<typeAlias alias="Tip"  type="cn.concox.vo.basicdata.Tip" />
+		<typeAlias alias="QueryRepairState"  type="cn.concox.vo.basicdata.QueryRepairState" />
+		<typeAlias alias="PricePj"  type="cn.concox.vo.basicdata.PricePj" />
+		<typeAlias alias="GroupPj"  type="cn.concox.vo.basicdata.GroupPj" />
+		<typeAlias alias="GroupPjDetails"  type="cn.concox.vo.basicdata.GroupPjDetails" />
+		<typeAlias alias="YcfkManageFile" type="cn.concox.vo.basicdata.YcfkManageFile" />
+		<typeAlias alias="Gzbjmanage"  type="cn.concox.vo.basicdata.Gzbjmanage" />
+		<typeAlias alias="TestMaterial"  type="cn.concox.vo.basicdata.TestMaterial" />
+		<typeAlias alias="PriceGroupPj"  type="cn.concox.vo.basicdata.PriceGroupPj" />
+		<typeAlias alias="PriceGroupPjDetails"  type="cn.concox.vo.basicdata.PriceGroupPjDetails" />
+		<typeAlias alias="LockIdUrl"   type="cn.concox.vo.basicdata.LockIdUrl" />
+		<typeAlias alias="ValidateCode"   type="cn.concox.vo.basicdata.ValidateCode" />
+		<typeAlias alias="PriceGroupPjKey"   type="cn.concox.vo.basicdata.PriceGroupPjKey" />
+		<typeAlias alias="TimeoutReason"   type="cn.concox.vo.basicdata.TimeoutReason" />
+		<typeAlias alias="WorkDate"   type="cn.concox.vo.basicdata.WorkDate" />
+		<typeAlias alias="WorkDateQuery"   type="cn.concox.vo.basicdata.WorkDateQuery" />
+		<!-- 基础数据管理  END -->
+		<!-- ============================================================================================= -->
+		
+		
+		<!-- ============================================================================================= -->
+		<!-- 售后管理  START -->
+		<typeAlias alias="Workflow"   		 type="cn.concox.vo.workflow.Workflow" />
+		<typeAlias alias="WorkflowRelated"   type="cn.concox.vo.workflow.WorkflowRelated" />
+		<typeAlias alias="WorkflowFicheck"   type="cn.concox.vo.workflow.WorkflowFicheck" />
+		<typeAlias alias="WorkflowPrice"     type="cn.concox.vo.workflow.WorkflowPrice" />	
+		<typeAlias alias="WorkflowTotalpay"  type="cn.concox.vo.workflow.WorkflowTotalpay" />		
+		<typeAlias alias="WorkflowRepair"    type="cn.concox.vo.workflow.WorkflowRepair" />
+		<typeAlias alias="WorkflowPack"   	 type="cn.concox.vo.workflow.WorkflowPack" />
+		<typeAlias alias="WorkflowTest" type="cn.concox.vo.workflow.WorkflowTest"/>
+		<!-- 售后管理  END -->
+		
+		<!-- 库料管理  START -->
+		<typeAlias alias="Material"   		 type="cn.concox.vo.material.Material" />
+		<typeAlias alias="MaterialLog"   	 type="cn.concox.vo.material.MaterialLog" />
+		<typeAlias alias="MaterialLogTemp"   type="cn.concox.vo.material.MaterialLogTemp" />	
+		<typeAlias alias="StoresManage"   	 type="cn.concox.vo.material.StoresManage"/>
+		<typeAlias alias="Wlsqmanage"  		 type="cn.concox.vo.material.Wlsqmanage" />
+		<typeAlias alias="Changeboard"  	 type="cn.concox.vo.material.Changeboard" />
+		<!-- 库料管理  END -->
+		<!-- ============================================================================================= -->
+		
+		
+		<!-- ============================================================================================= -->
+		<!-- 报表管理  START -->
+		<typeAlias alias="Report"   	     type="cn.concox.vo.report.Report" />
+		<typeAlias alias="DateReport"   	 type="cn.concox.vo.report.DateReport" />
+		<typeAlias alias="HwmReport"   	     type="cn.concox.vo.report.HwmReport" />
+		<typeAlias alias="ZgzReport"   	     type="cn.concox.vo.report.ZgzReport" />
+		<typeAlias alias="FgzReport"   	     type="cn.concox.vo.report.FgzReport" />
+		<typeAlias alias="RechargeReport"    type="cn.concox.vo.report.RechargeReport" />
+		<typeAlias alias="XspjcostsReport"   type="cn.concox.vo.report.XspjcostsReport" />
+		<typeAlias alias="WarrantyReport"   	     type="cn.concox.vo.report.WarrantyReport" />
+		<typeAlias alias="CollectFeesReport"   	     type="cn.concox.vo.report.CollectFeesReport" />
+		<typeAlias alias="CallbackReport"   	     type="cn.concox.vo.report.CallbackReport" />
+		<typeAlias alias="BadRateReport"   	     type="cn.concox.vo.report.BadRateReport" />
+		<typeAlias alias="PhoneRechargeReport"    type="cn.concox.vo.report.PhoneRechargeReport" />
+		<typeAlias alias="WlwkRechargeReport"    type="cn.concox.vo.report.WlwkRechargeReport" />
+		<typeAlias alias="InnerRepairAgainReport"    type="cn.concox.vo.report.InnerRepairAgainReport" />
+		<typeAlias alias="RepairAgainDetail"    type="cn.concox.vo.report.RepairAgainDetail" />
+		<typeAlias alias="TestMaterialReport"    type="cn.concox.vo.report.TestMaterialReport" />
+		<!-- 报表管理  END -->
+		<!-- ============================================================================================= -->
+		
+		<!-- ============================================================================================= -->
+		<typeAlias alias="CustomerClient"    type="cn.concox.vo.aipay.CustomerClient" />
+		<typeAlias alias="SaleFeedback"    type="cn.concox.vo.aipay.SaleFeedback" />
+		<!-- ============================================================================================= -->
+		
+		<!-- ====================================文件材料管理 Start===========================================-->
+		<typeAlias alias="ProductMaterial"    type="cn.concox.vo.materialManage.ProductMaterial" />
+		<typeAlias alias="ProductMaterialFile"    type="cn.concox.vo.materialManage.ProductMaterialFile" />	
+		<typeAlias alias="ProductMaterialFileLog"    type="cn.concox.vo.materialManage.ProductMaterialFileLog" />	
+		<typeAlias alias="InteriorMaterial"    type="cn.concox.vo.materialManage.InteriorMaterial" />		
+		<!-- ====================================文件材料管理END============================================= -->
+		
+		<!-- ==================================== 考试系统 Start===========================================-->
+		<typeAlias alias="Exam"    type="cn.concox.vo.exam.Exam" />
+		<typeAlias alias="ExamGrade"    type="cn.concox.vo.exam.ExamGrade" />
+		<!-- ==================================== 考试系统 ============================================= -->
+		
+		
+	</typeAliases>
+	<!-- 分页插件管理  START -->
+	<plugins>
+		<plugin interceptor="cn.concox.app.common.page.ResultSetInterceptor" />
+		<plugin interceptor="cn.concox.app.common.page.PageInterceptor">
+			<property name="dialect" value="mysql" />
+		</plugin>
+	</plugins>
+	<!-- 分页插件管理  END -->
+</configuration> 
+   

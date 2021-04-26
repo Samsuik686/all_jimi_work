@@ -24,6 +24,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.bumptech.glide.Glide;
+import com.example.smt_kanban_android.appliction.App;
 import com.example.smt_kanban_android.bean.WorkOrderBean;
 import com.example.smt_kanban_android.interfaceutrl.HttpUtrl;
 import com.example.smt_kanban_android.util.EchartOptionUtil;
@@ -321,7 +322,7 @@ public class KanBanActivity extends BaseActivity {
             yAxis2 = 0;
             Log.d(KanBanActivity, " 传递数据:line=" + httpline + " httptime=" + httptime + " httpclien=" + httpclient + " httpzhidan=" + httpzhidan);
             try {
-                HttpUtil.sendOkHttpPostRequest(HttpUtrl.base_ip + "board/getRealtimeDate", new Callback() {
+                HttpUtil.sendOkHttpPostRequest(app.getBase_ip() + "board/getRealtimeDate", new Callback() {
                             @Override
                             public void onFailure(Call call, IOException e) {
                                 Log.d(KanBanActivity, e.toString());

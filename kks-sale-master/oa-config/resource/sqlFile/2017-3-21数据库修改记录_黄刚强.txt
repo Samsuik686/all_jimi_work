@@ -1,0 +1,21 @@
+ALTER TABLE t_sale_wlsqmanage ADD COLUMN matType INT(4) COMMENT '物料类型 0:配件料; 1:电子料';
+ALTER TABLE t_sale_wlsqmanage CHANGE COLUMN proGuige proSpeci VARCHAR(255);
+ALTER TABLE t_sale_xspjcosts CHANGE COLUMN modelType marketModel VARCHAR(100);
+ALTER TABLE t_sale_xspjcosts CHANGE COLUMN matName proName VARCHAR(255);
+ALTER TABLE t_sale_pjlmanage ADD COLUMN model INT(4) COMMENT '主板型号';
+ALTER TABLE t_sale_price_pj DROP COLUMN bid;
+ALTER TABLE t_sale_workflow_repair DROP COLUMN zzgzPrice;
+ALTER TABLE t_sale_workflow_repair DROP COLUMN matPrice;
+ALTER TABLE t_sale_workflow_repair DROP COLUMN workingPrice;
+DROP TABLE t_sale_material_business;
+DROP TABLE t_sale_cplmanage;
+
+
+================================2017-3-30 黄刚强=======================
+ALTER TABLE t_sale_pjlmanage ADD COLUMN masterOrSlave varchar(255) COMMENT 'M|T';
+ALTER TABLE t_sale_dzlmanage ADD COLUMN masterOrSlave varchar(255) COMMENT 'M|T';
+
+ALTER TABLE t_sale_sxdwmanage ADD COLUMN createBy varchar(255) COMMENT '创建人';
+ALTER TABLE t_sale_sxdwmanage ADD COLUMN updateBy varchar(255) COMMENT '修改人';
+ALTER TABLE t_sale_sxdwmanage ADD COLUMN createTime datetime DEFAULT NULL COMMENT '创建时间';
+ALTER TABLE t_sale_sxdwmanage ADD COLUMN updateTime datetime DEFAULT NULL COMMENT '修改时间';

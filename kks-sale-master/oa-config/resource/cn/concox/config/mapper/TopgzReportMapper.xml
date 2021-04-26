@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.TopgzReportMapper">
+
+	<resultMap id="queryList_resultMap" type="FgzReport" ></resultMap>
+
+    <select id="everyBreakdownList" resultMap="queryList_resultMap" parameterType="FgzReport">
+	     SELECT c.* FROM
+		(
+	      select  b.boardModel, b.zzgzGid, b.faultType, b.number, CONCAT(ROUND(number/sumNumber*100,2),'%') AS  percent from
+	      	(
+		      	SELECT COUNT(r.`zzgzGid`) sumNumber,r.zzgzGid, z.model FROM t_sale_workflow w,t_sale_zbxhmanage z,t_sale_related_zzgz r 
+		    	WHERE w.`xhId`=z.`mId` 
+		    	AND w.state=-1 
+		    	AND w.`rfild`=r.`rfild` 
+		    	<if test="isWarranty != null and isWarranty != '' "> AND w.isWarranty = #{isWarranty} </if> 
+		    	<if test="startTime != null and startTime != ''"> AND date_format(w.acceptanceTime,'%Y-%m-%d') &gt;=#{startTime}</if> 
+		    	<if test="endTime != null and endTime != ''">AND date_format(w.acceptanceTime,'%Y-%m-%d') &lt;=#{endTime}</if> 
+		    	 GROUP BY z.model
+	    	) a,
+	       	(
+		       SELECT z.`model` boardModel, b.`gName` faultType, COUNT(r.`zzgzGid`) AS number, r.zzgzGid
+		    	FROM t_sale_workflow w,t_sale_zbxhmanage z,t_sale_related_zzgz r,t_sale_basegroup b   
+		    	WHERE w.`xhId`=z.`mId` 
+		    	AND w.state=-1 
+		    	AND w.`rfild`=r.`rfild` 
+		    	AND b.gId=r.`zzgzGid`
+		    	<if test="isWarranty != null and isWarranty != '' "> AND w.isWarranty = #{isWarranty} </if>
+		    	<if test="startTime != null and startTime != ''"> AND date_format(w.acceptanceTime,'%Y-%m-%d') &gt;=#{startTime}</if> 
+		    	<if test="endTime != null and endTime != ''">AND date_format(w.acceptanceTime,'%Y-%m-%d') &lt;=#{endTime} </if>  
+		    	GROUP BY z.model, r.zzgzGid 
+		    	<if test="boardModel != null and boardModel != ''">
+		    		ORDER BY number DESC
+		    	</if>
+	    	) b  
+	    	where a.model = b.boardModel
+    	)c
+    	<where>
+    		<if test="boardModel != null and boardModel != ''"> AND c.boardModel=#{boardModel}</if> 
+    	</where>
+    </select>
+    
+    <select id="notSendEveryBreakdownList" resultMap="queryList_resultMap" parameterType="FgzReport">
+         SELECT c.* FROM
+        (
+          select  b.boardModel, b.zzgzGid, b.faultType, b.number, CONCAT(ROUND(number/sumNumber*100,2),'%') AS  percent from
+            (
+                SELECT COUNT(r.`zzgzGid`) sumNumber,r.zzgzGid, z.model FROM t_sale_workflow w,t_sale_zbxhmanage z,t_sale_related_zzgz r 
+                WHERE w.`xhId`=z.`mId` 
+                AND w.state!=-1 
+                AND w.`rfild`=r.`rfild` 
+                <if test="isWarranty != null and isWarranty != '' "> AND w.isWarranty = #{isWarranty} </if> 
+                <if test="startTime != null and startTime != ''"> AND date_format(w.acceptanceTime,'%Y-%m-%d') &gt;=#{startTime}</if> 
+                <if test="endTime != null and endTime != ''">AND date_format(w.acceptanceTime,'%Y-%m-%d') &lt;=#{endTime}</if> 
+                 GROUP BY z.model
+            ) a,
+            (
+               SELECT z.`model` boardModel, b.`gName` faultType, COUNT(r.`zzgzGid`) AS number, r.zzgzGid
+                FROM t_sale_workflow w,t_sale_zbxhmanage z,t_sale_related_zzgz r,t_sale_basegroup b   
+                WHERE w.`xhId`=z.`mId` 
+                AND w.state!=-1 
+                AND w.`rfild`=r.`rfild` 
+                AND b.gId=r.`zzgzGid`
+                <if test="isWarranty != null and isWarranty != '' "> AND w.isWarranty = #{isWarranty} </if>
+                <if test="startTime != null and startTime != ''"> AND date_format(w.acceptanceTime,'%Y-%m-%d') &gt;=#{startTime}</if> 
+                <if test="endTime != null and endTime != ''">AND date_format(w.acceptanceTime,'%Y-%m-%d') &lt;=#{endTime} </if>  
+                GROUP BY z.model, r.zzgzGid 
+                <if test="boardModel != null and boardModel != ''">
+                    ORDER BY number DESC
+                </if>
+            ) b  
+            where a.model = b.boardModel
+        )c
+        <where>
+            <if test="boardModel != null and boardModel != ''"> AND c.boardModel=#{boardModel}</if> 
+        </where>
+    </select>
+    
+    <select id="getAllOfModelsList" resultMap="queryList_resultMap" parameterType="FgzReport">
+      	  SELECT
+    	z.`model` boardModel,
+    	b.`gName` faultType,
+    	COUNT(r.`zzgzGid`) AS number,
+    	CONCAT(LEFT(COUNT(r.`zzgzGid`)/(SELECT COUNT(r.`zzgzGid`) 
+    	FROM t_sale_workflow w,t_sale_zbxhmanage z,t_sale_related_zzgz r 
+    	WHERE w.`xhId`=z.`mId` 
+    	AND w.state=-1 
+    	AND w.`rfild`=r.`rfild` 
+    	<if test="boardModel != null and boardModel != ''"> AND z.`model`=#{boardModel}</if> 
+    	<if test="isWarranty != null and isWarranty != ''"> AND w.`isWarranty`=#{isWarranty}</if> 
+    	<if test="startTime != null and startTime != ''"> AND date_format(w.acceptanceTime,'%Y-%m-%d') &gt;=#{startTime}</if> 
+    	<if test="endTime != null and endTime != ''">AND date_format(w.acceptanceTime,'%Y-%m-%d') &lt;=#{endTime}</if> )*100,5),'%') AS percent 
+    	FROM t_sale_workflow w,t_sale_zbxhmanage z,t_sale_related_zzgz r,t_sale_basegroup b   
+    	WHERE w.`xhId`=z.`mId` 
+    	AND w.state=-1 
+    	AND w.`rfild`=r.`rfild` 
+    	AND b.gId=r.`zzgzGid`    	
+    	<if test="boardModel != null and boardModel != ''"> AND z.`model`=#{boardModel}</if> 
+    	<if test="isWarranty != null and isWarranty != '' "> and w.isWarranty = #{isWarranty} </if>
+    	<if test="startTime != null and startTime != ''"> AND date_format(w.acceptanceTime,'%Y-%m-%d') &gt;=#{startTime}</if> 
+    	<if test="endTime != null and endTime != ''">AND date_format(w.acceptanceTime,'%Y-%m-%d') &lt;=#{endTime}</if>  
+    	GROUP BY r.`zzgzGid`
+    	ORDER BY number DESC
+    </select>
+   
+</mapper>

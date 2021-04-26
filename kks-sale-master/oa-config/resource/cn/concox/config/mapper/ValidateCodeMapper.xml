@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.ValidateCodeMapper">
+	<resultMap type="ValidateCode" id="ValidateCode">
+	</resultMap>
+
+	<sql id="selectAllFields">
+		SELECT id, phone, sendType, validateCode, createTime, outTime, sendCount
+		FROM t_sale_validate_code
+	</sql>
+	
+	<insert id="insert" parameterType="ValidateCode">
+		INSERT INTO t_sale_validate_code (
+			phone, sendType, validateCode, createTime, outTime, sendCount
+		) VALUES (
+			#{phone}, #{sendType}, #{validateCode}, #{createTime}, 
+			DATE_ADD(#{createTime}, interval 1 hour), #{sendCount}
+		)
+	</insert>
+
+	<update id="updateByPhone" parameterType="ValidateCode">
+		UPDATE t_sale_validate_code
+		<set>
+			<if test="phone != null and phone != ''"> phone = #{phone}, </if>
+			<if test="validateCode != null and validateCode != ''"> validateCode = #{validateCode}, </if>
+			<if test="createTime != null">
+				 createTime = NOW(), 
+				 outTime = DATE_ADD(NOW(), interval 1 hour),
+			</if>
+			<if test="sendCount != null"> sendCount = #{sendCount},</if>
+		</set>
+		WHERE phone = #{phone} AND createTime = #{createTime} AND sendType = #{sendType}
+	</update>
+	
+	<select id="getByPhone" resultType="ValidateCode">
+		<include refid="selectAllFields" />
+		WHERE DATE_FORMAT(createTime,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d') and phone = #{phone} AND sendType = #{sendType}
+		ORDER BY createTime DESC
+		LIMIT 1
+	</select>
+</mapper>

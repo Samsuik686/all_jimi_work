@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.RechargeReportMapper">
+	<resultMap id="queryList_resultMap" type="RechargeReport"></resultMap>
+	<!-- 分页查询 -->
+	<select id="getRechargeListPage" parameterType="RechargeReport" resultMap="queryList_resultMap">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.startTime != null and po.startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+			<if test="po.endTime != null and po.endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+		 	<if test="po.unitName != null and po.unitName != ''"> AND unitName like concat('%', #{po.unitName}, '%') </if>
+		 	<if test="po.remittanceMethod != null and po.remittanceMethod != ''"> AND remittanceMethod = #{po.remittanceMethod} </if>
+		 	<if test="po.term != null "> AND term= #{po.term} </if>
+		</where>
+		ORDER BY rechargeDate DESC
+	</select>
+	
+    <select id="getT" parameterType="Integer" resultType="RechargeReport">
+        <include refid="selectAllFields" />
+        WHERE rechId = #{id}
+    </select>
+
+    <insert id="insert" parameterType="RechargeReport">
+        INSERT INTO t_sale_recharge (
+            unitName, rechargeDate, imei, term, number, ratePrice,
+            unitPrice, totalCollection, remittanceMethod, orderStatus, remark
+        ) VALUES (
+            #{unitName}, #{rechargeDate}, #{imei}, #{term}, #{number}, #{ratePrice},
+            #{unitPrice}, #{totalCollection}, #{remittanceMethod}, #{orderStatus}, #{remark}
+        )
+    </insert>
+
+    <update id="update" parameterType="RechargeReport">
+        UPDATE t_sale_recharge
+        <set>
+            <if test="unitName != null and unitName != ''"> unitName = #{unitName}, </if>
+            <if test="rechargeDate != null"> rechargeDate = #{rechargeDate}, </if>
+            <if test="imei != null and imei != ''"> imei = #{imei}, </if>
+            <if test="term != null"> term = #{term}, </if>
+            <if test="number != null"> number = #{number}, </if>
+            <if test="unitPrice != null"> unitPrice = #{unitPrice}, </if>
+            <if test="ratePrice != null"> ratePrice = #{ratePrice}, </if>
+            <if test="totalCollection != null"> totalCollection = #{totalCollection}, </if>
+            <if test="remittanceMethod != null and remittanceMethod != ''"> remittanceMethod = #{remittanceMethod}, </if>
+            <if test="orderStatus != null and orderStatus != ''"> orderStatus = #{orderStatus}, </if>
+            <if test="remark != null"> remark = #{remark}, </if>
+        </set>
+        WHERE rechId = #{rechId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM 
+        t_sale_recharge 
+        WHERE 
+        rechId in 
+        <foreach collection="rechIds" item="item" open="(" separator="," close=")">  
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="getAll" resultType="RechargeReport">
+        <include refid="selectAllFields" />
+    </select>
+
+    <sql id="selectAllFields">
+        SELECT rechId, 
+            unitName, rechargeDate, imei, term, number, ratePrice,
+            unitPrice, totalCollection, remittanceMethod, orderStatus, remark
+        FROM t_sale_recharge
+    </sql>
+
+    <select id="queryList" parameterType="RechargeReport" resultMap="queryList_resultMap">
+        <include refid="selectAllFields" />
+        <where>
+            <if test="unitName != null and unitName != ''"> and unitName like concat('%', '${unitName}', '%') </if>
+			<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+			<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+		 	<if test="term != null "> AND term= #{term} </if>
+        </where>
+         order by rechargeDate desc
+    </select>
+    
+    <!-- 单位名称、充值日期、IMEI、单价是否为同一条数据 -->
+    <select id="isExists" parameterType="RechargeReport" resultType="int">
+		SELECT count(1) FROM t_sale_recharge
+		WHERE unitName = #{unitName} AND rechargeDate = #{rechargeDate} AND imei = #{imei} AND unitPrice = #{unitPrice}
+		<if test ="rechId !=null"> AND rechId != #{rechId} </if>
+	</select>
+</mapper>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.material.mapper.WlsqmanageMapper">
+	<resultMap type="Wlsqmanage" id="wlsqmanage">
+	</resultMap>
+
+	<!-- 分页查询 -->
+	<select id="getListPage" parameterType="Wlsqmanage"
+		resultMap="wlsqmanage">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.applicater != null and po.applicater != ''"> and applicater like concat('%', '${po.applicater}', '%') </if>
+			<if test="po.startTime != null and po.startTime != ''"> AND date_format(appTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+			<if test="po.endTime != null and po.endTime != ''"> AND date_format(appTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+		</where>
+		order by appTime desc
+	</select>
+
+
+	<select id="getT" parameterType="Integer" resultType="Wlsqmanage">
+		<include refid="selectAllFields" />
+		WHERE id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="Wlsqmanage">
+		INSERT INTO t_sale_wlsqmanage (
+            proName,platform, proNO, proSpeci, unit, number, 
+            appTime, purpose, applicater, remark, state, matType
+        ) VALUES ( 
+			 #{proName},#{platform}, #{proNO}, #{proSpeci}, #{unit}, #{number}, 
+            #{appTime}, #{purpose}, #{applicater}, #{remark}, #{state}, #{matType}
+        )
+	</insert>
+
+	<update id="update" parameterType="Wlsqmanage">
+		UPDATE t_sale_wlsqmanage
+		<set>
+			<if test="matType != null and matType != ''"> matType = #{matType}, </if>
+            <if test="proName != null and proName != ''"> proName = #{proName}, </if>
+            <if test="proNO != null and proNO != ''"> proNO = #{proNO}, </if>
+            <if test="proSpeci != null and proSpeci != ''"> proSpeci = #{proSpeci}, </if>
+            <if test="number != null"> number = #{number}, </if>
+            <if test="appTime != null"> appTime = #{appTime}, </if>
+            <if test="purpose != null and purpose != ''"> purpose = #{purpose}, </if>
+            <if test="applicater != null and applicater != ''"> applicater = #{applicater}, </if>
+            <if test="state != null"> state = #{state}, </if>
+            <if test="platform != null"> platform = #{platform}, </if>
+            <if test="unit != null"> unit = #{unit}, </if>
+            <if test="remark != null"> remark = #{remark}, </if>
+        </set>
+		WHERE id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="Wlsqmanage">
+		DELETE FROM	t_sale_wlsqmanage where id = #{id}
+	</delete>
+
+	<select id="queryList" parameterType="Wlsqmanage" resultMap="wlsqmanage">
+		<include refid="selectAllFields" />
+		 <where>
+            <if test="applicater != null and applicater != ''"> and applicater like concat('%', '${applicater}', '%')  </if>
+           	<if test="startTime != null and startTime != ''"> AND date_format(appTime,'%Y-%m-%d') &gt;= #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> AND date_format(appTime,'%Y-%m-%d') &lt;= #{endTime} </if>
+        </where>
+		order by appTime desc
+	</select>
+
+	<sql id="selectAllFields">
+		SELECT id,proName,platform,proNO, proSpeci, unit, number, appTime, purpose, applicater, remark, state, matType
+        FROM t_sale_wlsqmanage
+	</sql>
+
+	<select id="search" resultType="Wlsqmanage">
+		<include refid="selectAllFields" />
+		 <where>
+            <if test="proName != null and proName != ''">
+                 and proName like concat('%', '${proName}', '%')
+            </if>
+             <if test="platform != null and platform != ''">
+                 and platform like concat('%', '${platform}', '%')
+            </if>
+            <if test="proNO != null and proNO != ''">
+                 and proNO like concat('%', '${proNO}', '%')
+            </if>
+            <if test="proSpeci != null and proSpeci != ''">
+                 and proSpeci like concat('%', '${proSpeci}', '%')
+            </if>
+            <if test="unit != null and unit != ''">
+                 and unit like concat('%', '${unit}', '%')
+            </if>
+            <if test="number != null">
+                 and number = #{number} 
+            </if>
+            <if test="appTime != null">
+                 and appTime = #{appTime} 
+            </if>
+            <if test="purpose != null and purpose != ''">
+                 and purpose like concat('%', '${purpose}', '%')
+            </if>
+            <if test="applicater != null and applicater != ''">
+                 and applicater like concat('%', '${applicater}', '%')
+            </if>
+            <if test="remark != null and remark != ''">
+                 and remark like concat('%', '${remark}', '%')
+            </if>
+            <if test="state != null">
+                 and state = #{state} 
+            </if>
+        </where>
+		order by appTime desc
+	</select>
+	
+    <!-- 物料名称、物料编码、物料规格、数量、申请日期、申请人是否为同一条数据 -->
+    <select id="isExists" parameterType="Wlsqmanage" resultType="int">
+		SELECT count(1) FROM t_sale_wlsqmanage
+		WHERE proName = #{proName} AND proNO = #{proNO} AND proSpeci = #{proSpeci} AND number = #{number} AND appTime = #{appTime} AND applicater = #{applicater}
+		<if test ="id !=null"> AND id != #{id} </if>
+	</select>
+</mapper>

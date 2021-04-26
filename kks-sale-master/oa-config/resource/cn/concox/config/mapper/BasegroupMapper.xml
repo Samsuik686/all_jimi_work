@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.BasegroupMapper">
+
+   <resultMap id="queryList_resultMap" type="Basegroup" >
+   </resultMap>
+   
+   <sql id="selectAllFields">
+   		SELECT gId, enumSn, gName, createTime
+        FROM t_sale_basegroup
+   </sql>
+   
+   <select id="getT" parameterType="int" resultType="Basegroup">
+        <include refid="selectAllFields" />
+         WHERE gId = #{id}
+   </select>
+   
+    <delete id="delete" parameterType="Basegroup">
+    	 DELETE FROM t_sale_basegroup
+    	 WHERE gId = #{gId}
+    </delete>
+    
+    <insert id="insert" parameterType="Basegroup">
+    	INSERT INTO t_sale_basegroup (
+    		enumSn, gName, createTime
+        ) VALUES (
+        	#{enumSn}, #{gName}, NOW()
+        )
+    </insert>
+    
+    <update id="update" parameterType="Basegroup">
+    	UPDATE t_sale_basegroup
+        <set>
+            <if test="enumSn != null and enumSn != ''"> enumSn = #{enumSn}, </if>
+            <if test="gName != null and gName != ''"> gName = #{gName}, </if>
+            <if test="createTime != null"> createTime = #{createTime}, </if>
+        </set>
+        WHERE gId = #{gId}
+    </update>
+    
+    <select id="queryList" resultMap="queryList_resultMap" parameterType="Basegroup">
+    	<include refid="selectAllFields" />
+        	where enumSn = #{enumSn}
+    </select>
+    
+  	<!-- 根据组名分类、组名判断是否是同一数据 -->
+	<select id="isExists" parameterType="Basegroup" resultType="int">
+		SELECT count(1) FROM t_sale_basegroup
+		WHERE enumSn = #{enumSn} AND TRIM(gName) = #{gName} 
+		<if test ="gId !=null"> AND gId != #{gId} </if>
+	</select>
+
+    <select id="isExistsGid" parameterType="Integer" resultType="java.lang.Integer">
+        SELECT Exists(SELECT gId FROM t_sale_basegroup WHERE gId=#{gId})
+    </select>
+
+    <select id="selectByGidInShareMode" parameterType="java.lang.Integer" resultType="java.lang.String">
+        SELECT gname FROM t_sale_basegroup WHERE gId=#{gId} LOCK IN SHARE MODE
+    </select>
+</mapper>

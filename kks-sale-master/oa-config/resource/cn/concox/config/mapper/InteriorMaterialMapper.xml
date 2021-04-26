@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.materialManage.mapper.InteriorMaterialMapper">
+
+   <resultMap id="queryList_resultMap" type="InteriorMaterial" >
+   </resultMap>
+   
+   <sql id="selectAllFields">
+   		SELECT id, file_url AS fileUrl, file_name AS fileName, create_user AS createUser, 
+   			create_time AS createTime, update_time AS updateTime, update_user AS updateUser 
+   		from t_sale_interior_material	
+   </sql>
+   
+   	<select id="interiorMaterialPageList" parameterType="InteriorMaterial" resultType="InteriorMaterial">
+		<include refid="selectAllFields"/>		
+		<where>
+			<if test="po.fileName != null and po.fileName != ''"> and file_name like concat('%',  #{po.fileName},'%')</if>
+			<if test="po.updateUser != null and po.updateUser != ''"> and update_user  = #{po.updateUser}</if>			
+		</where> 
+		ORDER BY id DESC 	
+   </select>
+
+   <insert id="insert" parameterType="InteriorMaterial">
+	   	INSERT INTO t_sale_interior_material (file_url, file_name, create_user, create_time, update_time, update_user) 
+	   	VALUES
+	   	(
+	   	#{fileUrl},#{fileName},#{createUser},#{createTime},#{updateTime},#{updateUser}	)
+   </insert>
+   
+   <update id="update" parameterType="InteriorMaterial">
+   		UPDATE t_sale_interior_material
+   		<set>
+   			update_time = #{updateTime}, 
+   			update_user= #{updateUser},
+   			file_name = #{fileName},
+   			file_url = #{fileUrl},
+   		</set>
+   		WHERE id = #{id}
+   </update>
+   
+   <delete id="delete" parameterType="InteriorMaterial">
+   		DELETE FROM t_sale_interior_material where id = #{id}
+   </delete>
+   
+   
+</mapper>

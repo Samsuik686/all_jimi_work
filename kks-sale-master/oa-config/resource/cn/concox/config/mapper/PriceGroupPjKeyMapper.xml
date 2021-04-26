@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.PriceGroupPjKeyMapper">
+
+   <resultMap id="queryList_resultMap" type="PriceGroupPjKey" >
+   </resultMap>
+   
+   <sql id="selectAllFields">
+  		SELECT id, keyName, keyType, keyDesc, keyRemark
+		FROM t_sale_pricegrouppj_key
+   </sql>
+   
+   <select id="getT" parameterType="int" resultType="PriceGroupPjKey">
+        <include refid="selectAllFields" />
+         WHERE id = #{id}
+   </select>
+   
+    <delete id="delete" parameterType="PriceGroupPjKey">
+    	 DELETE FROM t_sale_pricegrouppj_key
+    	 WHERE id = #{id}
+    </delete>
+    
+    <insert id="insert" parameterType="PriceGroupPjKey">
+    	INSERT INTO t_sale_pricegrouppj_key (
+    		keyName, keyType, keyDesc, keyRemark
+        ) VALUES (
+        	#{keyName}, #{keyType}, #{keyDesc}, #{keyRemark}
+        )
+    </insert>
+    
+    <update id="update" parameterType="PriceGroupPjKey">
+    	UPDATE t_sale_pricegrouppj_key
+        <set>
+            <if test="keyName != null and keyName != ''"> keyName = #{keyName}, </if>
+            <if test="keyType != null and keyType != ''"> keyType = #{keyType}, </if>
+            <if test="keyDesc != null and keyDesc != ''"> keyDesc = #{keyDesc}, </if>
+            <if test="keyRemark != null"> keyRemark = #{keyRemark}, </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <select id="queryList" resultMap="queryList_resultMap" parameterType="PriceGroupPjKey">
+    	<include refid="selectAllFields" />
+    	<where>
+	    	<if test="keyType != null and keyType != ''"> and keyType = #{keyType} </if>
+	        <if test="keyDesc != null and keyDesc != ''"> and keyDesc = #{keyDesc} </if>
+    	</where>
+    </select>
+    
+  	<!-- 根据关键字描述,关键字类别判断是否是同一数据 -->
+	<select id="isExists" parameterType="PriceGroupPjKey" resultType="int">
+		SELECT count(1) FROM t_sale_pricegrouppj_key
+		WHERE TRIM(keyDesc) = #{keyDesc} AND TRIM(keyType) = #{keyType}
+		<if test ="id !=null"> AND id != #{id} </if>
+	</select> 
+	
+	<!-- 模糊匹配物料名称获取物料id -->
+	<select id="getPjlIdsByProName" parameterType="String" resultType="String">
+		SELECT GROUP_CONCAT(DISTINCT pjl.pjlId ORDER BY pjl.pjlId), pjl.proName, k.keyType FROM t_sale_pjlmanage pjl
+		INNER JOIN t_sale_repair_price rp ON pjl.model = rp.model
+		INNER JOIN t_sale_pricegrouppj_key k ON rp.repairType = k.keyType
+		<where>
+			<if test="model != null and model != ''">and pjl.model = #{model} </if>
+			<if test="marketModel != null and marketModel != ''">and pjl.marketModel = #{marketModel} </if>
+			<if test="keyType != null and keyType != ''">and k.keyType = #{keyType} </if>
+			<if test="proName != null and proName != ''">and pjl.proName like concat('%', '${proName}', '%')</if>
+		</where>
+	</select> 
+</mapper>

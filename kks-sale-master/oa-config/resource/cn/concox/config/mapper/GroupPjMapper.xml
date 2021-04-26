@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.GroupPjMapper">
+   	<resultMap type="GroupPj" id="GroupPj">
+	</resultMap>
+
+    <sql id="selectAllFields">
+        SELECT groupPjId, groupName, groupPrice, marketModel, remark FROM t_sale_grouppj
+    </sql>
+    
+    <select id="getGroupPjList" parameterType="GroupPj" resultType="GroupPj">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.groupName != null and po.groupName != ''"> and groupName like concat('%', '${po.groupName}', '%') </if>
+			<if test="po.groupPrice != null"> and groupPrice = #{po.groupPrice} </if>
+			<if test="po.marketModel != null and po.marketModel != ''"> and marketModel like concat('%', '${po.marketModel}', '%') </if>
+		</where>
+		order by groupPjId
+	</select>
+    
+    <insert id="insert" parameterType="GroupPj" useGeneratedKeys="true" keyProperty="groupPjId">
+        INSERT INTO t_sale_grouppj (
+        	groupPjId, groupName, groupPrice, marketModel, remark
+        ) VALUES (
+        	#{groupPjId}, #{groupName}, #{groupPrice}, #{marketModel}, #{remark}
+        )
+    </insert>
+
+    <update id="update" parameterType="GroupPj">
+        UPDATE t_sale_grouppj
+        <set>
+            <if test="groupName != null and groupName != ''"> groupName = #{groupName}, </if>
+            <if test="groupPrice != null"> groupPrice = #{groupPrice}, </if>
+            <if test="marketModel != null and marketModel != ''"> marketModel = #{marketModel}, </if>
+            <if test="remark != null"> remark = #{remark}, </if>
+        </set>
+        WHERE groupPjId = #{groupPjId}
+    </update>
+    
+    <delete id="delete">
+        DELETE FROM t_sale_grouppj WHERE groupPjId = #{groupPjId}
+    </delete>
+
+    <select id="getT" parameterType="String" resultType="GroupPj">
+        <include refid="selectAllFields" />
+        WHERE groupPjId = #{id}
+    </select>
+    
+    <!-- 判断是否被引用 -->
+	<select id="findCountByGroupPjId" parameterType="GroupPj" resultType="int">
+	SELECT COUNT(1) AS num FROM t_sale_xspjcosts AS xspj WHERE FIND_IN_SET(#{groupPjId}, xspj.groupPjId)
+	</select>
+    
+	<!-- 根据市场型号、组合配件名称、组合配件价格 判断是否是同一数据 -->
+	<select id="isExists" parameterType="Pjlmanage" resultType="int">
+		SELECT count(1) FROM t_sale_grouppj
+		WHERE marketModel = #{marketModel} AND groupName = #{groupName}
+		<if test="groupPjId !=null"> AND groupPjId != #{groupPjId} </if>
+	</select>
+</mapper>

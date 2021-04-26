@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.CallbackReportMapper">
+
+	<resultMap id="queryList_resultMap" type="CallbackReport" ></resultMap>
+	<select id="getCallbackListPage" parameterType="CallbackReport" resultMap="queryList_resultMap">
+		SELECT
+		tsf.repairnNmber,
+		tsf.skillDesc AS skillEvaluate,
+		tsf.serviceDesc AS serviceEvaluate,
+		tsf.fremark AS fremark,
+		tsw.acceptanceTime,
+		tss.cusName,
+		tswp.packTime AS sendTime,
+		tsf.FcreateTime AS evaluateTime
+		FROM
+		t_sale_feedback tsf
+		INNER JOIN t_sale_workflow tsw ON tsf.repairnNmber = tsw.repairnNmber
+		INNER JOIN t_sale_sxdwmanage tss ON tsw.sxdwId = tss.cId
+		INNER JOIN t_sale_workflow_pack tswp ON tswp.repairnNmber = tsw.repairnNmber
+		<where>
+			<if test="po.startTime != null and po.startTime != ''"> and date_format(tsf.FcreateTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+			<if test="po.endTime != null and po.endTime != ''"> and date_format(tsf.FcreateTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			<if test="po.skillEvaluate != null and po.skillEvaluate != ''"> and tsf.skillDesc = #{po.skillEvaluate} </if>
+			<if test="po.serviceEvaluate != null and po.serviceEvaluate != ''"> and tsf.serviceDesc = #{po.serviceEvaluate} </if>
+		</where>
+		GROUP BY tsf.repairnNmber ORDER BY tsf.FcreateTime DESC
+	</select>
+	
+	<select id="getCallbackList" parameterType="CallbackReport" resultMap="queryList_resultMap">
+		SELECT
+		tsf.repairnNmber,
+		tsf.skillDesc AS skillEvaluate,
+		tsf.serviceDesc AS serviceEvaluate,
+		tsf.fremark AS fremark,
+		tsw.acceptanceTime,
+		tss.cusName,
+		tswp.packTime AS sendTime,
+		tsf.FcreateTime AS evaluateTime
+		FROM
+		t_sale_feedback tsf
+		INNER JOIN t_sale_workflow tsw ON tsf.repairnNmber = tsw.repairnNmber
+		INNER JOIN t_sale_sxdwmanage tss ON tsw.sxdwId = tss.cId
+		INNER JOIN t_sale_workflow_pack tswp ON tswp.repairnNmber = tsw.repairnNmber
+		<where>
+			<if test="startTime != null and startTime != ''"> and date_format(tsf.FcreateTime,'%Y-%m-%d') &gt;= #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> and date_format(tsf.FcreateTime,'%Y-%m-%d') &lt;= #{endTime} </if>
+			<if test="skillEvaluate != null and skillEvaluate != ''"> and tsf.skillDesc = #{skillEvaluate} </if>
+			<if test="serviceEvaluate != null and serviceEvaluate != ''"> and tsf.serviceDesc = #{serviceEvaluate} </if>
+		</where>
+		
+		GROUP BY tsf.repairnNmber ORDER BY tsf.FcreateTime DESC
+	</select>
+	<!-- ============================================ interface  End ============================================ -->
+
+</mapper>

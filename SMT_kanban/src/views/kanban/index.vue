@@ -588,7 +588,7 @@ p {
       justify-content: space-between;
 
       width: 100%;
-      height: 40%;
+      height: 50%;
       .upleft {
         width: 30%;
         height: 100%;
@@ -615,7 +615,6 @@ p {
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-
         width: 40%;
         height: 100%;
         .top {
@@ -634,15 +633,15 @@ p {
           width: 100%;
           height: 80%;
           .persion {
-            height: 90%;
+            height: 100%;
             width: 33%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
             .persion-img {
-              height: 70%;
-              width: 50%;
+              height: 80%;
+              width: 75%;
             }
           }
         }
@@ -654,7 +653,7 @@ p {
       flex-direction: row;
       justify-content: space-between;
       width: 100%;
-      height: 60%;
+      height: 50%;
       .left {
         width: 50%;
         height: 100%;

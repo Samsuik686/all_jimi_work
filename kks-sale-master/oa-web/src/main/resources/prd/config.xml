@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<common>
+	<!--AiBus系统管理员email发送账号 -->
+	<business-send-email>notice@jimicloud.com,jimi@123</business-send-email>
+	<business-send-emails>
+		notice@jimicloud.com,jimi@123;
+		notice1@jimicloud.com,jimi@123;
+		notice2@jimicloud.com,jimi@123;
+		notice3@jimicloud.com,jimi@123;
+		notice4@jimicloud.com,jimi@123;
+		notice5@jimicloud.com,jimi@123;
+		notice6@jimicloud.com,jimi@123;
+		notice7@jimicloud.com,jimi@123;
+		notice8@jimicloud.com,jimi@123;
+		notice9@jimicloud.com,jimi@123;
+		notice10@jimicloud.com,jimi@123
+	</business-send-emails>
+
+	<!--发送邮件的服务器地址 -->
+	<sendmail-serverhost>smtp.ym.163.com</sendmail-serverhost>
+	
+	<!--发送邮件的端口 -->
+	<sendmail-serverport>25</sendmail-serverport>
+	<!--当邮件发送失败时，尝试发送邮件的次数 -->
+	<sendemial-numberoftimes>3</sendemial-numberoftimes>
+	<!-- 当邮件发送失败时,重试延迟时间，单位：毫秒 default 60000 -->
+	<sendFiedRetryTime>10000</sendFiedRetryTime>
+
+	<!-- 云之讯 -->
+	<!-- 开发者信息 -->
+	<rest_sid>86f8371fd947e24182da356586c7bdea</rest_sid>
+	<rest_token>c56858085fbd16d0f2cf78279cf13976</rest_token>
+	<rest_appID>91330d922059445f8783a9438d941fa8</rest_appID>
+	<rest_clientType>0</rest_clientType>
+	<is_test>false</is_test>
+	<!-- 云之讯服务版本 -->
+	<rest_version>2014-06-30</rest_version>
+	<!-- 云之讯服务地址 -->
+	<rest_server>api.ucpaas.com</rest_server>
+	<http_ssl_ip>0</http_ssl_ip>
+	<http_ssl_port>0</http_ssl_port>
+	
+	<!-- 加密Key -->
+	<encrypt_key>JiMiRearview</encrypt_key>
+
+	<!-- 最多可创围栏个数 -->
+	<createGeozoneNumber>1000</createGeozoneNumber>
+	<!-- 最多可创地标个数 -->
+	<createlandMarNumber>1000</createlandMarNumber>
+	<!-- 最多可创黑车个数 -->
+	<createBlackCarNumber>1000</createBlackCarNumber>
+
+	<!-- 在线设备统计时间间隔（小时） -->
+	<onLineNumber>2</onLineNumber>
+</common>

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.workflow.mapper.WorkflowTotalpayMapper">
+  <sql id="selectAllFields">
+        SELECT id, repairNumber, payReason, remAccount, payTime, repairMoney, 
+            logCost, totalMoney, isPay, createTime, updateTime, receipt, rate, batchPjCosts, ratePrice
+        FROM t_sale_workflow_totalpay
+    </sql>
+    
+ 	<!-- useGeneratedKeys="true" keyProperty="id"  -->
+   <insert id="insert" parameterType="WorkflowTotalpay">
+        INSERT INTO t_sale_workflow_totalpay (id,
+            repairNumber, payReason, remAccount, payTime, repairMoney, 
+            logCost, prolongCost, totalMoney, isPay, createTime, updateTime, customerReceipt, priceRemark, receipt, rate, batchPjCosts, ratePrice
+        ) VALUES (#{id},
+            #{repairNumber}, #{payReason}, #{remAccount}, #{payTime}, #{repairMoney}, 
+            #{logCost}, #{prolongCost}, #{totalMoney}, #{isPay}, #{createTime}, #{updateTime}, #{customerReceipt}, #{priceRemark},
+            #{receipt}, #{rate}, #{batchPjCosts}, #{ratePrice}
+        )
+    </insert>
+
+    <update id="update" parameterType="WorkflowTotalpay">
+        UPDATE t_sale_workflow_totalpay
+        <set>
+            <if test="payTime != null"> payTime = #{payTime}, </if>
+            <if test="repairMoney != null"> repairMoney = #{repairMoney}, </if>
+            <if test="logCost != null"> logCost = #{logCost}, </if>
+            <if test="prolongCost != null"> prolongCost = #{prolongCost}, </if>
+            <if test="totalMoney != null"> totalMoney = #{totalMoney}, </if>
+            <if test="isPay != null"> isPay = #{isPay}, </if>
+            <if test="createTime != null"> createTime = #{createTime}, </if>
+            <if test="updateTime != null"> updateTime = #{updateTime}, </if>
+            <if test="customerReceipt != null"> customerReceipt = #{customerReceipt}, </if>
+            <if test="priceRemark != null"> priceRemark = #{priceRemark}, </if>
+            <if test="batchPjCosts != null"> batchPjCosts = #{batchPjCosts}, </if>
+            <if test="ratePrice != null"> ratePrice = #{ratePrice}, </if>
+            <if test="remAccount != null"> remAccount = #{remAccount}, </if>
+            <if test="payReason != null"> payReason = #{payReason}, </if>
+            <if test="receipt != null"> receipt = #{receipt}, </if>
+            <if test="rate != null"> rate = #{rate} </if>
+        </set>
+        WHERE repairNumber = #{repairNumber}
+    </update>
+    
+    <select id="exists" parameterType="String" resultType="boolean">
+        SELECT CASE WHEN count(1) > 0 THEN 1 ELSE 0 END FROM t_sale_workflow_totalpay 
+        WHERE repairNumber = #{repairNumber}
+    </select>
+    
+    <!-- 该批次是否已付款，防止测试的数据可以报价 -->
+    <select id="isPayByRepairNumber" parameterType="String" resultType="boolean">
+        SELECT CASE WHEN count(1) > 0 THEN 1 ELSE 0 END FROM t_sale_workflow_totalpay 
+        WHERE repairNumber = #{repairNumber} AND isPay = 0
+    </select>
+    
+     <select id="getT" parameterType="Integer" resultType="WorkflowTotalpay">
+        <include refid="selectAllFields" />
+        WHERE id = #{id}
+    </select>
+    
+     <select id="getByRepairNumber" parameterType="String" resultType="WorkflowTotalpay">
+        <include refid="selectAllFields" />
+        WHERE repairNumber = #{repairNumber}
+    </select>
+    
+    <select id="queryList" parameterType="WorkflowTotalpay"  resultType="WorkflowTotalpay">
+        <include refid="selectAllFields" />
+        <where>
+            <if test="repairNumber != null and repairNumber != ''">
+                 and repairNumber like concat('%', '${repairNumber}', '%')
+            </if>
+            <if test="payReason != null and payReason != ''">
+                 and payReason like concat('%', '${payReason}', '%')
+            </if>
+            <if test="remAccount != null and remAccount != ''">
+                 and remAccount like concat('%', '${remAccount}', '%')
+            </if>
+            <if test="payTime != null">
+                 and payTime = #{payTime} 
+            </if>
+            <if test="repairMoney != null">
+                 and repairMoney = #{repairMoney} 
+            </if>
+            <if test="logCost != null">
+                 and logCost = #{logCost} 
+            </if>
+            <if test="prolongCost != null">
+                 and prolongCost = #{prolongCost} 
+            </if>
+            <if test="totalMoney != null">
+                 and totalMoney = #{totalMoney} 
+            </if>
+            <if test="createTime != null">
+                 and createTime = #{createTime} 
+            </if>
+            <if test="updateTime != null">
+                 and updateTime = #{updateTime} 
+            </if>
+        </where>
+         order by creationDate desc
+    </select>
+    
+     <!-- 已付款批次修改总状态 -->
+     <update id="updateByRepairnNmber" parameterType="String">
+		UPDATE t_sale_workflow wf
+		SET wf.state=4
+		where wf.state=3 AND wf.id IN(
+			SELECT w.id FROM 
+			(select id from t_sale_workflow where repairnNmber=#{repairnNmber}) AS w 
+		)
+    </update>
+    
+    <update id="updateReceiptByNumber" parameterType="String">
+    UPDATE t_sale_workflow_totalpay
+		SET customerReceipt = 'Y'
+		where repairNumber = #{repairnNmber}
+    </update>
+    
+    <!-- 根据批次号删除记录 -->
+    <delete id="deleteByRepairNumber">
+        DELETE FROM t_sale_workflow_totalpay
+        WHERE repairNumber =#{repairNumber}
+    </delete>
+
+    <select id="selectTotalpayByRepairNumber" resultType="WorkflowTotalpay">
+        SELECT *FROM t_sale_workflow_totalpay WHERE repairNumber = #{repairNumber} AND payTime is not null
+    </select>
+</mapper>

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.ZbxhmanageMapper">
+	<resultMap type="Zbxhmanage" id="zbxhmanage">
+	</resultMap>
+
+	<!-- 按条件分页查询 -->
+	<select id="getZbxhmanageListPage" parameterType="Zbxhmanage" resultMap="zbxhmanage">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.gId != null">
+				and tsz.gId = #{po.gId}
+			</if>
+			<if test="po.model != null and po.model != ''">
+				and tsz.model like concat('%', '${po.model}', '%')
+			</if>
+			<if test="po.marketModel != null and po.marketModel != ''">
+				and tsz.marketModel like concat('%', '${po.marketModel}','%')
+			</if>
+			<if test="po.marketModelAccept != null and po.marketModelAccept != ''">
+				and tsz.marketModel = #{po.marketModelAccept}
+			</if>
+			<if test="po.createType != null"> AND tsz.createType = #{po.createType} </if>
+			<if test="po.enabledFlag != null"> AND tsz.enabledFlag = #{po.enabledFlag} </if>
+			<!-- 受理不显示禁用的项 -->
+            <if test="po.showType != null and po.showType == 'accept'"> and tsz.enabledFlag = 0</if>
+		</where>
+		<choose>
+			<when test="po.showType != null and po.showType == 'product'">
+				<choose>
+					<when test="po.model != null and po.model != ''">
+						order by tsz.model, tsz.marketModel
+					</when>
+					<otherwise>
+						order by tsz.mId desc
+					</otherwise>
+				</choose>
+			</when>
+			<otherwise>
+				order by tsz.model, tsz.marketModel
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="exists" parameterType="Integer" resultType="boolean">
+		SELECT
+		CASE WHEN count(1) > 0 THEN 1 ELSE 0 END FROM t_sale_zbxhmanage
+		WHERE mId = #{mId}
+	</select>
+
+	<select id="getT" parameterType="Integer" resultType="Zbxhmanage">
+		<include refid="selectAllFields" />
+		WHERE tsz.mId = #{id}
+	</select>
+	
+	<!-- 新增修改看是否存在gid -->
+	<select id="isExistsGid" parameterType="Zbxhmanage" resultType="Integer">
+		SELECT gid from t_sale_basegroup WHERE gname = #{modelType} AND enumSn ='BASE_ZBXH'
+	</select>
+
+	<!-- 删除或修改组时查看是组下否存在数据 -->
+	<select id="getCountByGid" parameterType="Zbxhmanage" resultType="int">
+		SELECT count(1) from t_sale_zbxhmanage WHERE gId = #{gId}
+	</select>
+
+	<!-- 修改分组时，改其下数据 -->
+	<update id="updateByGid" parameterType="Zbxhmanage">
+      	UPDATE t_sale_zbxhmanage set modelType = (SELECT gname from t_sale_basegroup WHERE gId = #{gId}) 
+      	WHERE gId = #{gId}
+    </update>
+
+	<insert id="insert" parameterType="Zbxhmanage">
+		INSERT INTO t_sale_zbxhmanage (gId,
+		 model, marketModel, modelType, remark, createType, enabledFlag
+		)
+		VALUES ((SELECT gid from t_sale_basegroup WHERE gname = #{modelType} AND enumSn ='BASE_ZBXH'),
+		#{model}, #{marketModel}, #{modelType}, #{remark}, #{createType}, #{enabledFlag}
+		)
+	</insert>
+	
+	<update id="update" parameterType="Zbxhmanage">
+		UPDATE t_sale_zbxhmanage
+		<set>
+			<if test="gId !=null"> gId = #{gId}, </if>
+			<if test="model != null and model != ''"> model = #{model}, </if>
+			<if test="marketModel != null and marketModel != ''"> marketModel = #{marketModel}, </if>
+			<if test="modelType != null"> modelType = #{modelType}, </if>
+			<if test="remark != null"> remark = #{remark}, </if>
+			<if test="createType != null"> createType = #{createType}, </if>
+			<if test="enabledFlag != null"> enabledFlag = #{enabledFlag}, </if>
+		</set>
+		WHERE mId = #{mId}
+	</update>
+
+	<delete id="delete" parameterType="Zbxhmanage">
+		DELETE FROM
+		t_sale_zbxhmanage
+		WHERE mId = #{mId}
+	</delete>
+
+	<select id="queryList" parameterType="Zbxhmanage" resultMap="zbxhmanage">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="gId != null">
+				and tsz.gId = #{gId}
+			</if>
+			<if test="model != null and model != ''">
+				and tsz.model like concat('%', '${model}', '%')
+			</if>
+			<if test="marketModel != null and marketModel != ''">
+				and tsz.marketModel like concat('%', '${marketModel}', '%')
+			</if>
+			<if test="modelType != null">
+				and tsz.modelType = #{modelType}
+			</if>
+			<if test="remark != null and remark != ''">
+				and tsz.remark like concat('%', '${remark}', '%')
+			</if>
+			<if test="createType != null and createType != ''"> AND tsz.createType = #{createType} </if>
+			<if test="enabledFlag != null and enabledFlag != ''"> AND tsz.enabledFlag = #{enabledFlag} </if>
+		</where>
+		order by tsz.model, tsz.marketModel
+	</select>
+
+	<sql id="selectAllFields">
+		SELECT tsz.mId, tsz.gId, tsz.model, tsz.marketModel, tsz.modelType, tsz.remark, tsz.createType,tsb.gName as createTypeName,tsz.enabledFlag
+		FROM t_sale_zbxhmanage tsz LEFT JOIN t_sale_basegroup tsb ON  tsz.createType = tsb.gId
+	</sql>
+	
+	<select id="queryModelList" resultMap="zbxhmanage">
+		<include refid="selectAllFields" />
+		group by tsz.model
+	</select>
+
+	<select id="search" resultType="Zbxhmanage">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="gId != null">
+				and tsz.gId = #{gId}
+			</if>
+			<if test="model != null and model != ''">
+				and tsz.model like concat('%', '${model}', '%')
+			</if>
+			<if test="marketModel != null and marketModel != ''">
+				and tsz.marketModel like concat('%', '${marketModel}', '%')
+			</if>
+			<if test="modelType != null">
+				and tsz.modelType = #{modelType}
+			</if>
+			<if test="remark != null and remark != ''">
+				and tsz.remark like concat('%', '${remark}', '%')
+			</if>
+		</where>
+		order by tsz.model, tsz.marketModel
+	</select>
+	
+	<select id="getZbTypeBySctype" resultType="Zbxhmanage" parameterType="String">
+		<include refid="selectAllFields" />
+		WHERE tsz.marketModel = #{Sctype}
+	</select>
+	
+	<select id="getZbTypeByAms" resultType="Zbxhmanage" parameterType="String">
+		<include refid="selectAllFields" />
+		WHERE tsz.marketModel = #{marketModel} and tsz.model = #{model}
+	</select>
+	
+	<!--主板型号、市场型号、类别判断是否是同一条数据 -->
+	<select id="isExists" parameterType="Zbxhmanage" resultType="int">
+		SELECT count(1) FROM t_sale_zbxhmanage
+		WHERE model = #{model} AND marketModel = #{marketModel} AND modelType = #{modelType}
+		<if test ="mId !=null"> AND mId != #{mId} </if>
+	</select>
+
+	<!-- 主板类型通过gid判断 -->
+	<select id="isExistsByGid" parameterType="Zbxhmanage" resultType="int">
+		SELECT COUNT(model) FROM t_sale_zbxhmanage
+		WHERE model = #{model} AND marketModel = #{marketModel} AND gId = #{gId}
+		<if test ="mId !=null"> AND mId != #{mId} </if>
+	</select>
+	
+	<!-- 新增并返回自增长ID -->
+	<insert id="doInsert" useGeneratedKeys="true" keyProperty="mId" parameterType="Zbxhmanage">
+		INSERT INTO t_sale_zbxhmanage (gId,
+		 model, marketModel, modelType, remark, createType, enabledFlag
+		)
+		VALUES ((SELECT gid from t_sale_basegroup WHERE gname = #{modelType} AND enumSn ='BASE_ZBXH'),
+		#{model}, #{marketModel}, #{modelType}, #{remark}, #{createType}, #{enabledFlag}
+		)
+	</insert>
+	
+	<select id="findCountWorkflowByxhId" parameterType="Zbxhmanage" resultType="int">
+		SELECT
+		count(t_sale_workflow.xhId)
+		FROM
+		t_sale_workflow
+		WHERE
+		t_sale_workflow.xhId=#{mId}
+	</select>
+
+	<select id="selectCountByCreateTypeId" resultType="Integer">
+		SELECT COUNT(*) FROM t_sale_zbxhmanage WHERE createType=#{createTypeId}
+	</select>
+
+	<select id="selectZbxhmanagesByMids" resultType="cn.concox.vo.basicdata.Zbxhmanage">
+		SELECT *FROM t_sale_zbxhmanage WHERE mId IN
+		<foreach collection="list" item="item" separator="," open="(" close=")">
+			#{item}
+		</foreach>
+	</select>
+
+	<update id="updateTypeAndCreateTypeByMids">
+		UPDATE t_sale_zbxhmanage SET gId=#{gId},modelType=#{modelType},createType=#{createType}
+		WHERE mId IN
+		<foreach collection="list" item="item" separator="," open="(" close=")">
+			#{item}
+		</foreach>
+	</update>
+</mapper>

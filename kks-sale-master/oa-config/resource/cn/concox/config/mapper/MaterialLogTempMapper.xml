@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.material.mapper.MaterialLogTempMapper">
+
+     <sql id="selectAllFields">
+        SELECT id, rowNO,
+            materialType, totalType, type, depotName, receivingParty, 
+            clerk, outTime, proNO, proName, proSpeci, 
+            placesNO, consumption, masterOrSlave, manufacturerCode, manufacturer, 
+            loss, number, tradePrice, retailPrice, hourlyRates, costPrice, 
+            remark, marketModel, platform, status, importDate, errorInfo, importPerson
+        FROM t_sale_material_log_temp
+    </sql>
+
+  <insert id="insert" parameterType="MaterialLogTemp">
+        INSERT INTO t_sale_material_log_temp (
+            rowNO, materialType, totalType, type, depotName, receivingParty, 
+            clerk, outTime, proNO, proName, proSpeci, 
+            placesNO, consumption, masterOrSlave, manufacturerCode, manufacturer, 
+            loss, number, tradePrice, retailPrice, hourlyRates, costPrice,
+            remark, marketModel, platform,status,importDate, errorInfo, importPerson
+        ) VALUES (
+            #{rowNO}, #{materialType}, #{totalType}, #{type}, #{depotName}, #{receivingParty}, 
+            #{clerk}, #{outTime}, #{proNO}, #{proName}, #{proSpeci}, 
+            #{placesNO}, #{consumption}, #{masterOrSlave}, #{manufacturerCode}, #{manufacturer}, 
+            #{loss}, #{number}, #{tradePrice}, #{retailPrice}, #{hourlyRates}, #{costPrice},
+            #{remark}, #{marketModel}, #{platform},#{status},#{importDate}, #{errorInfo}, #{importPerson}
+        )
+    </insert>
+    
+   <delete id="delete">
+        DELETE FROM t_sale_material_log_temp
+        WHERE id =#{id}
+    </delete>
+    
+    <delete id="deleteByIds">
+        DELETE FROM t_sale_material_log_temp
+        WHERE id IN
+        <foreach collection="array" item="id" index="index" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+     <select id="getMaterialLogTempList" resultType="MaterialLogTemp"  parameterType="MaterialLogTemp">
+        <include refid="selectAllFields" />
+        <where>
+            <if test="po.totalType != null"> and totalType= #{po.totalType} </if>
+            <if test="po.materialType != null"> and materialType= #{po.materialType} </if>
+            <if test="po.type != null and po.type != ''"> and type like concat('%', '${po.type}', '%')  </if>
+            <if test="po.depotName != null and po.depotName != ''"> and depotName like concat('%', '${po.depotName}', '%') </if>
+            <if test="po.receivingParty != null and po.receivingParty != ''"> and receivingParty like concat('%', '${po.receivingParty}', '%') </if>
+            <if test="po.clerk != null and po.clerk != ''"> and clerk like concat('%', '${po.clerk}', '%') </if>
+            <if test="po.outTimeStart != null and po.outTimeStart != ''"> AND date_format(outTime,'%Y-%m-%d') &gt;= #{po.outTimeStart} </if>
+			<if test="po.outTimeEnd != null and po.outTimeEnd != ''"> AND date_format(outTime,'%Y-%m-%d') &lt;= #{po.outTimeEnd} </if>
+            <if test="po.proNO != null and po.proNO != ''"> and proNO = #{po.proNO} </if>
+            <if test="po.proName != null and po.proName != ''"> and proName like concat('%', '${po.proName}', '%') </if>
+            <if test="po.proSpeci != null and po.proSpeci != ''"> and proSpeci like concat('%', '${po.proSpeci}', '%') </if>
+            <if test="po.placesNO != null and po.placesNO != ''"> and placesNO like concat('%', '${po.placesNO}', '%') </if>
+            <if test="po.consumption != null"> and consumption = #{po.consumption} </if>
+            <if test="po.masterOrSlave != null and po.masterOrSlave != ''"> and masterOrSlave like concat('%', '${po.masterOrSlave}', '%') </if>
+            <if test="po.manufacturerCode != null and po.manufacturerCode != ''"> and manufacturerCode like concat('%', '${po.manufacturerCode}', '%') </if>
+            <if test="po.manufacturer != null and po.manufacturer != ''"> and manufacturer like concat('%', '${po.manufacturer}', '%') </if>
+            <if test="po.loss != null and po.loss != ''"> and loss like concat('%', '${po.loss}', '%') </if>
+            <if test="po.number != null"> and number = #{po.number} </if>
+            <if test="po.tradePrice != null"> and tradePrice = #{po.tradePrice} </if>
+            <if test="po.retailPrice != null"> and retailPrice = #{po.retailPrice} </if>
+            <if test="po.hourlyRates != null"> and hourlyRates = #{po.hourlyRates} </if>
+            <if test="po.costPrice != null"> and costPrice = #{po.costPrice} </if>
+            <if test="po.remark != null and po.remark != ''"> and remark like concat('%', '${po.remark}', '%') </if>
+            <if test="po.marketModel != null and po.marketModel != ''"> and marketModel like concat('%', '${po.marketModel}', '%') </if>
+            <if test="po.platform != null and po.platform != ''"> and platform like concat('%', '${po.platform}', '%') </if>
+            <if test="po.status != null"> and status = #{po.status} </if>
+        </where>
+          ORDER BY id
+    </select>
+</mapper>

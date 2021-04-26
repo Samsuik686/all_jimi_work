@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.exam.mapper.ExamInfoMapper">
+	<resultMap type="Exam" id="resultMap_exam">
+		<result property="id" column="id"/>
+		<result property="examId" column="examId"/>
+		<result property="examName" column="examName"/>
+		<result property="examDescription" column="examDescription"/>
+		<result property="examTotalTime" column="examTotalTime"/>
+		<result property="creater" column="creater"/>
+		<result property="createTime" column="createTime"/>
+		<result property="state" column="state"/>
+	</resultMap>
+	
+	<sql id="selectAllFields">
+		select
+		id as id, 
+		exam_id as examId, 
+		exam_name as examName,
+		exam_description as examDescription,
+		exam_total_time as examTotalTime, 
+		creater as creater, 
+		create_time as createTime, 
+		state as state
+		from z_exam
+	</sql>
+	
+	<!-- 分页查询考试信息  -->
+	<select id="queryExamListPage" resultMap="resultMap_exam"  parameterType="Exam">
+		<include refid="selectAllFields" />
+		where 1=1     		
+	         <if test="exam.creater != null and exam.creater != ''"> and creater like concat('%', '${exam.creater}', '%')</if>
+	         <if test="exam.examName != null and exam.examName != ''"> and exam_name like concat('%', '${exam.examName}', '%')</if>	
+	</select>
+	
+	<!-- 更新  -->
+	<update id="update" parameterType="Exam">
+		update z_exam
+		<set>
+            <if test="state != null"> state = #{state}, </if>
+        </set>
+        where exam_id = #{examId}
+	</update>
+	
+	<!-- 删除  -->
+	<delete id="deleteList">
+		delete from z_exam
+		where exam_id in
+		<foreach item="examId" collection="exam.examIds" open="(" separator="," close=")">
+			#{examId}
+		</foreach>
+	</delete>
+	
+	<!-- 新增  -->
+	<insert id="insert"  useGeneratedKeys="true">
+		insert into z_exam
+		(
+			exam_id,
+			exam_total_time,
+			exam_name,
+			exam_description,
+			creater,
+			create_time,
+			state
+		)
+		values
+		(
+			#{examId},
+			#{examTotalTime},
+			#{examName},
+			#{examDescription},
+			#{creater},
+			#{createTime},
+			#{state}
+		)
+	</insert>
+	
+	<!-- 查询所有考试名称和编号  -->
+	<select id="queryExamInfo" resultType="Exam">
+		select 
+			exam_id as examId,
+			exam_name as examName
+		from 
+			z_exam
+	</select>
+	
+	
+	
+    
+	
+</mapper>

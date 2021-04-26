@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.materialManage.mapper.ProductMaterialFileLogMapper">
+
+   <resultMap id="queryList_resultMap" type="ProductMaterialFileLog" >
+   </resultMap>
+   
+   <sql id="selectAllFields">
+   		SELECT id, ip, userName, fileName, fileType, downloadTime
+		FROM t_sale_product_material_log	
+   </sql>
+   
+   	<select id="productMaterialFileLogPage" parameterType="ProductMaterialFileLog" resultType="ProductMaterialFileLog">
+		<include refid="selectAllFields"/>		
+		<where>
+			<if test="po.fileName != null and po.fileName != ''"> and fileName  like concat('%', '${po.fileName}', '%')</if>
+			<if test="po.userName != null and po.userName != ''"> and userName = #{po.userName}</if>
+			<if test="po.ip != null and po.ip != ''"> and ip = #{po.ip}</if>
+			<if test="po.startTime != null and po.startTime != ''"> and date_format(downloadTime,'%Y-%m-%d') &gt;= #{po.startTime}</if>
+			<if test="po.endTime != null and po.endTime != ''"> and date_format(downloadTime,'%Y-%m-%d') &lt;= #{po.endTime}</if>
+			<if test="po.id != null"> and id = #{po.id}</if>			
+		</where> 
+		ORDER BY id DESC 	
+   </select>
+
+   <insert id="insert" parameterType="ProductMaterialFileLog">
+	   	INSERT INTO t_sale_product_material_log (
+	   		ip, userName, fileName, fileType, downloadTime
+   		) 
+	   	VALUES
+	   	(
+	   		#{ip}, #{userName}, #{fileName}, #{fileType}, #{downloadTime}
+	   	)
+   </insert>
+</mapper>

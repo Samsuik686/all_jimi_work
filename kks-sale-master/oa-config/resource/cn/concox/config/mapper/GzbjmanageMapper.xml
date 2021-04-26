@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.GzbjmanageMapper">
+	<resultMap type="Gzbjmanage" id="Gzbjmanage"></resultMap>
+
+	<!-- 分页查询 -->
+	<select id="getGzbjmanageList" parameterType="Gzbjmanage" resultMap="Gzbjmanage">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.faultType != null and po.faultType != ''"> and faultType like concat('%', '${po.faultType}', '%') </if>
+		</where>
+		order by faultType desc
+	</select>
+
+	<select id="getT" parameterType="Integer" resultType="Gzbjmanage">
+		<include refid="selectAllFields" />
+		WHERE id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="Gzbjmanage">
+		INSERT INTO t_sale_gzbjmanage (id, faultType, faultDesc, costs, remark ) 
+		VALUES (#{id}, #{faultType}, #{faultDesc}, #{costs}, #{remark} )
+	</insert>
+
+	<update id="update" parameterType="Gzbjmanage">
+		UPDATE t_sale_gzbjmanage
+		<set>
+			<if test="faultType != null and faultType != ''"> faultType = #{faultType}, </if>
+			<if test="costs != null"> costs = #{costs}, </if>
+			<if test="faultDesc != null"> faultDesc = #{faultDesc}, </if>
+			<if test="remark != null"> remark = #{remark}, </if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<delete id="delete">
+		DELETE FROM t_sale_gzbjmanage WHERE id = #{id}
+	</delete>
+
+	<sql id="selectAllFields">
+		SELECT id, faultType, faultDesc, costs, remark FROM t_sale_gzbjmanage
+	</sql>
+	
+	<!-- 判断是否被引用 -->
+	<select id="findCountByGzbj" parameterType="Gzbjmanage" resultType="int">
+	SELECT SUM(a.num) FROM(
+			SELECT COUNT(1) AS num FROM t_sale_repair_price AS tsrp WHERE FIND_IN_SET(#{id}, tsrp.gzbjDesc)
+			UNION
+			SELECT COUNT(1) AS num FROM t_sale_repair_price_temp AS tsrpt WHERE FIND_IN_SET(#{id}, tsrpt.gzbjDesc)
+		) a
+	</select>
+	
+	<!-- 故障报价匹配  -->
+	<select id="getGRoupConcat" resultType="String" parameterType="String">
+   		SELECT GROUP_CONCAT(gzbj.faultType SEPARATOR' | ') AS gzbjDesc FROM t_sale_gzbjmanage AS gzbj 
+		WHERE gzbj.id IN 
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </select>
+	
+	<!-- 根据故障类别、价格查看是否是同一条数据 -->
+	<select id="isExists" parameterType="RepairPriceManage" resultType="int">
+		select COUNT(1) from t_sale_gzbjmanage 
+		where faultType = #{faultType} AND costs = #{costs}
+		<if test ="id !=null"> AND id != #{id} </if>
+	</select>
+	
+	<!-- 维修和报价根据故障报价id获得故障报价价格  -->
+	<select id="getSumPriceByIds" resultType="BigDecimal" parameterType="String">
+   		SELECT sum(costs) FROM t_sale_gzbjmanage
+   		WHERE id IN 
+   		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </select>
+</mapper>

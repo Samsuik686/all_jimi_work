@@ -1,0 +1,170 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>oa-web</groupId>
+	<artifactId>oa-web</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+
+	<properties>
+       	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>common</groupId>
+			<artifactId>common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>oa-vo</groupId>
+			<artifactId>oa-vo</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>oa-config</groupId>
+			<artifactId>oa-config</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>oa-app</groupId>
+			<artifactId>oa-app</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/junit/junit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+	<profiles>
+		<profile>
+			<id>uat</id>
+			<properties>
+				<profiles.active>uat</profiles.active>
+				<profiles.imageTag>v1.0.0</profiles.imageTag>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+		<profile>
+			<id>prd</id>
+			<properties>
+				<profiles.active>prd</profiles.active>
+				<profiles.imageTag>v1.0.0</profiles.imageTag>
+			</properties>
+		</profile>
+	</profiles>
+
+	<build>
+		<finalName>sale-web</finalName>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<!-- 资源根目录排除各环境的配置，使用单独的资源目录来指定 -->
+				<excludes>
+					<exclude>uat/*</exclude>
+					<exclude>prd/*</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources/${profiles.active}</directory>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<webXml>WebRoot\WEB-INF\web.xml</webXml>
+					<warSourceDirectory>WebRoot</warSourceDirectory>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+			<!-- <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.10</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/${project.name}/WEB-INf/lib/</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin> -->
+			<!--jib 构建插件 -->
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>1.6.1</version>
+				<configuration>
+					<!-- base image from：打包docker的基础镜像，默认镜像是：gcr.io/distroless/java ，需要翻墙to：默认push到dockerhub指定仓库credHelper：docker认证，这个就有点复杂了 -->
+					<from>
+						<image>freddyshen/tomcat8-5-cst:latest</image>
+						<image>172.16.10.115:5000/tomcat:7.0.59-jre7</image>
+						<!-- 直接指定凭证（替代credHelper） -->
+						<!-- <auth>
+							输入网易或者docker hub自己的用户名和密码
+							<username>test</username>
+							<password>123456</password>
+						</auth> -->
+					</from>
+					<!-- 目标镜像registry地址，为了方便测试，你需要换成自己的地址 -->
+					<to>
+						<image>172.16.10.115:5000/${profiles.active}/${project.name}</image>
+						<tags>
+							<!-- 可以做多个tag -->
+							<tag>latest</tag>
+							<tag>${profiles.imageTag}</tag>
+						</tags>
+					</to>
+					<container>
+						<!-- 容器上放置应用程序内容的根目录。特别适用于WAR打包项目，通过指定放置exploded WAR内容的位置来处理不同的Servlet引擎基础映像 -->
+						<appRoot>/usr/local/tomcat/webapps/sale-web</appRoot>
+						<!-- 使用当前时间 -->
+						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+						<!-- 容器在运行时暴露的端口 -->
+						<ports>
+							<port>12285</port>
+						</ports>
+						<environment>
+							<TZ>Asia/Shanghai</TZ>
+						</environment>
+					</container>
+					<!-- 如果私有镜像仓库没有启用https，设置allowInsecureRegistries参数为true -->
+					<allowInsecureRegistries>true</allowInsecureRegistries>
+				</configuration>
+				<!-- 绑定jib:build到 Maven生命周期，例如package -->
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

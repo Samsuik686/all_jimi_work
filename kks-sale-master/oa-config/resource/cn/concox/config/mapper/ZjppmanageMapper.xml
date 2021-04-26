@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.ZjppmanageMapper">
+	<resultMap type="Zjppmanage" id="zjppmanage"></resultMap>
+
+	<!-- 按条件分页查询 -->
+	<select id="getZjppmanageListPage" parameterType="Zjppmanage"
+		resultMap="zjppmanage">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.model != null and po.model != ''">
+				and model like concat('%', '${po.model}', '%')
+			</if>
+		</where>
+		order by model,step asc
+	</select>
+
+	<select id="exists" parameterType="Integer" resultType="boolean">
+		SELECT
+		CASE WHEN count(1) > 0 THEN 1 ELSE 0 END FROM
+		t_sale_zjppmanage
+		WHERE matchId = #{matchId}
+	</select>
+
+	<select id="getT" parameterType="Integer" resultType="Zjppmanage">
+		<include refid="selectAllFields" />
+		WHERE matchId = #{id}
+	</select>
+
+	<insert id="insert" parameterType="Zjppmanage">
+		INSERT INTO
+		t_sale_zjppmanage (model, step, testMethod, becareful
+		)
+		VALUES (#{model}, #{step}, #{testMethod}, #{becareful}
+		)
+	</insert>
+
+	<update id="update" parameterType="Zjppmanage">
+		UPDATE t_sale_zjppmanage
+		<set>
+			<if test="model != null and model != ''"> model = #{model}, </if>
+			<if test="step != null"> step = #{step}, </if>
+			<if test="testMethod != null and testMethod != ''"> testMethod = #{testMethod}, </if>
+			<if test="becareful != null and becareful != ''"> becareful = #{becareful}, </if>
+		</set>
+		WHERE matchId = #{matchId}
+	</update>
+
+	<update id="updateEnabledFlag">
+		UPDATE t_sale_zjppmanage 
+		SET enabledFlag = #{enabledFlag}
+		WHERE matchId IN
+		<foreach collection="ids" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</update>
+
+	<delete id="delete">
+		DELETE FROM t_sale_zjppmanage WHERE matchId = #{matchId}
+	</delete>
+
+	<select id="queryList" parameterType="Zjppmanage" resultMap="zjppmanage">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="model != null and model != ''">
+				and model like concat('%', '${model}', '%')
+			</if>
+			<if test="step != null">
+				and step = #{step}
+			</if>
+			<if test="testMethod != null and testMethod != ''">
+				and testMethod like concat('%', '${testMethod}', '%')
+			</if>
+			<if test="becareful != null and becareful != ''">
+				and becareful like concat('%', '${becareful}', '%')
+			</if>
+		</where>
+		order by model,step asc
+	</select>
+
+	<sql id="selectAllFields">
+		SELECT matchId, model, step, testMethod, becareful
+		FROM
+		t_sale_zjppmanage
+	</sql>
+
+	<select id="search" resultType="Zjppmanage">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="model != null and model != ''">
+				and model like concat('%', '${model}', '%')
+			</if>
+			<if test="step != null">
+				and step = #{step}
+			</if>
+			<if test="testMethod != null and testMethod != ''">
+				and testMethod like concat('%', '${testMethod}', '%')
+			</if>
+			<if test="becareful != null and becareful != ''">
+				and becareful like concat('%', '${becareful}', '%')
+			</if>
+		</where>
+		order by matchId desc
+	</select>
+	
+	<select id="getZjppListByModel" parameterType="String" resultType="Zjppmanage">
+		<include refid="selectAllFields" /> 
+		where model=#{model}
+		ORDER BY step
+	</select>
+	
+    <!-- 主板型号、步骤判断是否是同一条数据 -->
+	<select id="isExists" parameterType="Zjppmanage" resultType="int">
+		SELECT count(1) FROM t_sale_zjppmanage
+		WHERE model = #{model} AND step = #{step}
+		<if test="matchId != null"> and matchId != #{matchId} </if>
+	</select>
+</mapper>

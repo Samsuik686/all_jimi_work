@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.YcfkmanageMapper">
+
+<resultMap id="queryYcfkmanageList_resultMap" type="Ycfkmanage" >
+   </resultMap>
+   
+    <sql id="selectAllFields">
+         select  
+       		backId, model, imei, description, feedBackDate, recipient,
+       		responsibilityUnit, measures,completionDate,completionState, customerName, phone, remak, yid, hideMethod  
+        FROM t_sale_ycfkmanage 
+   </sql>
+   
+    <insert id="insert" parameterType="Ycfkmanage">
+        INSERT INTO t_sale_ycfkmanage 
+        (
+            model, imei, description, feedBackDate, recipient,
+            responsibilityUnit, measures,completionDate,completionState, customerName, phone, remak, yid, hideMethod
+        ) VALUES (
+            #{model}, #{imei}, #{description}, #{feedBackDate}, #{recipient}, 
+            #{responsibilityUnit}, #{measures}, #{completionDate},#{completionState}, #{customerName}, #{phone}, #{remak}, #{yid}, #{hideMethod}
+        )
+    </insert>
+    	
+    
+<update id="update" parameterType="Ycfkmanage">
+        UPDATE t_sale_ycfkmanage
+        <set>
+            <if test="description != null and description != ''"> description = #{description}, </if>
+            <if test="completionState != null"> completionState = #{completionState}, </if>
+             feedBackDate = #{feedBackDate}, recipient = #{recipient}, 
+             responsibilityUnit = #{responsibilityUnit}, measures = #{measures}, completionDate = #{completionDate}, 
+             model = #{model},imei = #{imei},
+             customerName = #{customerName}, phone = #{phone}, remak = #{remak}, yid = #{yid},hideMethod = #{hideMethod}
+        </set>
+        WHERE backId = #{backId}
+    </update>
+    
+     <delete id="delete" parameterType="Ycfkmanage">
+        DELETE FROM t_sale_ycfkmanage WHERE backId=#{backId}
+    </delete>
+    
+    <select id="select" parameterType="Ycfkmanage"  resultType="Ycfkmanage">
+    select 
+      backId, model, imei, description, feedBackDate, recipient,
+      responsibilityUnit, measures, completionDate,completionState, customerName, phone, remak, yid, hideMethod  
+    FROM t_sale_ycfkmanage where backId=#{backId}
+    </select>
+    
+     <select id="queryYcfkmanageListPage" resultMap="queryYcfkmanageList_resultMap"  parameterType="Ycfkmanage">
+      <include refid="selectAllFields" />
+        <where>
+			<if test="po.startTime != null and po.startTime != ''"> AND date_format(feedBackDate,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+            <if test="po.endTime != null and po.endTime != ''"> AND date_format(feedBackDate,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			<if test="po.completionState != null"> and completionState = #{po.completionState}</if>
+			<if test="po.treeDate != null and po.treeDate != ''"> AND date_format(feedBackDate,'%Y-%m-%d') = #{po.treeDate}</if>
+            <if test="po.recipient != null and po.recipient != ''"> AND recipient = #{po.recipient}</if>
+            <if test="po.customerName != null and po.customerName != ''"> AND customerName = #{po.customerName}</if>
+            <if test="po.phone != null and po.phone != ''"> AND phone = #{po.phone}</if>
+        </where>
+         order by feedBackDate desc
+    </select>
+    
+      <select id="queryList" resultMap="queryYcfkmanageList_resultMap" parameterType="Ycfkmanage">
+       <include refid="selectAllFields" />
+        <where>
+            <if test="startTime != null and startTime != ''"> AND date_format(feedBackDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+            <if test="endTime != null and endTime != ''"> AND date_format(feedBackDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+            <if test="completionState != null"> and completionState = #{completionState}</if>
+			<if test="treeDate != null and treeDate != ''"> AND date_format(feedBackDate,'%Y-%m-%d') = #{treeDate}</if>
+        </where>
+         order by feedBackDate desc
+   </select>  
+   
+    <!-- 反馈日期、问题描述判断是否是同一条数据 -->
+	<select id="isExists" parameterType="Ycfkmanage" resultType="int">
+		SELECT count(1) FROM t_sale_ycfkmanage
+		WHERE feedBackDate = #{feedBackDate} AND description = #{description}
+		<if test ="backId !=null"> AND backId != #{backId} </if>
+	</select>
+	
+	<!-- 400电话记录分类统计报表 -->
+    <select id="ycfkCountList" resultMap="queryYcfkmanageList_resultMap" parameterType="Ycfkmanage">
+		select y.description, b.methods AS measures, COUNT(description) ynumber,
+		CONCAT(LEFT(COUNT(description)/(SELECT COUNT(description) from t_sale_ycfkmanage
+		WHERE 1=1 
+    		<if test="startTime != null and startTime != ''"> AND date_format(feedBackDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> AND date_format(feedBackDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+		)*100,5),'%')  AS percent
+		FROM t_sale_ycfkmanage y
+		LEFT JOIN t_sale_ycfkbase b
+		ON y.yid = b.yid
+		
+		<where>
+			<if test="startTime != null and startTime != ''"> AND date_format(feedBackDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> AND date_format(feedBackDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+		</where>
+		GROUP BY y.description
+		ORDER BY ynumber DESC
+   </select> 
+</mapper>

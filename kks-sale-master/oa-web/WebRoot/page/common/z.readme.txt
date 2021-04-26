@@ -1,0 +1,10 @@
+说明：
+	@author Li.Shangzhi 
+	@date   2016-09-06 10:46:59
+	
+	
+	import.jsp    公共导入JSP
+	                                              回调刷新数据方法  queryListPage(1);
+	   
+	page.jsp      普通分页模版JSP                                           
+	pageComm.jsp  公共分页JSP 适合多个列表,表名ID 同时显示,分页数据不同步,自定义模版!  

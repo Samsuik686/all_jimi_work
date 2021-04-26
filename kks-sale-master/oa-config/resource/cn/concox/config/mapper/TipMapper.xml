@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.TipMapper">
+	
+	<insert id="insert" parameterType="Tip">
+		insert into t_sale_tip(id,enumWS,countNum)
+		values(#{id},#{enumWS},#{countNum})
+	</insert>
+	
+	 
+	<update id="update" parameterType="Tip" >
+	 update t_sale_tip set countNum=#{countNum} where enumWS=#{enumWS}
+    </update>
+    
+    
+    <select id="findTipCountByEnumWS" resultType="Tip" parameterType="java.lang.String">
+    	SELECT * FROM t_sale_tip where enumWS = #{enumWS}
+    </select>
+    
+    
+	
+</mapper>

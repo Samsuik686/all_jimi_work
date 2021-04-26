@@ -6,6 +6,7 @@ import com.jimilab.uwclient.bean.EmergencyTask;
 import com.jimilab.uwclient.bean.ValuableBaseResult;
 import com.jimilab.uwclient.model.IValuableModel;
 import com.jimilab.uwclient.model.ValuableModel;
+import com.jimilab.uwclient.utils.Log;
 import com.jimilab.uwclient.view.IValuableView;
 
 /**
@@ -47,6 +48,8 @@ public class ValuablePresenter<T extends IValuableView> extends BasePresenter<T>
             @Override
             public void onComplete(ValuableBaseResult baseResult) {
                 tWeakReference.get().dismissLoading();
+                Log.d("baseResult.getResult()", "baseResult" + baseResult.toString());
+                Log.d("baseResult.getResult()", "baseResult" + baseResult.getResult());
                 if (baseResult.getResult().equalsIgnoreCase("200")) {
                     tWeakReference.get().showToast("上传成功!");
                     tWeakReference.get().setScanMaterialRequestFocus();

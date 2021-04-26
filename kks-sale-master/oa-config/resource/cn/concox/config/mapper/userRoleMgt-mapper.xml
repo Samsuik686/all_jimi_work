@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.rolePrivilege.mapper.UserRoleMgtMapper">
+    
+   <resultMap type="UserRoleMgt" id="queryUserRoleList_resultMap"></resultMap>
+   
+   <select id="getUserRoleListByUId" resultMap="queryUserRoleList_resultMap" parameterType="UserRoleMgt">
+    	SELECT B.rolerId,B.rolerName,B.rolerDesc,B.creater,B.creatTime,B.orderIndex,CASE WHEN A.rolerId!='' THEN 1 ELSE 0 END roleChecked 
+		FROM t_oa_user_roler A RIGHT JOIN t_oa_roler B ON A.rolerId=B.rolerId
+		WHERE 1=1
+			 <if test="po.uId!=null || po.uId!=''">
+	        	and (A.userId IS NULL OR A.userId=#{po.uId})   
+			 </if>
+			 <if test="po.rolerName!=null || po.rolerName!=''">
+	        	and rolerName LIKE CONCAT('%',#{po.rolerName},'%' )    
+			 </if>
+			 <if test="po.rolerDesc!=null || po.rolerDesc!=''">
+	        	and rolerDesc LIKE CONCAT('%',#{po.rolerDesc},'%' )    
+			 </if> 
+	    order by B.creatTime desc	
+   </select>  
+   
+   
+   	<select id="queryUserRoleListByUIdCount" resultType="java.lang.Integer" parameterType="UserRoleMgt">
+		SELECT count(A.*) 
+		FROM t_oa_user_roler A RIGHT JOIN t_oa_roler B ON A.rolerId=B.rolerId
+		WHERE 1=1
+			 <if test="po.uId!=null || po.uId!=''">
+	        	and (A.userId IS NULL OR A.userId=#{po.uId})   
+			 </if>
+			 <if test="po.rolerName!=null || po.rolerName!=''">
+	        	and rolerName LIKE CONCAT('%',#{po.rolerName},'%' )    
+			 </if>
+			 <if test="po.rolerDesc!=null || po.rolerDesc!=''">
+	        	and rolerDesc LIKE CONCAT('%',#{po.rolerDesc},'%' )    
+			 </if>      
+    </select>  
+    
+    
+    <select id="findUserRoleByRoleId" resultMap="queryUserRoleList_resultMap" parameterType="UserRoleMgt">
+		SELECT userId as uId ,rolerId,creater,creatTime,orderindex as orderIndex  FROM t_oa_user_roler where rolerId = #{rolerId}
+    </select>  
+    
+    <select id="getRoleList" resultMap="queryUserRoleList_resultMap" parameterType="UserRoleMgt">
+    	SELECT DISTINCT A.rolerId,A.rolerName,A.rolerDesc,A.creater,A.creatTime,A.orderIndex,0 roleChecked 
+		FROM t_oa_roler A LEFT JOIN t_oa_user_roler B ON A.rolerId=B.rolerId
+		WHERE 1=1
+			 <if test="po.rolerName!=null || po.rolerName!=''">
+	        	and rolerName LIKE CONCAT('%',#{po.rolerName},'%' )    
+			 </if>
+			 <if test="po.rolerDesc!=null || po.rolerDesc!=''">
+	        	and rolerDesc LIKE CONCAT('%',#{po.rolerDesc},'%' )    
+			 </if> 
+	    order by A.creatTime desc	
+   </select>  
+   
+   	<select id="getRoleListCount" resultType="java.lang.Integer" parameterType="UserRoleMgt">
+		SELECT count(A.*) 
+		FROM t_oa_user_roler A RIGHT JOIN t_oa_roler B ON A.rolerId=B.rolerId
+		WHERE 1=1
+			 <if test="po.rolerName!=null || po.rolerName!=''">
+	        	and rolerName LIKE CONCAT('%',#{po.rolerName},'%' )    
+			 </if>
+			 <if test="po.rolerDesc!=null || po.rolerDesc!=''">
+	        	and rolerDesc LIKE CONCAT('%',#{po.rolerDesc},'%' )    
+			 </if>      
+    </select> 
+    
+	<select id="getUserRoleIsExists" resultType="java.lang.Integer" parameterType="map">
+		select count(1) from t_oa_user_roler where userId = #{userId} and rolerId = #{rolerId}
+	</select>
+	
+    <insert id="userRoleAdd" parameterType="map">
+    	insert into t_oa_user_roler(userId,rolerId,creater,creatTime)
+    	values(#{userId,jdbcType=VARCHAR},#{rolerId,jdbcType=INTEGER},#{creater,jdbcType=VARCHAR},sysdate());
+    </insert>
+    
+    <delete id="deleteUserRoleInfo" parameterType="map">
+		delete from t_oa_user_roler where userId=#{userId}
+    </delete> 
+    
+    <delete id="deleteUserRoleInfoByRolerId" parameterType="map">
+		delete from t_oa_user_roler where rolerId=#{rolerId}
+    </delete>
+    
+    <select id="getUserRoleIdListByUId" resultType="String" parameterType="map">
+    	SELECT DISTINCT rolerId FROM t_oa_user_roler WHERE userId=#{userId}
+	    order by creatTime desc	
+   </select>  
+   
+   <!-- 查询角色是否被用户分配 -->
+   <select id="getRoleIdCount" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+		SELECT count(*) FROM t_oa_user_roler WHERE rolerId = #{rolerId}
+   </select> 
+   <select id="getUserIdByRoleId" resultType="String">
+		SELECT DISTINCT userId  FROM t_oa_user_roler
+		WHERE rolerId IN
+		<foreach collection="list" item="rolerId" open="(" close=")" separator=",">
+			#{rolerId}
+		</foreach>
+   </select>
+</mapper>

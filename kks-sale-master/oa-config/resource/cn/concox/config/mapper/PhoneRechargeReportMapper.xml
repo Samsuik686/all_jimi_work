@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.PhoneRechargeReportMapper">
+	<resultMap id="queryList_resultMap" type="PhoneRechargeReport"></resultMap>
+	<!-- 分页查询 -->
+	<select id="getPhoneRechargeListPage" parameterType="PhoneRechargeReport" resultMap="queryList_resultMap">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.startTime != null and po.startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+			<if test="po.endTime != null and po.endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			<if test="po.phone != null and po.phone  != ''"> AND phone like concat('%', '${po.phone}', '%') </if>
+			<if test="po.faceValue != null and po.faceValue != ''"> AND faceValue = #{po.faceValue}</if>
+			<if test="po.orderStatus != null and po.orderStatus != ''">AND orderStatus = #{po.orderStatus}</if>
+			<if test="po.cusName != null and po.cusName != ''"> AND cusName like concat('%','${po.cusName}','%')</if>
+			<if test="po.searchNOs != null and po.searchNOs != ''"> AND phone IN (${po.searchNOs})</if>
+			<if test="po.remittanceMethod != null and po.remittanceMethod != ''"> AND remittanceMethod = #{po.remittanceMethod} </if>
+		</where>
+		ORDER BY rechargeDate DESC
+	</select>
+	
+    <select id="getT" parameterType="Integer" resultType="PhoneRechargeReport">
+        <include refid="selectAllFields" />
+        WHERE cardId = #{id}
+    </select>
+
+    <insert id="insert" parameterType="PhoneRechargeReport">
+        INSERT INTO t_sale_recharge_phone (
+            rechargeDate, cusName, imei, phone, payOther, faceValue, monthNumber, remittanceMethod, 
+            payable, orderStatus, account, isDiscount, isMobileCharge, ratePrice, remark
+        ) VALUES (
+            #{rechargeDate}, #{cusName}, #{imei}, #{phone}, #{payOther}, #{faceValue}, #{monthNumber}, #{remittanceMethod}, 
+            #{payable}, #{orderStatus}, #{account}, #{isDiscount}, #{isMobileCharge}, #{ratePrice}, #{remark}
+        )
+    </insert>
+
+    <update id="update" parameterType="PhoneRechargeReport">
+       UPDATE t_sale_recharge_phone
+        <set>
+            <if test="rechargeDate != null"> rechargeDate = #{rechargeDate}, </if>
+            <if test="phone != null and phone != ''"> phone = #{phone}, </if>
+            <if test="payOther != null"> payOther = #{payOther}, </if>
+            <if test="faceValue != null"> faceValue = #{faceValue}, </if>
+            <if test="monthNumber != null and monthNumber != ''"> monthNumber = #{monthNumber}, </if>
+            <if test="payable != null"> payable = #{payable}, </if>
+            <if test="account != null and account != ''"> account = #{account}, </if>
+            <if test="isDiscount != null"> isDiscount = #{isDiscount}, </if>
+            <if test="isMobileCharge != null"> isMobileCharge = #{isMobileCharge}, </if>
+            <if test="imei != null"> imei = #{imei}, </if>
+            <if test="cusName != null"> cusName = #{cusName},</if>
+            <if test="orderStatus != null"> orderStatus = #{orderStatus},</if>
+            <if test="ratePrice != null"> ratePrice = #{ratePrice}, </if>
+            <if test="remark != null"> remark = #{remark}, </if>
+            <if test="remittanceMethod != null and remittanceMethod != ''"> remittanceMethod = #{remittanceMethod}, </if>
+        </set>
+        WHERE cardId = #{cardId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM 
+        t_sale_recharge_phone 
+        WHERE 
+        cardId in 
+        <foreach collection="cardIds" item="item" open="(" separator="," close=")">  
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="getAll" resultType="PhoneRechargeReport">
+        <include refid="selectAllFields" />
+    </select>
+
+    <sql id="selectAllFields">
+       SELECT cardId, rechargeDate, cusName, imei, phone, payOther, faceValue, monthNumber, remittanceMethod, 
+       			payable, orderStatus, account, isDiscount, isMobileCharge, ratePrice, remark
+        FROM t_sale_recharge_phone
+    </sql>
+
+    <select id="queryList" parameterType="PhoneRechargeReport" resultMap="queryList_resultMap">
+        <include refid="selectAllFields" />
+        <where>
+			<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+			<if test="phone != null and phone  != ''"> AND phone like concat('%', '${phone}', '%') </if>
+       		<if test="faceValue != null and faceValue != ''"> AND faceValue = #{faceValue}</if>
+			<if test="orderStatus != null and orderStatus != ''">AND orderStatus = #{orderStatus}</if>
+			<if test="cusName != null and cusName != ''"> AND cusName like concat('%','${cusName}','%')</if>
+			<if test="searchNOs != null and searchNOs != ''"> AND phone IN (${searchNOs})</if>
+			<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+        </where>
+         order by rechargeDate desc
+    </select>
+    
+    <select id="queryTotal" parameterType="PhoneRechargeReport" resultMap="queryList_resultMap">
+			SELECT '合计' AS phone,SUM(payOther) AS payOther,SUM(faceValue) AS faceValue,SUM(payable) AS payable,SUM(ratePrice) AS ratePrice FROM t_sale_recharge_phone 
+			 <where>
+				<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+				<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+				<if test="phone != null and phone  != ''"> AND phone like concat('%', '${phone}', '%') </if>
+				<if test="faceValue != null and faceValue != ''"> AND faceValue = #{faceValue}</if>
+				<if test="orderStatus != null and orderStatus != ''">AND orderStatus = #{orderStatus}</if>
+				<if test="cusName != null and cusName != ''"> AND cusName like concat('%','${cusName}','%')</if>
+				<if test="searchNOs != null and searchNOs != ''"> AND phone IN (${searchNOs})</if>
+				<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+       		 </where>
+			
+    </select>
+    
+    <select id="querySum" parameterType="PhoneRechargeReport" resultMap="queryList_resultMap">
+        SELECT a.* FROM(
+			SELECT '收客户充值费用' AS projects,SUM(payable) AS costs FROM t_sale_recharge_phone 
+			 <where>
+				<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+				<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+				<if test="phone != null and phone  != ''"> AND phone like concat('%', '${phone}', '%') </if>
+				<if test="faceValue != null and faceValue != ''"> AND faceValue = #{faceValue}</if>
+				<if test="orderStatus != null and orderStatus != ''">AND orderStatus = #{orderStatus}</if>
+				<if test="cusName != null and cusName != ''"> AND cusName like concat('%','${cusName}','%')</if>
+				<if test="searchNOs != null and searchNOs != ''"> AND phone IN (${searchNOs})</if>
+				<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+       		 </where>
+			UNION
+			SELECT '付款给卡商' AS projects,SUM(payOther) AS costs FROM t_sale_recharge_phone
+			 <where>
+				<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+				<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+				<if test="phone != null and phone  != ''"> AND phone like concat('%', '${phone}', '%') </if>
+				<if test="faceValue != null and faceValue != ''"> AND faceValue = #{faceValue}</if>
+				<if test="orderStatus != null and orderStatus != ''">AND orderStatus = #{orderStatus}</if>
+				<if test="cusName != null and cusName != ''"> AND cusName like concat('%','${cusName}','%')</if>
+				<if test="searchNOs != null and searchNOs != ''"> AND phone IN (${searchNOs})</if>
+				<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+	        </where>
+			UNION
+			SELECT '部门收益' AS projects,SUM(payable)- SUM(payOther) AS costs FROM t_sale_recharge_phone
+			 <where>
+				<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+				<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+				<if test="phone != null and phone  != ''"> AND phone like concat('%', '${phone}', '%') </if>
+				<if test="faceValue != null and faceValue != ''"> AND faceValue = #{faceValue}</if>
+				<if test="orderStatus != null and orderStatus != ''">AND orderStatus = #{orderStatus}</if>
+				<if test="cusName != null and cusName != ''"> AND cusName like concat('%','${cusName}','%')</if>
+				<if test="searchNOs != null and searchNOs != ''"> AND phone IN (${searchNOs})</if>
+				<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+	        </where>
+	        UNION
+			SELECT '税费' AS projects,SUM(ratePrice) AS costs FROM t_sale_recharge_phone
+			 <where>
+				<if test="startTime != null and startTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &gt;= #{startTime} </if>
+				<if test="endTime != null and endTime != ''"> AND date_format(rechargeDate,'%Y-%m-%d') &lt;= #{endTime} </if>
+				<if test="phone != null and phone  != ''"> AND phone like concat('%', '${phone}', '%') </if>
+				<if test="faceValue != null and faceValue != ''"> AND faceValue = #{faceValue}</if>
+				<if test="orderStatus != null and orderStatus != ''">AND orderStatus = #{orderStatus}</if>
+				<if test="cusName != null and cusName != ''"> AND cusName like concat('%','${cusName}','%')</if>
+				<if test="searchNOs != null and searchNOs != ''"> AND phone IN (${searchNOs})</if>
+				<if test="remittanceMethod != null and remittanceMethod != ''"> AND remittanceMethod = #{remittanceMethod} </if>
+	        </where>
+		)a
+    </select>
+    
+    <!-- 充值日期,手机号是否为同一条数据 -->
+    <select id="isExists" parameterType="PhoneRechargeReport" resultType="int">
+		SELECT count(1) FROM t_sale_recharge_phone
+		WHERE rechargeDate = #{rechargeDate} AND phone = #{phone}
+		<if test ="cardId !=null"> AND cardId != #{cardId} </if>
+	</select>
+</mapper>

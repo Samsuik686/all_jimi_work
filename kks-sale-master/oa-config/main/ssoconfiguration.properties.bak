@@ -1,0 +1,46 @@
+#####################################################
+####	     ssoconfiguration.properties		#####
+#####################################################
+
+#\u5355\u70b9\u767b\u5f55 \u771f\u5b9e\u73af\u5883
+sys_id=d81f3a4d862911e69a33e7bbf186ca62
+#sso\u5916\u7f51ip
+sso_domain=http://183.237.64.58:6100/sso
+#sso\u5185\u7f51ip
+#sso_domain=http://10.0.9.252/sso
+#sso\u57df\u540d
+#sso_domain=http://isso.jimicloud.com
+
+#\u5355\u70b9\u767b\u5f55 \u6d4b\u8bd5\u73af\u5883
+#sys_id=d4c02d6ab17cc1b1aa88242c6aad4e4a
+#sso_domain=http://172.16.0.116:8085/sso
+
+#sso_domain=http://172.16.0.103:8085/sso
+
+#####uat
+#sso_domain=http://10.0.8.182:9080/sso-server-1.0
+
+login_uri=/v1/login.api
+get_info=/v1/get_info.api
+get_uid_by_access_token=/v1/get_uid_by_access_token.api
+validation_user_login=/v1/validation_user_login.api
+get_infos_by_user=/v1/get_infos_by_user.api
+get_infos_by_org=/v1/get_infos_by_org.api
+update_info=/v1/update_info.api
+add_user_info=/v1/add_user_info.api
+update_user_password=/v1/update_user_password.api
+get_orgs_info=/v1/get_orgs_info.api
+get_orginfo_by_id=/v1/get_orginfo_by_id.api
+add_organizational=/v1/add_organizational.api
+update_organizational=/v1/update_organizational.api
+remove_organizational=/v1/remove_organizational.api
+updateoradd_userorganizational=/v1/updateoradd_userorganizational.api
+get_user_org_info_by_uid=/v1/get_user_org_info_by_uid.api
+get_user_orgs_info_by_uid=/v1/get_user_orgs_info_by_uid.api
+ssologout_by_uid=/v1/ssologout_by_uid.api
+ssologout_by_access_token=/v1/ssologout_by_access_token.api
+get_all_managerId=/v1/get_all_managerId.api
+get_currentUser_managerId=/v1/get_currentUser_managerId.api
+getyinpin_by_uname=/v1/getyinpin_by_uname.api
+getUserInfo_by_cId=/v1/getUserInfo_by_cId.api
+get_userInfo_byuIdAndoId=/V1/get_userInfo_byuIdAndoId.api

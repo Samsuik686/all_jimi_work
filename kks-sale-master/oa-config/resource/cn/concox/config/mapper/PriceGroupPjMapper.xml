@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.PriceGroupPjMapper">
+   	<resultMap type="PriceGroupPj" id="PriceGroupPj">
+	</resultMap>
+
+    <sql id="selectAllFields">
+        SELECT groupPjId, groupName, groupPrice, model, remark, hourFee, pjlPrice, pjlDesc, importFalg FROM t_sale_grouppj_price
+    </sql>
+    
+    <select id="getPriceGroupPjList" parameterType="PriceGroupPj" resultType="PriceGroupPj">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.groupName != null and po.groupName != ''"> and groupName like concat('%', '${po.groupName}', '%') </if>
+			<if test="po.model != null and po.model != '' and (po.searchType == null or po.searchType == '') ">
+				and model like concat('%', '${po.model}', '%')
+			</if>
+			<if test="po.model != null and po.model != '' and po.searchType == 'repairPriceSearch'"> and model = #{po.model}</if>
+		</where>
+		order by model
+	</select>
+    
+    <insert id="insert" parameterType="PriceGroupPj" useGeneratedKeys="true" keyProperty="groupPjId">
+        INSERT INTO t_sale_grouppj_price (
+        	groupPjId, groupName, groupPrice, model, remark, hourFee, pjlPrice, pjlDesc, importFalg
+        ) VALUES (
+        	#{groupPjId}, #{groupName}, #{groupPrice}, #{model}, #{remark}, #{hourFee}, #{pjlPrice}, #{pjlDesc}, #{importFalg}
+        )
+    </insert>
+
+    <update id="update" parameterType="PriceGroupPj">
+        UPDATE t_sale_grouppj_price
+        <set>
+            <if test="groupName != null and groupName != ''"> groupName = #{groupName}, </if>
+            <if test="hourFee != null"> hourFee = #{hourFee}, </if>
+            <if test="pjlPrice != null"> pjlPrice = #{pjlPrice}, </if>
+            <if test="groupPrice != null"> groupPrice = #{groupPrice}, </if>
+            <if test="model != null and model != ''"> model = #{model}, </if>
+            <if test="remark != null"> remark = #{remark}, </if>
+            <if test="pjlDesc != null"> pjlDesc = #{pjlDesc}, </if>
+            <if test="importFalg != null"> importFalg = #{importFalg}, </if>
+        </set>
+        WHERE groupPjId = #{groupPjId}
+    </update>
+    
+    <delete id="delete">
+        DELETE FROM t_sale_grouppj_price WHERE groupPjId = #{groupPjId}
+    </delete>
+
+    <select id="getT" parameterType="String" resultType="PriceGroupPj">
+        <include refid="selectAllFields" />
+        WHERE groupPjId = #{id}
+    </select>
+    
+   <!-- 组合匹配  -->
+	<select id="getGRoupConcat" resultType="String" parameterType="String">
+   		SELECT GROUP_CONCAT(tsgp.groupName SEPARATOR' | ') AS priceGroupDesc FROM t_sale_grouppj_price AS tsgp 
+		WHERE tsgp.groupPjId IN 
+		<foreach collection="array" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </select>
+    
+   <!-- 判断是否被引用 -->
+	<select id="findCountByGroupPjId" parameterType="GroupPj" resultType="int">
+	SELECT COUNT(1) AS num FROM t_sale_repair_price AS tsrpt WHERE FIND_IN_SET(#{groupPjId}, tsrpt.priceGroupDesc)
+	</select>
+    
+	<!-- 根据主板型号、组合配件名称判断是否是同一数据 -->
+	<select id="isExists" parameterType="Pjlmanage" resultType="int">
+		SELECT count(1) FROM t_sale_grouppj_price
+		WHERE model = #{model} AND groupName = #{groupName}
+		<if test="groupPjId !=null"> AND groupPjId != #{groupPjId} </if>
+	</select>
+	
+	<select id="getPjlIdsByGroupPjIds" resultType="Pjlmanage" parameterType="String">
+   		SELECT * FROM t_sale_pjlmanage
+		WHERE FIND_IN_SET(pjlId, (
+			SELECT GROUP_CONCAT(DISTINCT pjlDesc) FROM t_sale_grouppj_price
+			WHERE groupPjId IN
+			<foreach collection="ids" item="id" open="(" separator="," close=")">
+				#{id}
+			</foreach>
+		))
+    </select>
+	
+</mapper>

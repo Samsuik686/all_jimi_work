@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.report.mapper.ReportMapper">
+
+	<resultMap id="queryList_resultMap" type="Report" ></resultMap>
+   
+
+    <!--  @author Li.Shangzhi  	  -->
+    <!--  @date 2016-08-19 15:53:49 -->
+    <!-- ============================================   interface  Start ============================================ -->
+	<select id="getAccqueteList" resultMap="queryList_resultMap" parameterType="Report">
+		SELECT model, marketModel, proNO, proName, proSpeci, consumption, retailPrice FROM t_sale_pjlmanage
+		WHERE marketModel like concat('%', '${marketModel}', '%')
+		ORDER BY marketModel, model, proNO
+    </select>
+    
+    <select id="getCountRepair"  resultType="Integer" parameterType="Report">
+	      SELECT COUNT(1) FROM t_sale_workflow  AS tsw 
+		<where>
+			tsw.state = -1
+			<if test="StratTime != null  and StratTime 	!= ''"> AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &gt;=  #{StratTime}  </if> 
+			<if test="EndTime != null  and EndTime 	!= ''"> AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &lt;=  #{EndTime}  </if> 
+		</where> 
+    </select>
+    
+    <select id="getGiveUpRepairCount"  resultType="Integer" parameterType="Report">
+	     SELECT COUNT(1) FROM t_sale_workflow  AS tsw 
+		LEFT JOIN t_sale_workflow_repair AS tswr ON  tsw.id = tswr.wfId 
+		<where>
+			tswr.isPrice = 1 and tsw.state = -1
+			<if test="StratTime != null  and StratTime 	!= ''"> AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &gt;=  #{StratTime}  </if> 
+			<if test="EndTime != null  and EndTime 	!= ''"> AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &lt;=  #{EndTime}  </if> 
+		</where> 
+    </select>
+    
+    <!-- 二次返修总数 -->
+    <select id="countTwiceRepair" resultType="Integer" parameterType="Report">
+        SELECT
+            COUNT(wor.lastEngineer)
+        FROM
+            t_sale_workflow wor
+        LEFT JOIN t_sale_workflow_related rel ON rel.id = wor.id
+        LEFT JOIN t_sale_workflow_repair rep ON rep.wfId = wor.id
+        <where>
+	        wor.lastEngineer &lt;&gt; ''
+	        AND wor.state = - 1
+	        AND rep.isPrice = 0
+	        AND datediff(wor.acceptanceTime,wor.lastAccTime) &lt; 90
+	        AND (
+	            rel.wxbjDesc NOT IN (
+	                SELECT
+	                    rid
+	                FROM
+	                    t_sale_repair_price
+	                WHERE
+	                    gId IN (347,349,350,351,352,353,354,355,356,357,359,412)
+	            )
+	        )
+	        AND rel.wxbjDesc NOT IN (49,7991,12871)
+	        AND wor.returnTimes > 0
+            <if test="StratTime != null  and StratTime  != ''"> AND date_format(wor.acceptanceTime,'%Y-%m-%d') &gt;=  #{StratTime}  </if> 
+            <if test="EndTime != null  and EndTime  != ''"> AND date_format(wor.acceptanceTime,'%Y-%m-%d') &lt;=  #{EndTime}  </if> 
+        </where> 
+    </select>
+    
+    
+    <!-- 放弃报价的不算二次返修 -->
+    <select id="getRepairAgainList"  resultType="Report">
+	    SELECT al.engineer,repairB.sumcount AS returnTimes, repairA.sumcount AS returnTimesA,
+			 (SELECT(CONCAT(FORMAT((repairA.sumcount/repairB.sumcount*100),1),'%'))) as returnTimesP
+		FROM
+	    (
+	        SELECT DISTINCT
+	            (engineer)
+	        FROM
+	            t_sale_workflow_repair
+	    ) AS al
+		LEFT JOIN (
+            SELECT
+                tsw.lastEngineer AS engineer,
+                COUNT(tsw.lastEngineer) AS sumcount  
+            FROM
+                t_sale_workflow tsw
+            LEFT JOIN t_sale_workflow_related rel ON rel.id = tsw.id
+            LEFT JOIN t_sale_workflow_repair tswr ON tswr.wfId = tsw.id
+            <where> 
+	            tsw.lastEngineer &lt;&gt; ''
+	            AND tsw.state = - 1
+	            AND tswr.isPrice = 0
+	            AND datediff(tsw.acceptanceTime,tsw.lastAccTime) &lt; 90
+	            AND (
+	                rel.wxbjDesc NOT IN (
+	                    SELECT
+	                        rid
+	                    FROM
+	                        t_sale_repair_price
+	                    WHERE
+	                        gId IN (347,349,350,351,352,353,354,355,356,357,359,412)
+	                )
+	            )
+	            AND rel.wxbjDesc NOT IN (49,7991,12871)
+	            AND tsw.returnTimes > 0
+                <if test="StratTime != null  and StratTime  != ''"> 
+                    AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &gt;= #{StratTime}  
+                </if> 
+                <if test="EndTime != null  and EndTime  != ''"> 
+                    AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &lt;= #{EndTime} 
+                </if> 
+            </where> 
+            GROUP BY
+                tsw.lastEngineer
+		) repairA ON repairA.engineer = al.engineer
+		LEFT JOIN (
+			SELECT tswr.engineer,COUNT(tswr.engineer) AS sumcount 
+			FROM t_sale_workflow_repair AS tswr, t_sale_workflow AS tsw
+			<where>
+				tsw.state = -1
+			 	AND tswr.wfId = tsw.id
+				AND tswr.isPrice = 0
+				<if test="StratTime != null and StratTime != ''"> AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &gt;= #{StratTime}  </if> 
+				<if test="EndTime != null and EndTime != ''"> AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &lt;= #{EndTime}  </if>
+			</where>
+			GROUP BY tswr.engineer
+		) repairB
+		ON repairB.engineer=al.engineer
+		WHERE
+        repairB.sumcount &lt;&gt; '' OR repairA.sumcount &lt;&gt; ''
+		ORDER BY returnTimesA DESC
+    </select>
+   
+    <select id="getRepairAgainDetailList" resultType="RepairAgainDetail">
+        SELECT
+            sxdw.cusName,
+            zbxh.model,
+            tsw.imei,
+            tsw.isWarranty,
+            (
+                SELECT
+                    GROUP_CONCAT(initheckFault)
+                FROM
+                    t_sale_cjgzmanage
+                WHERE
+                    FIND_IN_SET(iid, rel.cjgzDesc)
+            ) AS cjgzDesc,
+            (
+                SELECT GROUP_CONCAT(proceMethod) 
+                FROM 
+                    t_sale_zgzmanage 
+                WHERE 
+                    FIND_IN_SET(id, rel.zzgzDesc)
+            ) AS zzgzDesc,
+            tsw.remark,
+            tsw.lastAccTime,
+            tsw.acceptanceTime,
+            tsw.lastEngineer,
+            tswr.engineer,
+            tsw.returnTimes,
+            tswr.solution
+        FROM
+            t_sale_workflow tsw
+        LEFT JOIN t_sale_workflow_related rel ON rel.id = tsw.id
+        LEFT JOIN t_sale_workflow_repair tswr ON tswr.wfId = tsw.id
+        LEFT JOIN t_sale_sxdwmanage sxdw ON sxdw.cId = tsw.sxdwId
+        LEFT JOIN t_sale_zbxhmanage zbxh ON zbxh.mId = tsw.xhId
+        <where>
+            tsw.state = - 1
+            AND tswr.isPrice = 0
+            AND datediff(
+                tsw.acceptanceTime,
+                tsw.lastAccTime
+            ) &lt; 90
+            AND (
+                rel.wxbjDesc NOT IN (
+                    SELECT
+                        rid
+                    FROM
+                        t_sale_repair_price
+                    WHERE
+                        gId IN (347,349,350,351,352,353,354,355,356,357,359,412)
+                )
+            )
+            AND rel.wxbjDesc NOT IN (49,7991,12871)
+            AND tsw.returnTimes > 0
+            AND tsw.lastEngineer = #{engineer}
+            <if test="StratTime != null and StratTime != ''">
+                AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &gt;= #{StratTime}  
+            </if> 
+            <if test="EndTime != null and EndTime != ''"> 
+                AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &lt;= #{EndTime} 
+            </if>
+        </where> 
+        ORDER BY
+        acceptanceTime DESC
+   </select> 
+
+   <select id="getRepairAgainDetailListPage" resultType="RepairAgainDetail">
+        SELECT
+            sxdw.cusName,
+            zbxh.model,
+            tsw.imei,
+            tsw.isWarranty,
+            (
+                SELECT
+                    GROUP_CONCAT(initheckFault)
+                FROM
+                    t_sale_cjgzmanage
+                WHERE
+                    FIND_IN_SET(iid, rel.cjgzDesc)
+            ) AS cjgzDesc,
+            (
+                SELECT GROUP_CONCAT(proceMethod) 
+                FROM 
+                    t_sale_zgzmanage 
+                WHERE 
+                    FIND_IN_SET(id, rel.zzgzDesc)
+            ) AS zzgzDesc,
+            tsw.remark,
+            tsw.lastAccTime,
+            tsw.acceptanceTime,
+            tsw.lastEngineer,
+            tswr.engineer,
+            tsw.returnTimes,
+            tswr.solution
+        FROM
+            t_sale_workflow tsw
+        LEFT JOIN t_sale_workflow_related rel ON rel.id = tsw.id
+        LEFT JOIN t_sale_workflow_repair tswr ON tswr.wfId = tsw.id
+        LEFT JOIN t_sale_sxdwmanage sxdw ON sxdw.cId = tsw.sxdwId
+        LEFT JOIN t_sale_zbxhmanage zbxh ON zbxh.mId = tsw.xhId
+        <where>
+            tsw.state = - 1
+            AND tswr.isPrice = 0
+            AND datediff(
+                tsw.acceptanceTime,
+                tsw.lastAccTime
+            ) &lt; 90
+            AND (
+                rel.wxbjDesc NOT IN (
+                    SELECT
+                        rid
+                    FROM
+                        t_sale_repair_price
+                    WHERE
+                        gId IN (347,349,350,351,352,353,354,355,356,357,359,412)
+                )
+            )
+            AND rel.wxbjDesc NOT IN (49,7991,12871)
+            AND tsw.returnTimes > 0
+            AND tsw.lastEngineer = #{report.engineer}
+            <if test="report.StratTime != null and report.StratTime != ''">
+                AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &gt;= #{report.StratTime}
+            </if> 
+            <if test="report.EndTime != null and report.EndTime != ''"> 
+                AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &lt;= #{report.EndTime} 
+            </if>
+        </where> 
+        ORDER BY
+        acceptanceTime DESC
+   </select>
+    <!-- ============================================   interface  End ============================================ -->
+</mapper>

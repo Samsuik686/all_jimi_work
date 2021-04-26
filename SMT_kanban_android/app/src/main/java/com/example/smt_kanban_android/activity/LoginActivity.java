@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.alibaba.fastjson.JSONObject;
 import com.example.smt_kanban_android.R;
+import com.example.smt_kanban_android.appliction.App;
 import com.example.smt_kanban_android.interfaceutrl.HttpUtrl;
 import com.example.smt_kanban_android.util.HttpUtil;
 import com.example.smt_kanban_android.util.ToastTools;
@@ -39,6 +40,7 @@ public class LoginActivity extends BaseActivity{
     };
     EditText userid;
     EditText passwords;
+    TextView change_id;
     TextView login;
     String id;
     String pwd;
@@ -53,9 +55,14 @@ public class LoginActivity extends BaseActivity{
         userid = findViewById(R.id.userid);
         passwords = findViewById(R.id.passwords);
         login = findViewById(R.id.login);
+        change_id = findViewById(R.id.change_id);
         SharedPreferences sharedPreferences= getSharedPreferences("data", Context.MODE_PRIVATE);
         String Id=sharedPreferences.getString("userid","");
         String pswords=sharedPreferences.getString("passwords","");
+
+        String ip=sharedPreferences.getString("ip","http://120.234.224.186:28881/");
+        app.setBase_ip(ip);
+
         userid.setText(Id);
         passwords.setText(pswords);
         login.setOnClickListener(new View.OnClickListener() {
@@ -77,6 +84,13 @@ public class LoginActivity extends BaseActivity{
 //                startActivity(intent);
             }
         });
+        change_id.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this,ChangeipActivity.class);
+                startActivity(intent);
+            }
+        });
     }
     private class MyTask extends AsyncTask<String, Integer, String> {
         // 方法1：onPreExecute（）
@@ -94,7 +108,7 @@ public class LoginActivity extends BaseActivity{
             Message message1 = new Message();
             message1.what=1;
             try {
-                HttpUtil.sendOkHttpPostRequest(HttpUtrl.base_ip + "user/login", new Callback() {
+                HttpUtil.sendOkHttpPostRequest(app.getBase_ip() + "user/login", new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             Log.d(LoginActivity, e.toString());

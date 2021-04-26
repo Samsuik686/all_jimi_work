@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.YcfkBaseMapper">
+
+	<resultMap id="queryYcfkBaseList_resultMap" type="YcfkBase">
+	</resultMap>
+	
+	<sql id="selectAllFields">
+   		SELECT yid, gid, problems, proDetails, methods
+		FROM t_sale_ycfkbase
+   </sql>
+   
+	<insert id="insert" parameterType="YcfkBase">
+		INSERT INTO t_sale_ycfkbase (gId,
+		 problems, proDetails, methods
+		) VALUES (
+		(SELECT gid from t_sale_basegroup WHERE gname = #{problems} AND enumSn ='BASE_YCFK'),
+		 #{problems}, #{proDetails}, #{methods}
+		)
+	</insert>
+	
+	<!-- 根据gid查询问题描述list -->
+	<select id="getProDetailsByGid" parameterType="Integer" resultType="YcfkBase">
+		SELECT * from t_sale_ycfkbase WHERE gId = #{gId}
+	</select>
+	
+    <!-- 新增修改看是否存在gid -->
+	<select id="isExistsGid" parameterType="YcfkBase" resultType="Integer">
+		SELECT gid from t_sale_basegroup WHERE gname = #{problems} AND enumSn ='BASE_YCFK'
+	</select>
+	
+	<!-- 删除或修改组时查看是组下否存在数据 -->
+	<select id="getCountByGid" parameterType="YcfkBase" resultType="int">
+		SELECT count(1) from t_sale_ycfkbase WHERE gId = #{gId}
+	</select>
+	
+	<!-- 修改分组时，改其下数据 -->
+	<update id="updateByGid" parameterType="YcfkBase">
+      	UPDATE t_sale_ycfkbase set problems = (SELECT gname from t_sale_basegroup WHERE gId = #{gId}) 
+      	WHERE gId = #{gId}
+    </update>
+	
+	<update id="update" parameterType="YcfkBase">
+		UPDATE t_sale_ycfkbase
+		<set>
+			<if test="gId != null "> gId = #{gId}, </if>
+			<if test="problems != null and problems != ''"> problems = #{problems}, </if>
+			<if test="proDetails != null and proDetails != ''"> proDetails = #{proDetails}, </if>
+			<if test="methods != null and methods != ''"> methods = #{methods}, </if>
+		</set>
+		WHERE yid = #{yid}
+	</update>
+
+	<select id="select" parameterType="YcfkBase" resultType="YcfkBase">
+		SELECT yid, gid, problems, proDetails, methods
+		FROM t_sale_ycfkbase where yid=#{yid}
+	</select>
+
+	<delete id="delete" parameterType="YcfkBase">
+		DELETE FROM t_sale_ycfkbase
+		WHERE yid =#{yid}
+	</delete>
+
+	<select id="queryYcfkBaseListPage" parameterType="YcfkBase" resultMap="queryYcfkBaseList_resultMap">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.gId != null">
+				and gId = #{po.gId}
+			</if>
+			<if test="po.problems!=null  and po.problems!=''">
+				and problems LIKE CONCAT('%',#{po.problems},'%' )
+			</if>
+			<if test="po.proDetails!=null  and po.proDetails!=''">
+				and proDetails LIKE CONCAT('%',#{po.proDetails},'%' )
+			</if>
+			<if test="po.methods!=null  and po.methods!=''">
+				and methods LIKE CONCAT('%',#{po.methods},'%' )
+			</if>
+		</where>
+		order by yid desc
+	</select>
+
+	<select id="queryList" resultMap="queryYcfkBaseList_resultMap" parameterType="YcfkBase">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="gId != null">
+				and gId = #{gId}
+			</if>
+			<if test="problems!=null  and problems!=''">
+				and problems LIKE CONCAT('%',#{problems},'%' )
+			</if>
+			<if test="proDetails!=null and proDetails!=''">
+				and proDetails LIKE CONCAT('%',#{proDetails},'%' )
+			</if>
+			<if test="methods!=null and methods!=''">
+				and methods LIKE CONCAT('%',#{methods},'%' )
+			</if>
+		</where>
+		order by yid desc
+	</select>
+
+	<!-- 类别、问题描述、处理方法判断是否是同一条数据 -->
+	<select id="isExists" parameterType="YcfkBase" resultType="int">
+		SELECT count(1) FROM t_sale_ycfkbase
+		WHERE problems = #{problems} AND proDetails = #{proDetails} AND methods = #{methods}
+		<if test ="yid !=null"> AND yid != #{yid} </if>
+	</select>
+	
+	<!-- 关联yid -->
+	<select id="findCountByYcfk" parameterType="ycfkBase" resultType="int">
+		SELECT
+			count(yid)
+		FROM
+		t_sale_ycfkmanage ycfk
+		WHERE
+		FIND_IN_SET(#{yid},ycfk.yid) 
+	</select>
+</mapper>
+    

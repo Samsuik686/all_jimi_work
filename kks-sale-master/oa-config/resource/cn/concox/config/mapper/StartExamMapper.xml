@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.exam.mapper.StartExamMapper">
+
+    <select id="listExamTopic" resultType="cn.concox.vo.exam.ExamTopic">
+        SELECT
+        topic_id AS topicId,
+        exam_id AS examId,
+        topic_sequence AS topicSequence,
+        topic_type AS topicType,
+        topic_description AS topicDescription,
+        topic_answer AS topicAnswer,
+        topic_score AS topicScore,
+        topic_option_a AS topicOptionA,
+        topic_option_b AS topicOptionB,
+        topic_option_c AS topicOptionC,
+        topic_option_d AS topicOptionD
+        FROM 
+        z_exam_topic
+        WHERE
+        exam_id = #{examId}
+        ORDER BY
+        topic_sequence
+    </select>
+    
+    <select id="listExam" resultType="cn.concox.vo.exam.Exam">
+        SELECT 
+        ex.exam_id AS examId,
+        ex.exam_name AS examName,
+        ex.exam_description AS examDescription,
+        ex.exam_total_time AS examTotalTime,
+        ex.state,
+        (SELECT COUNT(*) FROM z_exam_answer an WHERE an.topic_id IN (
+                SELECT topic_id FROM z_exam_topic top WHERE top.exam_id = ex.exam_id) AND examinee_id = #{examineeId}
+        ) AS answerStatus
+        FROM
+        z_exam ex
+        <where>
+            state = 2
+            <if test="searchText != null and searchText != ''">
+                AND ex.exam_name like concat('%','${searchText}','%')
+            </if>
+        </where>
+        ORDER BY
+            ex.create_time DESC
+    </select>
+    
+    <select id="getExamByExamId" resultType="cn.concox.vo.exam.Exam">
+        SELECT 
+        ex.exam_id AS examId,
+        ex.state,
+        (SELECT COUNT(*) FROM z_exam_answer an WHERE an.topic_id IN (
+                SELECT topic_id FROM z_exam_topic top WHERE top.exam_id = ex.exam_id) AND examinee_id = #{examineeId}
+        ) AS answerStatus
+        FROM
+        z_exam ex
+        WHERE
+        state = 2 AND ex.exam_id = #{examId}
+    </select>
+    
+    <select id="countExamAnswer" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM 
+        z_exam_answer
+        WHERE 
+        topic_id IN (
+                SELECT topic_id FROM z_exam_topic WHERE exam_id = #{examId}
+        ) AND examinee_id = #{examineeId}
+    </select>    
+    
+    <select id="getExamStartTime" resultType="java.lang.Long">
+        SELECT
+        exam_start_time AS examStartTime
+        FROM
+        z_exam_grade
+        WHERE
+        exam_id = #{examId} AND examinee_id = #{examineeId}
+    </select>
+    
+    <!-- 是否有主观题 -->
+    <select id="countSubjective" resultType="java.lang.Integer">
+        SELECT
+        count(*)
+        FROM
+        z_exam_topic
+        WHERE
+        exam_id = #{examId} AND topic_type IN (3, 4)
+    </select>
+    
+    <insert id="insertExamAnswer" parameterType="cn.concox.vo.exam.ExamAnswer">
+        INSERT INTO
+	    z_exam_answer(
+	        answer_id,
+			examinee_id,
+			examinee_name,
+			topic_id,
+			examinee_answer,
+			examinee_score,
+			creation_date
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+        (
+            #{item.answerId},
+            #{item.examineeId},
+            #{item.examineeName},
+            #{item.topicId},
+            #{item.examineeAnswer},
+            #{item.examineeScore},
+            NOW()
+        )
+        </foreach>
+    </insert>
+    
+    <insert id="insertExamGrade" parameterType="cn.concox.vo.exam.ExamGrade">
+        INSERT INTO
+        z_exam_grade(
+            exam_id,
+            examinee_id,
+            examinee_name,
+            grade_state,
+            exam_start_time,
+            create_time
+        )
+        VALUES
+        (
+            #{examId},
+            #{examineeId},
+            #{examineeName},
+            #{gradeState},
+            #{examStartTime},
+            NOW()
+        )
+    </insert>
+
+</mapper>

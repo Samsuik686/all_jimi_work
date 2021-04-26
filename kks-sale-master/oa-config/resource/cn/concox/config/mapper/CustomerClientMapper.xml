@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.aipay.mapper.CustomerClientMapper">
+
+   <resultMap id="queryList_resultMap" type="CustomerClient" >
+   </resultMap>
+   
+   <!--  @author Li.Shangzhi  	   -->
+   <!--  @date 2016-08-25 21:27:37 -->
+   <!-- ============================================   interface  Start ============================================ -->
+    <select id="checkClientLogin"  resultType="CustomerClient"  parameterType="CustomerClient">
+    	SELECT
+			tsw.repairnNmber, tsw.acceptanceTime acceptTime, tss.cusName,
+			tss.phone, tss.loginPwd
+		FROM
+			t_sale_workflow AS tsw,
+		    t_sale_sxdwmanage AS tss 
+	   <where>
+	  		 tsw.sxdwId = tss.cId AND tss.phone = #{phone}
+	  		 <choose>
+				<when test="repairnNmber != null and repairnNmber != ''">
+					AND tsw.repairnNmber = #{repairnNmber}
+				</when>
+				<when test="loginPwd != null and loginPwd != ''">
+					AND tss.loginPwd = #{loginPwd}
+				</when>
+	  		 </choose>
+	   </where>
+	  	LIMIT 1
+    </select>
+   
+   
+   <select id="queryListPage" resultMap="queryList_resultMap" parameterType="CustomerClient">
+   	   	SELECT  tsw.id AS id ,
+				tss.cusName AS cusName,
+				tsw.repairnNmber,
+	      		tsw.imei AS imei,
+	      		tsw.remark As remark,
+        		tsz.marketModel AS  marketModel,
+				tsw.isWarranty AS isWarranty,
+				tsw.acceptanceTime AS acceptTime,
+				tsw.state AS state,
+				tswre.sjfjDesc AS sjfjDesc,
+				tswre.cjgzDesc AS cjgzDesc,
+				tswre.zzgzDesc AS zzgzDesc,
+				tswre.wxbjDesc AS wxbjDesc,
+				CASE tswr.giveUpRepairStatus WHEN '0' THEN tswr.sumPrice ELSE (tswr.repairPrice+tswr.hourFee) END AS sumPrice,
+				tswr.solutionTwo AS solutionTwo,
+	   			tswr.solution AS solution,
+				tswr.isRW AS isRW,
+				tswr.giveUpRepairStatus,
+				tswtt.ratePrice,
+				tswtt.payTime  AS payTime,
+				tswtt.remAccount ,
+				tswtt.isPay,
+				swp.expressCompany,
+				swp.expressNO
+		FROM  t_sale_workflow AS tsw
+		INNER JOIN t_sale_sxdwmanage AS tss ON tsw.sxdwId = tss.cId
+		INNER JOIN t_sale_workflow_related AS tswre ON tsw.rfild = tswre.id
+		INNER JOIN t_sale_zbxhmanage AS tsz ON tsw.xhId =tsz.mId
+		LEFT JOIN t_sale_workflow_repair AS tswr ON tsw.id = tswr.wfId 
+		LEFT JOIN t_sale_workflow_totalpay AS tswtt ON tsw.repairnNmber = tswtt.repairNumber
+		LEFT JOIN t_sale_workflow_pack AS swp ON tsw.repairnNmber = swp.repairnNmber	
+		<where>
+			and tss.phone = #{po.phone}
+			<if test="po.repairnNmber != null and po.repairnNmber != ''">
+				and tsw.repairnNmber =#{po.repairnNmber}
+			</if>
+			<!-- imei模糊查询 -->
+			<if test="po.searchPrice != null and po.searchPrice != '' and po.searchPrice=='price' ">
+				and tsw.state = 9
+			</if>
+			<if test="po.searchPrice != null and po.searchPrice != '' and po.searchPrice=='repair' ">
+				and ( tsw.state = 2 or tsw.state = 4 or tsw.state = 6 or tsw.state = 10 )
+			</if>
+			<if test="po.searchPrice != null and po.searchPrice != '' and po.searchPrice=='ficheck' ">
+				and tsw.state = 5
+			</if>
+			<if test="po.searchPrice != null and po.searchPrice != '' and po.searchPrice=='packed' ">
+				and tsw.state = -1
+			</if>
+			<if test="po.searchPrice != null and po.searchPrice != '' and po.searchPrice=='pack' ">
+				and ( tsw.state = 7 or tsw.state = 8)
+			</if>
+			<if test="po.imei != null and po.imei != ''"> and tsw.imei like concat('%', '${po.imei}', '%')</if>
+			<if test="po.treeMonth != null and po.treeMonth != ''"> AND date_format(tsw.acceptanceTime,'%Y-%m') = #{po.treeMonth} </if>
+			<if test="po.startTime != null and po.startTime != ''"> AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+		 	<if test="po.endTime != null and po.endTime != ''"> AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+		</where>
+		ORDER BY date_format(tsw.acceptanceTime,'%Y-%m-%d') DESC, tsw.repairnNmber, tsw.state
+   </select>
+   
+    <select id="getSumCount"  resultType="String"  parameterType="CustomerClient">
+    	SELECT  COUNT(1) AS totalsum 
+		FROM  t_sale_workflow AS tsw
+		LEFT  JOIN t_sale_workflow_related AS tswre  ON    tsw.rfild = tswre.id
+		LEFT  JOIN t_sale_zbxhmanage AS tsz   ON    tsw.xhId =tsz.mId
+		LEFT  JOIN t_sale_workflow_repair AS tswr  ON    tsw.id = tswr.wfId 
+		LEFT  JOIN t_sale_sxdwmanage AS   tss   ON  tsw.sxdwId =  tss.cId
+		<where>
+			<if test="repairnNmber != null and repairnNmber != ''">
+				tsw.repairnNmber =#{repairnNmber}
+			</if>
+		</where>
+		ORDER BY tsw.acceptanceTime ASC;
+    </select>
+    
+    <!-- 查询整批设备的维修费用 -->
+    <select id="sumRepairPrice" resultType="BigDecimal"  parameterType="CustomerClient">
+    	SELECT SUM(CASE giveUpRepairStatus WHEN '0' THEN  sumPrice ELSE 0 END ) as sumPrice from t_sale_workflow_repair where wfid in 
+    		(select id from t_sale_workflow where repairnNmber = #{repairnNmber})
+    </select>
+    
+    <select id="getSum"  resultType="CustomerClient"  parameterType="CustomerClient">
+    	SELECT logCost, prolongCost, totalMoney  AS totalPrice,
+    	 repairMoney AS sumRepair, ratePrice, batchPjCosts
+		FROM `t_sale_workflow_totalpay` 
+		<where>
+			<if test="repairnNmber != null and repairnNmber != ''">
+				repairNumber =#{repairnNmber}
+			</if>
+		</where>
+    </select>
+    
+    <select id="queryListClients" resultMap="queryList_resultMap" parameterType="CustomerClient">
+   	   	SELECT  tsw.id AS id ,
+				tss.cusName AS cusName,
+	      		tsw.imei AS imei,
+        		tsz.marketModel AS  marketModel,
+				tsw.isWarranty AS isWarranty,
+				tsw.acceptanceTime AS acceptTime,
+				tsw.state AS state,
+				tswre.sjfjDesc AS sjfjDesc,
+				tswre.cjgzDesc AS cjgzDesc,
+				tswre.zzgzDesc AS zzgzDesc,
+				tswre.wxbjDesc AS wxbjDesc,
+				CASE tswr.giveUpRepairStatus WHEN '0' THEN  tswr.sumPrice ELSE 0 END  AS sumPrice
+		FROM  t_sale_workflow AS tsw
+		LEFT  JOIN t_sale_workflow_related AS tswre  ON    tsw.rfild = tswre.id
+		LEFT  JOIN t_sale_zbxhmanage AS tsz   ON    tsw.xhId =tsz.mId
+		LEFT  JOIN t_sale_workflow_repair AS tswr  ON    tsw.id = tswr.wfId 
+		LEFT  JOIN t_sale_sxdwmanage AS   tss   ON  tsw.sxdwId =  tss.cId
+		<where>
+			<if test="po.repairnNmber != null and po.repairnNmber != ''">
+				tsw.repairnNmber =#{po.repairnNmber}
+			</if>
+		</where>
+		ORDER BY date_format(tsw.acceptanceTime,'%Y-%m-%d') DESC, tsw.repairnNmber, tsw.state
+   </select>
+    
+    <select id="getCJGZList" resultType="Cjgzmanage">
+		Select  
+		iid,
+		faultClass,
+		initheckFault,
+		description
+		from t_sale_cjgzmanage where iid in 
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">  
+		  #{item}  
+		 </foreach>
+	</select>
+	
+	<select id="getZZGZList" resultType="Zgzmanage">
+		Select  
+		id,
+		faultType,
+		proceMethod,
+		modelType,
+		remark,
+		isSyncSolution
+		from t_sale_zgzmanage where id in 
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">  
+		  #{item}  
+		 </foreach>
+	</select>
+	
+	<select id="getSJFJList" resultType="Sjfjmanage">
+		Select  
+		eid,
+		category,
+		brand,
+		name,
+		color,
+		`number`
+		from t_sale_sjfjmanage where eid in 
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">  
+		  #{item}  
+		 </foreach>
+	</select>
+	
+	<select id="getWxbjList" resultType="RepairPriceManage">
+		Select  
+		rid,
+		amount,
+		price,
+		priceNumber,
+		model,
+		repairType
+		from t_sale_repair_price where rid in 
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">  
+		  #{item}  
+		 </foreach>
+	</select>
+	
+	<select id="getPayState" resultType="int" parameterType="String">
+		SELECT isPay FROM `t_sale_workflow_totalpay` WHERE repairNumber=#{repairNumber} LIMIT 1;
+	</select>
+	
+	<select id="updateFeedback"  statementType="CALLABLE">
+        CALL proc_update_updateFeedback();
+    </select>
+    
+    <select id="repairNumberList" parameterType="CustomerClient" resultType="Workflow">
+		 SELECT sxdw.cusName w_cusName, tw.repairnNmber, DATE_FORMAT(tw.acceptanceTime,'%Y-%m-%d') acceptanceTime, swp.packTime w_packTime,
+	    		CASE swp.packState WHEN 1 THEN '已完成' ELSE '维修中' END  AS stateStr   		
+		FROM t_sale_workflow tw 
+		LEFT JOIN t_sale_sxdwmanage sxdw ON tw.sxdwId = sxdw.cId
+		LEFT JOIN t_sale_workflow_pack swp ON tw.repairnNmber = swp.repairnNmber 
+		<where>
+			sxdw.phone = #{po.phone}
+			<if test="po.searchKey != null and po.searchKey != '' "> and tw.repairnNmber  =  #{po.searchKey}</if>
+		</where> 
+		 GROUP BY tw.repairnNmber 
+		 ORDER BY tw.acceptanceTime DESC
+    </select>
+    
+    <select id="getLatestRepairNumber" parameterType="String" resultType="String">
+        SELECT tsw.repairnNmber
+		FROM
+			t_sale_workflow AS tsw,
+		    t_sale_sxdwmanage AS tss 
+	   	WHERE tsw.sxdwId = tss.cId AND tss.phone = #{phone}
+	   	ORDER BY tsw.acceptanceTime desc
+	   	LIMIT 1
+    </select>
+    
+    <!-- 查询所有受理的月份  -->
+    <select id="getAcceptanceTimeList" parameterType="String" resultType="String">
+        SELECT DATE_FORMAT(tsw.acceptanceTime,'%Y-%m')
+		FROM
+			t_sale_workflow AS tsw,
+		    t_sale_sxdwmanage AS tss 
+	    WHERE tsw.sxdwId = tss.cId AND tss.phone = #{phone}
+		GROUP BY DATE_FORMAT(tsw.acceptanceTime,'%Y-%m')
+	   	ORDER BY DATE_FORMAT(tsw.acceptanceTime,'%Y-%m') desc
+    </select>
+    
+    <!-- 查询选定月的所有批次号 -->
+    <select id="getRepairNumberByTreetime" parameterType="String" resultType="String">
+        SELECT CONCAT_WS('--',tsw.repairnNmber,DATE_FORMAT(tsw.acceptanceTime,'%Y-%m-%d'))
+		FROM
+			t_sale_workflow AS tsw,
+		    t_sale_sxdwmanage AS tss 
+	   	WHERE tsw.sxdwId = tss.cId AND tss.phone = #{phone} AND DATE_FORMAT(tsw.acceptanceTime,'%Y-%m') = #{treeTime}
+	   	GROUP BY tsw.repairnNmber, DATE_FORMAT(tsw.acceptanceTime,'%Y-%m-%d')
+	   	ORDER BY DATE_FORMAT(tsw.acceptanceTime,'%Y-%m-%d') desc
+    </select>
+    
+    <!-- 修改信息前先判断该客户全部为已完成状态 -->
+     <select id="getStateByCId" parameterType="String" resultType="int">
+         SELECT CASE WHEN count(1) > 0 THEN 1 ELSE 0 END
+		FROM
+			t_sale_workflow AS tsw,
+		    t_sale_sxdwmanage AS tss 
+	   	WHERE tsw.sxdwId = tss.cId AND tsw.sxdwId = #{cId} AND tsw.state != -1
+    </select>
+   <!-- ============================================ interface  End ============================================ -->
+      
+</mapper>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.exam.mapper.ExamGradeMapper">
+	
+	<sql id="selectAllFields">
+		select
+		id,
+		exam_id as examId,
+		examinee_id as examineeId,
+		examinee_name as examineeName,
+		grade,
+		grade_state as gradeState,
+		cost_time as costTime,
+		create_time as createTime
+		from z_exam_grade		
+	</sql>
+	
+	<!-- 分页查询考试成绩  -->
+	<select id="queryExamGradeListPage" resultType="ExamGrade"  parameterType="ExamGrade">
+		select
+			@rank:=@rank+1 as sortNo,
+			a.*
+		from (
+			select
+			g.id as id,
+			g.exam_id as examId,
+			g.examinee_id as examineeId,
+			g.examinee_name as examineeName,
+			g.grade as grade,
+			g.grade_state as gradeState,
+			g.cost_time as costTime,
+			g.create_time as createTime,
+			e.exam_name as examName
+			from z_exam_grade g
+			left join z_exam e
+			on g.exam_id = e.exam_id
+			where 1=1  
+			<if test="examGrade.examId != null and examGrade.examId != ''"> and g.exam_id like concat('%', '${examGrade.examId}', '%')</if>
+	        <if test="examGrade.examineeName != null and examGrade.examineeName != ''"> and g.examinee_name like concat('%', '${examGrade.examineeName}', '%')</if>	
+			<if test="examGrade.gradeState != null and examGrade.gradeState != '' or examGrade.gradeState == 0"> and g.grade_state = #{examGrade.gradeState}</if>	
+			order by createTime desc
+		) a,  (select @rank:= 0) b
+	</select>
+	
+	<!-- 根据考试id和考生id更新考试表数据  -->
+	<update id="updateExamGradeByExamId">
+		update z_exam_grade
+		set grade = (
+			select 
+			sum(examinee_score) as grade
+			from z_exam_answer 
+			where topic_id 
+			in 
+			(
+				select t.topic_id
+					from z_exam e
+				left join z_exam_topic t
+				on e.exam_id = t.exam_id
+				where e.exam_id = #{examId}
+			)
+			and examinee_id = #{examineeId}
+		), grade_state = 1
+		where exam_id = #{examId}
+		and examinee_id = #{examineeId}
+	</update>
+	
+	<!-- 查询考生某场考试选择题和判断题答案  -->
+	<select id="listExamAnswer" resultType="cn.concox.vo.exam.ExamAnswer">
+		SELECT
+		an.answer_id as answerId,
+		an.topic_id as topicId,
+		an.examinee_answer as examineeAnswer,
+		top.topic_type as topicType
+		FROM 
+		z_exam_answer an
+		LEFT JOIN z_exam_topic top 
+		ON top.topic_id = an.topic_id
+		WHERE
+		exam_id = #{examId} AND examinee_id = #{examineeId} AND top.topic_type IN (1, 2)
+    </select>
+    
+    <update id="updateExamGrade" parameterType="cn.concox.vo.exam.ExamGrade">
+        UPDATE 
+        z_exam_grade
+        <set>
+	        <if test="gradeState != null and gradeState != '' or gradeState == 0">
+	            grade_state = #{gradeState},
+	        </if>
+	        <if test="costTime != null and costTime != '' or gradeState == 0">
+	            cost_time = #{costTime}
+	        </if>
+        </set>
+        WHERE
+        exam_id = #{examId} AND examinee_id = #{examineeId}
+    </update>
+	
+</mapper>

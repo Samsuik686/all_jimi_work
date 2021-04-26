@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.workflow.mapper.WorkflowTestMapper">
+
+   <resultMap id="queryList_resultMap" type="WorkflowTest" >
+   </resultMap>
+   
+   <select id="workflowTestList" parameterType="Workflow" resultType="Workflow">
+   		SELECT swt.tid, swt.test_result AS testResult, swt.test_status AS testStatus, swt.data_source AS dataSource, 
+   			   swt.send_time AS sendTime, swt.test_person AS testPerson,
+			   sw.id, sw.imei, sw.repairnNmber, sw.isWarranty, sw.acceptanceTime, sw.remark, sw.acceptRemark, 
+			   sw.repairNumberRemark, sw.accepter, sw.lockId, sw.bluetoothId, sw.lockInfo,
+			   sx.cusName AS w_cusName, sx.phone AS w_phone, CONCAT(zb.marketModel,'|',zb.model) as w_model, wr.sjfjDesc AS w_sjfjDesc,
+			   wr.cjgzDesc AS w_cjgzDesc, wr.zzgzDesc  AS w_zzgzDesc, wr.wxbjDesc  AS w_wxbjDesc, swr.solution AS w_solution, 
+			   swr.engineer AS w_engineer, swr.isRW AS w_isRW
+		FROM t_sale_workflow_test swt INNER JOIN t_sale_workflow sw ON swt.wfId = sw.id 
+		LEFT JOIN t_sale_workflow_repair swr ON swr.wfId = sw.id 
+		LEFT JOIN t_sale_workflow_related wr ON sw.rfild = wr.id
+		LEFT JOIN t_sale_zbxhmanage zb ON sw.xhId = zb.mId
+		LEFT JOIN t_sale_sxdwmanage sx ON sw.sxdwId = sx.cId
+   		<where>
+   			<if test="po.imei != null and po.imei != '' ">AND sw.imei = #{po.imei}</if>
+   			<if test="po.lockId != null and po.lockId != ''"> AND sw.lockId = #{po.lockId}</if>
+   			<if test="po.testStatus != null and po.testStatus == 1 ">AND swt.test_status IN (0,1,2,3,4)</if>
+   			<if test="po.testStatus != null and po.testStatus == 2 ">AND swt.test_status = -1</if>
+   			<if test="po.startTime != null and po.startTime != '' ">AND  date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+   			<if test="po.endTime != null and po.endTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>  			
+   			<if test="po.treeDate != null and po.treeDate != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') = #{po.treeDate}</if>
+   		</where>
+   </select>
+   
+   <select id="getWorkflowTestByWfId" parameterType="String" resultType="WorkflowTest">
+   		SELECT tid, wfId, test_result AS testResult, test_time AS testTime,
+   				test_person AS testPerson, test_status AS testStatus, data_source AS dataSource, send_time AS sendTime 
+   		 FROM t_sale_workflow_test WHERE wfId = #{wfId} LIMIT 1;   	
+   </select>
+   
+   <insert id="insert" parameterType="WorkflowTest">
+   		INSERT INTO t_sale_workflow_test
+   			(wfId,test_result,test_time,test_person,test_status,data_source,send_time) 
+ 		VALUES 
+   			(#{wfId},NULL,NULL,#{testPerson},#{testStatus},#{dataSource},#{sendTime}) 	
+   </insert>
+   
+   <update id="update" parameterType="WorkflowTest">
+   		UPDATE t_sale_workflow_test
+   		<set>
+	   		<if test="testResult != null"> test_result = #{testResult}, </if>
+	   		<if test="testTime != null"> test_time = #{testTime}, </if>
+	   		<if test="testPerson != null"> test_person = #{testPerson}, </if>
+	   		<if test="testStatus != null"> test_status = #{testStatus}, </if>
+	   		<if test="dataSource != null"> data_source = #{dataSource}, </if>
+	   		update_datetime = NOW()
+   		</set>   		   		
+   		WHERE wfId = #{wfId}
+   </update>
+   
+   <update id="updateStatus" parameterType="String">
+   		UPDATE t_sale_workflow_test 
+   		SET test_status = #{status}, update_datetime = NOW()
+   		WHERE wfId IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </update>
+    
+    <update id="updateTestPerson" parameterType="String">
+   		UPDATE t_sale_workflow_test 
+   		SET test_person = #{testPerson}, update_datetime = NOW()
+   		WHERE wfId IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </update>
+    
+    <!-- 测试工站查询选中的数据是否有不是已完成？有：不允许点击返回数据来源工站 -->
+	<select id="getCountToComeBackByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_test
+		WHERE test_status = 3
+		AND wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	  <!-- 测试工站查询选中的数据是否有不是未发送？有：不允许点击修改 -->
+	<select id="getCountUpdateByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_test
+		WHERE wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		AND test_status != -1
+	</select>
+ </mapper>

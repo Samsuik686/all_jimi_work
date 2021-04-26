@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<common>
+	<!--resouce资源路径配置 -->
+	<resource-root>res</resource-root>
+	<!--测试环境-->
+   	 <!-- <oaAccessProjectName>oa-web</oaAccessProjectName>    -->  
+	<!--线上环境-->
+    <oaAccessProjectName>sale-web</oaAccessProjectName>
+</common>

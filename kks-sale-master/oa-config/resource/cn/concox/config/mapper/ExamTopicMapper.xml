@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.exam.mapper.ExamTopicMapper">
+	
+	<!-- 插入列表 -->
+	<insert id="insertList" parameterType="java.util.List" useGeneratedKeys="true">
+		insert into z_exam_topic 
+		( 
+			topic_id,
+			exam_id,
+			topic_sequence,
+			topic_type,
+			topic_description,
+			topic_score,
+			topic_answer,
+			topic_option_a,
+			topic_option_b,
+			topic_option_c,
+			topic_option_d
+		)
+		values 
+		<foreach collection="list"  index= "index" item="item" separator="," >
+			(
+				#{item.topicId},
+				#{item.examId},
+				#{item.topicSequence},
+				#{item.topicType},
+				#{item.topicDescription},
+				#{item.topicScore},
+				#{item.topicAnswer},
+				#{item.topicOptionA},
+				#{item.topicOptionB},
+				#{item.topicOptionC},
+				#{item.topicOptionD}
+			)
+		</foreach>
+	</insert>
+	
+	<!-- 批量删除  -->
+	<delete id="deleteList">
+		delete from z_exam_topic
+		where exam_id in
+		<foreach item="examId" collection="examIds" open="(" separator="," close=")">
+			#{examId}
+		</foreach>
+	</delete>
+	
+</mapper>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.basicdata.mapper.PricePjMapper">
+
+   <resultMap id="queryList_resultMap" type="PricePj" >
+   </resultMap>
+   
+   <sql id="selectAllFields">
+       SELECT id, mid, proNO, proName, marketModel, retailPrice, pjNumber, repairNumber, cusName, offer
+	   FROM t_sale_price_pj
+    </sql>
+   
+   <select id="getT" parameterType="String" resultType="PricePj">
+   		<include refid="selectAllFields"></include>
+        WHERE id = #{id}
+    </select>
+
+	<select id="getByMid" parameterType="String" resultType="PricePj">
+      <include refid="selectAllFields"></include>
+        WHERE mid = #{mid}
+    </select>
+    
+    <insert id="insert" parameterType="PricePj">
+        INSERT INTO t_sale_price_pj (id,
+            mid, proNO, proName, marketModel, retailPrice, pjNumber, repairNumber, cusName, offer
+        ) VALUES (#{id},
+            #{mid},
+            (select proNO from t_sale_pjlmanage where pjlId = #{mid}),
+            (select proName from t_sale_pjlmanage where pjlId = #{mid}),
+            (select marketModel from t_sale_pjlmanage where pjlId = #{mid}),
+            IFNULL((select retailPrice from t_sale_pjlmanage where pjlId = #{mid}),0),
+             #{pjNumber}, #{repairNumber}, #{cusName}, #{offer}
+        )
+    </insert>
+
+    <update id="update" parameterType="PricePj">
+        UPDATE t_sale_price_pj
+        <set>
+            <if test="mid != null"> mid = #{mid}, </if>
+            <if test="proNO != null and proNO != ''"> proNO = #{proNO}, </if>
+            <if test="proName != null and proName != ''"> proName = #{proName}, </if>
+            <if test="marketModel != null and marketModel != ''"> marketModel = #{marketModel}, </if>
+            <if test="retailPrice != null"> retailPrice = #{retailPrice}, </if>
+            <if test="pjNumber != null"> pjNumber = #{pjNumber}, </if>
+            <if test="repairNumber != null and repairNumber != ''"> repairNumber = #{repairNumber}, </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteInfo" parameterType="String">
+        DELETE FROM t_sale_price_pj
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <select id="queryListPage" resultMap="queryList_resultMap" parameterType="PricePj">
+      <include refid="selectAllFields"></include>
+	    <where>
+	    	<if test="po.marketModel != null and po.marketModel != ''"> and marketModel like concat('%', '${po.marketModel}', '%')</if>
+		    <if test="po.proNO != null and po.proNO != ''"> and proNO = #{po.proNO}</if>
+			<if test="po.proName != null and po.proName != ''"> and proName like concat('%', '${po.proName}', '%')</if>
+	    </where>
+	    order by id
+    </select>
+    
+    <select id="queryList" resultMap="queryList_resultMap" parameterType="PricePj">
+		<include refid="selectAllFields"></include>
+	    <where>
+			repairNumber = #{repairNumber}
+	    	<if test="marketModel != null and marketModel != ''"> and marketModel like concat('%', '${marketModel}', '%')</if>
+		    <if test="proNO != null and proNO != ''"> and proNO = #{proNO}</if>
+			<if test="proName != null and proName != ''"> and proName like concat('%', '${proName}', '%')</if>
+	    </where>
+	    order by id
+    </select>
+    
+    <select id="queryListByrepairNumber" resultMap="queryList_resultMap" parameterType="String">
+		<include refid="selectAllFields"></include>
+	    where repairNumber = #{repairNumber}
+	    order by id
+    </select>
+    
+    <!-- FIND_IN_SET 查询传入参数rid在表中的列 wxbjDesc中的下标，下标从1开始 -->
+	<select id="findCountForPricePj" parameterType="String" resultType="int">
+		SELECT count(mid) FROM t_sale_price_pj
+		<where>
+			FIND_IN_SET(#{id}, t_sale_price_pj.mid)
+			<if test="repairNumber != null and repairNumber != ''"> And repairNumber = #{repairNumber}</if>
+		</where>
+	</select>
+    
+    <!-- 批次配件费  -->
+	<select id="getPricePjCosts" parameterType="String" resultType="BigDecimal">
+		SELECT
+ 		SUM(retailPrice*pjNumber)
+		FROM
+		t_sale_price_pj
+		WHERE
+   		repairNumber = #{repairNumber}
+	</select>
+</mapper>

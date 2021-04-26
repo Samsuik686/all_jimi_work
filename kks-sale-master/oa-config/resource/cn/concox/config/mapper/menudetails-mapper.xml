@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.system.mapper.MenusDetailsMapper">
+	<resultMap type="MenuDetails" id="resultMap_menusDetails">
+		<result property="menuId" column="menuId"/>
+		<result property="functionId" column="functionId"/>
+		<result property="functionURL" column="functionURL"/>
+		<result property="functionDesc" column="functionDesc"/>
+		<result property="creater" column="creater"/>
+		<result property="creatTime" column="creatTime"/>
+		<result property="orderindex" column="orderindex"/>
+		
+	<!--一对多 -->
+	</resultMap>
+	<select id="queryList" resultMap="resultMap_menusDetails" parameterType="MenuDetails">
+		 select menuId,functionId,functionURL,functionDesc,creater,creatTime from t_oa_menus_details
+		 	<where>
+		 		<if test="menuId != null">
+		 			menuId=#{menuId}
+		 		</if>
+		 		<if test="functionId != null">
+		 			and functionId=#{functionId}
+		 		</if>
+		 	</where>
+	</select>
+	
+
+	
+	<insert id="insert" parameterType="MenuDetails">
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="functionId"> 
+        	SELECT LAST_INSERT_ID() AS functionId
+    	</selectKey>
+		insert into t_oa_menus_details(menuId,functionURL,functionDesc,creater,creatTime)
+		values(#{menuId},#{functionURL},#{functionDesc},#{creater},#{creatTime})
+	</insert>
+	
+	<delete id="delete" parameterType="MenuDetails">
+		delete from t_oa_menus_details where functionId=#{functionId}
+    </delete>
+    
+    <delete id="deleteByMenuId" parameterType="MenuDetails">
+		delete from t_oa_menus_details where menuId=#{menuId}
+    </delete>
+	
+	 
+	<update id="update" parameterType="MenuDetails" >
+	update t_oa_menus_details set functionURL=#{functionURL},functionDesc=#{functionDesc},creater=#{creater},creatTime=#{creatTime}
+         where functionId=#{functionId}
+    </update>
+    
+    
+    
+    
+    
+	
+</mapper>

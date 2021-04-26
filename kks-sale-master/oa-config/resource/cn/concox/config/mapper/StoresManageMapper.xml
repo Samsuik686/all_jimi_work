@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.material.mapper.StoresManageMapper">
+  
+  <sql id="selectAllFields">
+        SELECT 
+        id,did, oid, tid, depotName, outPutType, 
+        type, createTime, enableFalg
+        FROM t_sale_materiel_depot
+    </sql>
+    
+   <insert id="insert" parameterType="StoresManage">
+        INSERT INTO t_sale_materiel_depot (id,
+            did, oid, tid, depotName, outPutType, 
+            type, createTime, enableFalg
+        ) VALUES (#{id},
+            #{did}, #{oid}, #{tid}, #{depotName}, #{outPutType}, 
+            #{type}, #{createTime}, #{enableFalg}
+        )
+    </insert>
+  <update id="update" parameterType="StoresManage">
+        UPDATE t_sale_materiel_depot
+        <set>
+            <!-- <if test="did != null and did != ''"> did = #{did}, </if>
+            <if test="oid != null and oid != ''"> oid = #{oid}, </if>
+            <if test="tid != null and tid != ''"> tid = #{tid}, </if>
+            <if test="depotName != null and depotName != ''"> depotName = #{depotName}, </if>
+            <if test="outPutType != null and outPutType != ''"> outPutType = #{outPutType}, </if>
+            <if test="type != null and type != ''"> type = #{type}, </if>
+            <if test="createTime != null"> createTime = #{createTime}, </if> -->
+            <if test="enableFalg != null"> enableFalg = #{enableFalg}, </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+   <delete id="delete">
+        DELETE FROM t_sale_materiel_depot
+        WHERE id =#{id}
+    </delete>
+
+  <select id="select" parameterType="StoresManage" resultType="StoresManage">
+        <include refid="selectAllFields" />
+        <where>
+        <if test="enableFalg != null">  and enableFalg = #{enableFalg} </if>
+        <if test="did != null and did != ''">
+                 and did like concat('%', '${did}', '%')
+            </if>
+            <if test="oid != null and oid != ''">
+                 and oid like concat('%', '${oid}', '%')
+            </if>
+            <if test="tid != null and tid != ''">
+                 and tid like concat('%', '${tid}', '%')
+            </if>
+        </where>
+         and id = #{id}
+    </select>
+   
+   <select id="queryList" resultType="StoresManage">
+        <include refid="selectAllFields" />
+        <where>
+            <if test="did != null and did != ''">
+                 and did like concat('%', '${did}', '%')
+            </if>
+            <if test="oid != null and oid != ''">
+                 and oid like concat('%', '${oid}', '%')
+            </if>
+            <if test="tid != null and tid != ''">
+                 and tid like concat('%', '${tid}', '%')
+            </if>
+            <if test="depotName != null and depotName != ''">
+                 and depotName like concat('%', '${depotName}', '%')
+            </if>
+            <if test="outPutType != null and outPutType != ''">
+                 and outPutType like concat('%', '${outPutType}', '%')
+            </if>
+            <if test="type != null and type != ''">
+                 and type like concat('%', '${type}', '%')
+            </if>
+            <if test="createTime != null">
+                 and createTime = #{createTime} 
+            </if>
+            <if test="enableFalg != null">
+                 and enableFalg = #{enableFalg} 
+            </if>
+        </where>
+         order by id desc
+    </select>
+</mapper>

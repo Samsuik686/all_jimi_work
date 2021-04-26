@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.material.mapper.ChangeboardMapper">
+	<resultMap type="Changeboard" id="Changeboard">
+	</resultMap>
+
+	<!-- 分页查询 -->
+	<select id="getListPage" parameterType="Changeboard"
+		resultMap="Changeboard">
+		<include refid="selectAllFields" />
+		<where>
+			<if test="po.applicater != null and po.applicater != ''"> AND applicater like concat('%', '${po.applicater}', '%') </if>
+			<if test="po.repairOrTest != null and po.repairOrTest != ''"> AND repairOrTest like concat('%', '${po.repairOrTest}', '%') </if>
+			<if test="po.startTime != null and po.startTime != ''"> AND date_format(appTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+			<if test="po.endTime != null and po.endTime != ''"> AND date_format(appTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			<if test="po.state != null and po.state == 1"> AND (state = 0 or state = 1 or state = 3 or state = 5) </if>
+			<if test="po.state != null and po.state == 2"> AND (state = 2 or state = 4) </if>
+			<if test="po.state != null and po.state == 3"> AND state = 6 </if>
+		</where>
+		order by appTime desc
+	</select>
+
+	<select id="getT" parameterType="Integer" resultType="Changeboard">
+		<include refid="selectAllFields" />
+		WHERE id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="Changeboard">
+		INSERT INTO t_sale_changeboard (
+           wfId, cusName, imei, model, isWarranty, number, applicater, appTime, repairOrTest, purpose, state, 
+           charger, chargerUpdateTime, manager, managerUpdateTime, serviceCharger, serviceUpdateTime, testBackTime, sendFlag, remark
+        ) VALUES (
+          #{wfId}, #{cusName}, #{imei}, #{model}, #{isWarranty}, #{number}, #{applicater}, #{appTime}, #{repairOrTest}, #{purpose}, #{state}, 
+           #{charger}, #{chargerUpdateTime}, #{manager}, #{managerUpdateTime}, #{serviceCharger}, #{serviceUpdateTime}, #{testBackTime}, #{sendFlag}, #{remark}
+        )
+	</insert>
+
+	<update id="update" parameterType="Changeboard">
+		UPDATE t_sale_changeboard
+		<set>
+			<if test="cusName != null and cusName != ''"> cusName = #{cusName}, </if>
+            <if test="imei != null and imei != ''"> imei = #{imei}, </if>
+            <if test="model != null and model != ''"> model = #{model}, </if>
+            <if test="isWarranty != null"> isWarranty = #{isWarranty}, </if>
+            <if test="number != null"> number = #{number}, </if>
+            <if test="applicater != null and applicater != ''"> applicater = #{applicater}, </if>
+            <if test="appTime != null"> appTime = #{appTime}, </if>
+            <if test="repairOrTest != null and repairOrTest != ''"> repairOrTest = #{repairOrTest}, </if>
+            <if test="purpose != null and purpose != ''"> purpose = #{purpose}, </if>
+            <if test="state != null"> state = #{state}, </if>
+            <if test="charger != null and charger != ''"> charger = #{charger}, </if>
+            <if test="chargerUpdateTime != null"> chargerUpdateTime = #{chargerUpdateTime}, </if>
+            <if test="manager != null and manager != ''"> manager = #{manager}, </if>
+            <if test="managerUpdateTime != null"> managerUpdateTime = #{managerUpdateTime}, </if>
+            <if test="serviceCharger != null and serviceCharger != ''"> serviceCharger = #{serviceCharger}, </if>
+            <if test="state != null and (state ==3 or state == 5 or state==6)"> serviceUpdateTime = #{serviceUpdateTime}, testBackTime = #{testBackTime},</if>
+            <if test="sendFlag != null"> sendFlag = #{sendFlag}, </if>
+            <if test="remark != null"> remark = #{remark}, </if>
+        </set>
+		WHERE id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="Changeboard">
+		DELETE FROM	t_sale_changeboard where id = #{id}
+	</delete>
+
+	<select id="queryList" parameterType="Changeboard" resultMap="Changeboard">
+		<include refid="selectAllFields" />
+		 <where>
+		 	<if test="applicater != null and applicater != ''"> and applicater like concat('%', '${applicater}', '%')  </if>
+            <if test="repairOrTest != null and repairOrTest != ''"> and repairOrTest like concat('%', '${repairOrTest}', '%')  </if>
+           	<if test="startTime != null and startTime != ''"> AND date_format(appTime,'%Y-%m-%d') &gt;= #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> AND date_format(appTime,'%Y-%m-%d') &lt;= #{endTime} </if>
+        </where>
+		order by appTime desc
+	</select>
+
+	<sql id="selectAllFields">
+		SELECT id, wfId, cusName, imei, model, isWarranty, number, applicater, appTime, repairOrTest, purpose, state,
+				charger, chargerUpdateTime, manager, managerUpdateTime, serviceCharger, serviceUpdateTime, testBackTime, sendFlag, remark
+        FROM t_sale_changeboard
+	</sql>
+
+	<!-- 申请时看是否已申请，且未完成 -->
+ 	<select id="getCountByWfId" parameterType="Integer" resultType="int">
+		SELECT count(1) FROM t_sale_changeboard
+		WHERE wfId = #{wfId} AND state != 6
+	</select>	
+
+    <!-- imei、申请日期、申请人是否为同一条数据 -->
+    <select id="isExists" parameterType="Changeboard" resultType="int">
+		SELECT count(1) FROM t_sale_changeboard
+		WHERE imei = #{imei} AND appTime = #{appTime} AND applicater = #{applicater}
+		<if test ="id !=null"> AND id != #{id} </if>
+	</select>
+</mapper>

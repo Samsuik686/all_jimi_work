@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.materialManage.mapper.ProductMaterialMapper">
+
+   <resultMap id="queryList_resultMap" type="ProductMaterial" >
+   </resultMap>
+   
+   <sql id="selectAllFields">
+   		SELECT id, project_name AS projectName, model, market_model AS marketModel, product_name AS productName,
+		pro_num AS proNum, pro_type AS proType, pro_child_type AS proChildType, trademark, series, pro_color AS proColor,
+		customer_name AS customerName, create_time AS createTime, create_user AS createUser, update_time AS updateTime, update_user AS updateUser
+		from t_sale_product_material	
+   </sql>
+   
+   	<select id="productMaterialPageList" parameterType="ProductMaterial" resultType="ProductMaterial">
+		<include refid="selectAllFields"/>		
+		<where>
+			<if test="po.marketModel != null and po.marketModel != ''"> and market_model  like concat('%', '${po.marketModel}', '%')</if>
+			<if test="po.createUser != null and po.createUser != ''"> and create_user = #{po.createUser}</if>
+			<if test="po.model != null and po.model != ''"> and model  like concat('%', '${po.model}', '%')</if>
+			<if test="po.proNum != null and po.proNum != ''"> and trim(pro_num) = #{po.proNum}</if>
+			<if test="po.projectName != null and po.projectName != ''"> and project_name like concat('%', '${po.projectName}', '%')</if>
+			<if test="po.startTime != null and po.startTime != ''"> and date_format(create_time,'%Y-%m-%d') &gt;= #{po.startTime}</if>
+			<if test="po.endTime != null and po.endTime != ''"> and date_format(create_time,'%Y-%m-%d') &lt;= #{po.endTime}</if>
+			<if test="po.id != null"> and id = #{po.id}</if>			
+		</where> 
+		ORDER BY id DESC 	
+   </select>
+
+   <insert id="insert" parameterType="ProductMaterial" useGeneratedKeys="true" keyProperty="id">
+	   	INSERT INTO t_sale_product_material (project_name, model, market_model, product_name, pro_num, pro_type, 
+	   	pro_child_type, trademark, series, pro_color, customer_name, create_time, create_user, update_time, update_user) 
+	   	VALUES
+	   	(
+	   	#{projectName},#{model},#{marketModel},#{productName},#{proNum},#{proType},#{proChildType},#{trademark},#{series},
+	   	#{proColor},#{customerName},#{createTime},#{createUser},#{updateTime},#{updateUser}
+	   	)
+   </insert>
+   
+   <update id="update" parameterType="ProductMaterial">
+   		UPDATE t_sale_product_material
+   		<set>
+   			pro_num = #{proNum}, pro_type= #{proType}, pro_child_type = #{proChildType}, trademark = #{trademark},
+   			series = #{series}, pro_color = #{proColor}, customer_name = #{customerName}, update_time = #{updateTime}, 
+   			update_user= #{updateUser},
+   			<if test="projectName != null ">project_name = #{projectName},</if>
+   			<if test="model != null ">model = #{model},</if>
+   			<if test="marketModel != null "> market_model = #{marketModel},</if>
+   			<if test="productName !=null ">product_name = #{productName},</if>
+   		</set>
+   		WHERE id = #{id}
+   </update>
+   
+   <delete id="delete" parameterType="ProductMaterial">
+   		DELETE FROM t_sale_product_material where id = #{id}
+   </delete>
+   
+   <!-- 添加附件信息 -->
+   <insert id="insertProductFile" parameterType="ProductMaterialFile">
+   		INSERT INTO t_sale_product_material_file ( pid, file_url, file_name, create_user, create_time, file_type) 
+   		VALUES
+   		(
+   			#{pid}, #{fileUrl}, #{fileName}, #{createUser}, #{createTime}, #{fileType}
+   		)
+   	</insert>
+   	
+   	<!-- 删除附件信息 -->
+   	<delete id="deleteProductFileById" parameterType="ProductMaterialFile">
+   		DELETE FROM t_sale_product_material_file WHERE 
+   		<choose>
+   			<when test="deleteType != null and deleteType == 'proId'">
+   			<!-- 根据pid删除 -->
+   				pid = #{pid}
+   			</when>
+   			<otherwise>
+   				fid = #{fid}
+   			</otherwise>
+   		</choose>
+   	</delete>
+   	
+   	 <!-- 根据产品材料查询附件信息 -->
+    <select id="getProductFileListByPid" parameterType="String" resultType="ProductMaterialFile">   	
+		select fid, pid, file_url AS fileUrl, file_name AS fileName, create_user AS createUser, create_time AS createTime, file_type AS fileType
+		from t_sale_product_material_file
+		<if test="pid != null">
+			 WHERE pid = #{pid}
+		</if>		
+    </select>
+    
+    <!-- 根据产品材料查询附件数量 -->
+    <select id="getProductFileCountListByPid" parameterType="String" resultType="ProductMaterialFile">   	
+		SELECT count(1) AS fileTypeCout,file_type AS fileType from t_sale_product_material_file
+		WHERE pid = #{pid}
+		GROUP BY file_type
+    </select>
+    
+     <!-- 根据项目和附件类型查询已上传的附件列表 -->
+    <select id="getProductFileListByProjectNameAndFileType" parameterType="ProductMaterialFile" resultType="ProductMaterialFile">   	
+		SELECT fid, project_name AS projectName, file_name fileName, tspmf.create_user createUser, file_url fileUrl, model, file_type fileType, tspmf.create_time AS createTime
+		FROM t_sale_product_material tspm
+		LEFT JOIN t_sale_product_material_file tspmf ON tspm.id = tspmf.pid
+		<where>
+		 project_name = #{projectName} AND file_type = #{fileType}
+		<if test="fileName != null and fileName != ''"> AND file_name like concat('%', '${fileName}', '%')</if>
+		</where>
+    </select>
+   
+     <!-- 查询附件列表 -->
+    <select id="getProductFileListByFid" parameterType="String" resultType="ProductMaterialFile">   	
+		SELECT fid, file_name fileName, file_url fileUrl, file_type AS fileType from t_sale_product_material_file
+		WHERE fid IN 
+		<foreach collection="array" item="fid" open="(" separator="," close=")">
+			#{fid}
+		</foreach>
+    </select>
+    
+    <!-- 新增时查询编码数量,提示是否已存在 -->
+    <select id="getProNumCount" parameterType="String" resultType="int">   	
+		SELECT count(pro_num) FROM t_sale_product_material WHERE TRIM(pro_num) = #{proNum}
+    </select>
+</mapper>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<common>
+	<!--resouce资源路径配置 -->
+	<resource-root>res</resource-root>
+	<!--测试环境-->
+   	 <!-- <oaAccessProjectName>oa-web</oaAccessProjectName>    -->  
+	<!--线上环境-->
+    <oaAccessProjectName>sale-web</oaAccessProjectName>
+	<!--系统邮箱发件账号 -->
+	<business-send-email>no-reply@concox.cn,NXVy0aeHs2ati30H</business-send-email>
+<!---->
+
+	<!--发送邮件的服务器地址 -->
+	<sendmail-serverhost>smtphz.qiye.163.com</sendmail-serverhost>
+
+	<!--发送邮件的端口 -->
+	<sendmail-serverport>25</sendmail-serverport>
+	<!--当邮件发送失败时，尝试发送邮件的次数 -->
+	<sendemial-numberoftimes>3</sendemial-numberoftimes>
+	<!-- 当邮件发送失败时,重试延迟时间，单位：毫秒 default 60000 -->
+	<sendFiedRetryTime>10000</sendFiedRetryTime>
+</common>

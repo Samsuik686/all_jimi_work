@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.workflow.mapper.WorkflowRepairMapper">
+
+    <!--  @author Li.Shangzhi  	  -->
+    <!--  @date 2016-08-16 09:51:32 -->
+    <!-- ============================================   interface  Start ============================================ -->
+
+    <resultMap id="queryList_resultMap" type="WorkflowRepair" ></resultMap>
+    
+    <sql id="selectAllFields">
+   		SELECT id as ID, 
+            wfId, isRW, isPay, engineer, repairState, hourFee, isPrice,
+            repairRemark, createTime, updateTime,sumPrice,repairAgainCount,solution,repairPrice,giveUpRepairStatus
+        FROM t_sale_workflow_repair
+    </sql>
+    
+    <select id="getRepairPage" resultMap="queryList_resultMap" parameterType="WorkflowRepair">
+		SELECT
+			tswr.id,tswr.wfId,tswr.isRW,tswr.isPay,tswr.engineer,tswr.repairState,tswr.repairRemark,tswr.createTime,zbxh.modelType AS repair_modelType,
+			tswr.updateTime,tswr.repairPrice,tswr.sumPrice,tswr.repairAgainCount,tswr.solution, tswr.hourFee,
+			tswr.priceRemark,tswr.solutionTwo,tswr.engineer,total.payTime AS repair_payTime
+		FROM
+			t_sale_workflow_repair AS tswr 
+		LEFT JOIN t_sale_workflow AS tsw ON tswr.wfId = tsw.id
+		LEFT JOIN t_sale_zbxhmanage AS zbxh ON tsw.xhId=zbxh.mId
+		LEFT JOIN t_sale_workflow_totalpay AS total ON total.repairNumber = tsw.repairnNmber
+		<where>
+            <if test="po.wfId != null"> and tswr.wfId = #{po.wfId} </if>
+            <if test="po.isRW != null"> and tswr.isRW = #{po.isRW} </if>
+            <if test="po.isPay != null"> and tswr.isPay = #{po.isPay} </if>
+            <if test="po.engineer != null and po.engineer != ''"> and tswr.engineer = #{po.engineer}</if>
+            <if test="po.createTime != null"> and tswr.createTime = #{po.createTime} </if>
+            <if test="po.updateTime != null"> and tswr.updateTime = #{po.updateTime} </if>
+            <if test="po.repair_repairnNmber != null and po.repair_repairnNmber != ''"> and tsw.repairnNmber like concat('%', '${po.repair_repairnNmber}', '%')</if>
+            <if test="po.repair_Imei != null and po.repair_Imei != ''"> and tsw.imei like concat('%', '${po.repair_Imei}', '%')</if>
+            <if test="po.repair_lockId != null and po.repair_lockId != ''"> and tsw.lockId = #{po.repair_lockId}</if>
+            <if test="po.repairAgainCount != null and po.repairAgainCount != ''"> and tswr.repairAgainCount = #{po.repairAgainCount} </if>
+        	<!-- 全部   | 待处理    /已处理 -->
+        	<if test="po.repairState != null and po.repairState == 0"> and tswr.repairState &lt;&gt; -1 </if>
+        	<if test="po.repairState != null and po.repairState == 1"> and tswr.repairState = -1</if>
+        	<if test="po.startTime != null and po.startTime != ''"> AND date_format(tswr.createTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+			<if test="po.endTime != null and po.endTime != ''"> AND date_format(tswr.createTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+       		<if test ="po.treeDate != null and po.treeDate != '' ">AND date_format(tswr.createTime,'%Y-%m-%d')= #{po.treeDate}</if>
+        </where>
+		ORDER BY tswr.createTime DESC
+    </select>
+    
+    <select id="getRepairList" resultMap="queryList_resultMap" parameterType="WorkflowRepair">
+		SELECT
+			tswr.id,tswr.wfId,tswr.isRW,tswr.isPay,tswr.engineer,tswr.repairState,tswr.repairRemark,tswr.createTime,zbxh.modelType AS repair_modelType,
+			tswr.updateTime,tswr.repairPrice,tswr.sumPrice,tswr.repairAgainCount,tswr.solution,tswr.hourFee,
+			tswr.priceRemark,tswr.solutionTwo,tswr.engineer,total.payTime AS repair_payTime, wp.createTime AS repair_sendPriceTime,
+			total.priceRemark AS repair_priceRemark, tsw.acceptRemark AS repair_acceptRemark, tsw.remark AS repair_remark, 
+			tsw.repairNumberRemark AS repair_repairNumberRemark, wp.onePriceRemark AS repair_onePriceRemark, tsw.insideSoftModel AS repair_insideSoftModel,
+			tsw.bill AS repair_bill,tsw.outCount AS repair_outCount,tsw.testMatStatus AS repair_testMatStatus,tsw.sfVersion AS repair_sfVersion,
+			wt.test_result AS testResult, wt.test_person AS testPerson, wt.test_time AS testTime
+		FROM
+			t_sale_workflow_repair AS tswr 
+		LEFT JOIN t_sale_workflow AS tsw ON tswr.wfId = tsw.id
+		LEFT JOIN t_sale_zbxhmanage AS zbxh ON tsw.xhId=zbxh.mId
+		LEFT JOIN t_sale_workflow_totalpay AS total ON total.repairNumber = tsw.repairnNmber
+		LEFT JOIN t_sale_workflow_price wp ON wp.wfId = tswr.wfId
+		LEFT JOIN t_sale_workflow_test wt ON wt.wfId = tswr.wfId
+		<where>
+            <if test="wfId != null"> and tswr.wfId = #{wfId} </if>
+            <if test="isRW != null"> and tswr.isRW = #{isRW} </if>
+            <if test="isPay != null"> and tswr.isPay = #{isPay} </if>
+            <if test="engineer != null and engineer != ''"> and tswr.engineer = #{engineer}</if>
+            <if test="createTime != null"> and tswr.createTime = #{createTime} </if>
+            <if test="updateTime != null"> and tswr.updateTime = #{updateTime} </if>
+            <if test="repair_repairnNmber != null and repair_repairnNmber != ''"> and tsw.repairnNmber like concat('%', '${repair_repairnNmber}', '%')</if>
+            <if test="repair_Imei != null and repair_Imei != ''"> and tsw.imei like concat('%', '${repair_Imei}', '%')</if>
+            <if test="repair_lockId != null and repair_lockId != ''"> and tsw.lockId = #{repair_lockId}</if>
+            <if test="repairAgainCount != null and repairAgainCount != ''"> and tswr.repairAgainCount = #{repairAgainCount} </if>
+        	<!-- 全部   | 待处理    /已处理 -->
+        	<if test="repairState != null and repairState == 0"> and tswr.repairState &lt;&gt; -1 </if>
+        	<if test="repairState != null and repairState == 1"> and tswr.repairState = -1</if>
+        	<if test="startTime != null and startTime != ''"> AND date_format(tswr.createTime,'%Y-%m-%d') &gt;= #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> AND date_format(tswr.createTime,'%Y-%m-%d') &lt;= #{endTime} </if>
+       		<if test ="treeDate != null and treeDate != '' ">AND date_format(tswr.createTime,'%Y-%m-%d')= #{treeDate}</if>
+       		<if test="repair_cusName != null and repair_cusName != ''">AND tsw.cusName like concat('%','${repair_cusName}','%')</if>
+        </where>
+		ORDER BY tswr.createTime DESC
+    </select>
+   
+    <select id="getT" parameterType="int" resultType="WorkflowRepair">
+        <include refid="selectAllFields" />
+      	WHERE id = #{id}
+    </select>
+    
+    <select id="getByImei" resultType="WorkflowRepair" >
+        <include refid="selectAllFields" />
+      	WHERE wfId in (
+			select id from t_sale_workflow
+			<where>
+				 AND imei=#{imei}
+				<if test="acceptTime != null and acceptTime != '' "> AND acceptanceTime = #{acceptTime}</if>
+			</where>
+			) ORDER BY id DESC LIMIT 1
+    </select>
+   
+    <insert id="insert" parameterType="WorkflowRepair">
+        INSERT INTO t_sale_workflow_repair (id,
+            wfId, isRW, isPay, engineer, repairState, 
+            repairRemark, createTime, updateTime,
+            sumPrice, repairAgainCount, solution, solutionTwo, isPrice
+        ) VALUES (#{id},
+            #{wfId}, #{isRW}, #{isPay}, #{engineer}, #{repairState}, 
+            #{repairRemark}, #{createTime}, #{updateTime},
+            #{sumPrice}, #{repairAgainCount}, #{solution}, #{solutionTwo}, 0
+        )
+    </insert>
+    
+     <update id="update" parameterType="WorkflowRepair">
+        UPDATE t_sale_workflow_repair
+        <set>
+            <if test="wfId != null"> wfId = #{wfId}, </if>
+            <if test="isRW != null"> isRW = #{isRW}, </if>
+            <if test="isPay != null"> isPay = #{isPay}, </if>
+            <if test="engineer != null and engineer != ''"> engineer = #{engineer}, </if>
+            <if test="repairState != null"> repairState = #{repairState}, </if>
+            <if test="repairRemark != null"> repairRemark = #{repairRemark}, </if>
+            <if test="updateTime != null"> updateTime = #{updateTime}, </if>
+            <if test="repairPrice != null"> repairPrice = #{repairPrice}, </if>
+            <if test="hourFee != null"> hourFee = #{hourFee}, </if>
+            <if test="sumPrice != null"> sumPrice = #{sumPrice}, </if>
+            <if test="solution != null"> solution = #{solution}, </if>
+            <if test="solutionTwo != null"> solutionTwo = #{solutionTwo}, </if>
+            <if test="priceRemark != null"> priceRemark = #{priceRemark}, </if>
+            <if test="isPrice != null"> isPrice = #{isPrice}, </if>
+            <if test="giveUpRepairStatus != null"> giveUpRepairStatus = #{giveUpRepairStatus}, </if>
+        </set>
+        WHERE wfId = #{wfId}
+    </update>
+    
+    <update id="updateState" parameterType="String">
+   		UPDATE t_sale_workflow_repair
+   		SET
+   			repairState = #{repairState}
+   		WHERE  wfId IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+     </update>
+     
+     <!-- 维修直接点击发送报价，该维修员已分拣的该批次下 已分拣，待维修的变为不报价，待维修  -->
+     <update id="updateStateByRepairNumber" parameterType="String">
+   		UPDATE t_sale_workflow_repair repa
+   		SET repa.repairState = #{repairState}
+   		WHERE  repa.wfId IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		and repa.wfId IN( 
+		select repa.wfid from
+				 (
+				 	SELECT wfr.wfId,wf.repairnNmber
+				 	FROM t_sale_workflow wf, t_sale_workflow_repair wfr
+				 	WHERE wf.id = wfr.wfId
+				 ) 
+				 as w
+			where 
+			
+			w.repairnNmber IN 
+   		<foreach collection="repairNumbers" item="repairNumber" open="(" separator="," close=")">
+			#{repairNumber}
+		</foreach>
+			and repa.wfid=w.wfid
+		)
+     </update>  
+     
+      <select id="getRepairByWfId" parameterType="int" resultType="WorkflowRepair">
+        <include refid="selectAllFields" />
+      	WHERE wfId = #{wfId}
+   </select>
+   
+   <delete id="doRZClear" parameterType="java.lang.Integer">
+		DELETE FROM t_sale_related_zzgz
+        WHERE rfild = #{rfild}   
+   </delete>
+   
+   <insert id="doREInsert" >
+   		INSERT INTO t_sale_related_zzgz (`rfild`, `zzgzDesc`,`zzgzGid`)
+		VALUES (#{rfild}, #{zzgzDesc}, #{zzgzGid});
+   </insert>
+   
+     <!--批量修改维修数据，报价  -->
+     <update id="beathUpdate" parameterType="WorkflowRepair">
+        UPDATE t_sale_workflow_repair
+        <set>
+            <if test="po.isPay != null"> isPay = #{po.isPay}, </if>
+            <if test="po.repairState != null"> repairState = #{po.repairState}, </if>
+            <if test="po.updateTime != null"> updateTime = #{po.updateTime}, </if>
+            <if test="po.isPrice != null"> isPrice = #{po.isPrice}, </if>
+            <if test="po.giveupPricePerson != null"> giveup_price_person = #{po.giveupPricePerson}, </if>
+            <if test="po.giveupPriceTime != null"> giveup_price_time = #{po.giveupPriceTime}, </if>
+        </set>
+        WHERE  wfId IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </update>
+    
+         <!--批量修改维修返修次数 -->
+     <update id="updateRepairAgainCount" parameterType="String">
+        UPDATE t_sale_workflow_repair
+        <set>
+        	repairAgainCount = if(repairAgainCount is null,1,repairAgainCount+1)
+        </set>
+        WHERE  wfId IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </update>
+    
+     <!-- 维修工站不报价 -->
+     <update id="notPrice" parameterType="WorkflowRepair">
+        UPDATE t_sale_workflow_repair
+        <set>
+            <if test="po.isRW != null"> isRW = #{po.isRW}, </if>
+            <if test="po.isPay != null"> isPay = #{po.isPay}, </if>
+            <if test="po.engineer != null and po.engineer != ''"> engineer = #{po.engineer}, </if>
+            <if test="po.repairState != null"> repairState = #{po.repairState}, </if>
+            <if test="po.repairRemark != null"> repairRemark = #{po.repairRemark}, </if>
+            <if test="po.updateTime != null"> updateTime = #{po.updateTime}, </if>
+            <if test="po.repairPrice != null"> repairPrice = #{po.repairPrice}, </if>
+            <if test="po.hourFee != null"> hourFee = #{po.hourFee}, </if>
+            <if test="po.sumPrice != null"> sumPrice = #{po.sumPrice}, </if>
+            <if test="po.solution != null">solution = #{po.solution},</if>
+            <if test="po.priceRemark != null">priceRemark = #{po.priceRemark},</if>
+        </set>
+        WHERE wfId IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </update>
+    
+    <!-- 根据wfid 删除维修表记录 -->
+    <delete id="deleteRepairByWfids" parameterType="String">
+    	DELETE FROM t_sale_workflow_repair 
+    		WHERE wfId IN
+    	<foreach collection="ids" item="id" open="(" separator="," close=")">
+    		#{id}
+    	</foreach>
+    </delete>
+    
+      <!-- 维修工站查询选中的数据是否有不是已分拣，待维修或已维修，待报价或不报价，待维修或放弃报价，待维修？有：不允许点击返回分拣 -->
+	<select id="getCountToSortByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_repair
+		WHERE wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		AND (repairState = 0 OR repairState = 1 OR repairState = 5 OR repairState = 6)  
+	</select>
+    
+    <!-- 维修工站查询选中的数据是否有不是已分拣，待维修？有：不允许点击不报价、发送测试 -->
+	<select id="getCountNoPriceByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_repair
+		WHERE repairState = 0
+		AND wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	 <!-- 维修工站查询选中的数据是否有不是已维修，待报价？有：不允许点击发送报价 -->
+	<select id="getCountToPriceByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_repair
+		WHERE repairState = 1
+		AND wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	 <!-- 维修工站查询选中的数据是否有不是已维修，待终检？有：不允许点击发送终检 -->
+	<select id="getCountRepairedByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_repair
+		WHERE repairState = 2
+		AND wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	 <!-- 维修工站查询选中的数据是否有不是放弃维修，发送装箱？有：不允许点击发送装箱 -->
+	<select id="getCountToPackByWfids" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow_repair
+		WHERE repairState = 7
+		AND wfId IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+   <!-- ============================================   interface  End ============================================ -->
+</mapper>

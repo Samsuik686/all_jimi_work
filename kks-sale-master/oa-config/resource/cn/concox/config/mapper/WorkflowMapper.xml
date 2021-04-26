@@ -1,0 +1,1583 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.concox.app.workflow.mapper.WorkflowMapper">
+
+   <resultMap id="queryList_resultMap" type="Workflow" >
+   </resultMap>
+   
+   <!--  @author Li.Shangzhi  	  -->
+   <!--  @date 2016-07-20 11:38:26 -->
+   <!-- ============================================  受理管理  接口 interface  Start ============================================ -->
+   <sql id="selectAllFields">
+   		SELECT id, 
+            rfild, sxdwId, repairnNmber, xhId, imei, lockId, bluetoothId, isWarranty, acceptanceTime, returnTimes, salesTime, accepter, insideSoftModel, 
+            state, remark, acceptRemark, payDelivery, customerStatus, cusName, sendFlag, repairNumberRemark, lastEngineer, lastAccTime, payedLogCost, lockInfo,
+            unNormal_expressCompany, unNormal_expressNO, dutyOfficer, timeoutRemark, timeoutReason, sendPackTime, bill, outCount, testMatStatus, sfVersion
+        FROM t_sale_workflow
+   </sql>
+   
+   <select id="getT" parameterType="int" resultType="Workflow">
+        <include refid="selectAllFields" />
+      	WHERE id = #{id}
+   </select>
+   
+   <select id="getById" parameterType="int" resultType="Workflow">
+        <include refid="selectAllFields" />
+      	WHERE id = #{id}
+   </select>
+  
+    <delete id="delete" parameterType="Workflow">
+    	DELETE FROM t_sale_workflow
+        WHERE id = #{id}
+    </delete>
+    
+    <!--  批量受理未全部成功，删除已经受理的数据  -->
+    <delete id="deleteByImei" parameterType="Workflow">
+    	DELETE FROM t_sale_workflow 
+        WHERE state = 0 And imei IN 
+   		<foreach collection="imeis" item="imei" open="(" separator="," close=")">
+			#{imei}
+		</foreach>
+    </delete>
+    
+    <!--  批量受理未全部成功，查询关系表的数据  -->
+    <select id="getRelatedIdsByImei" parameterType="String" resultType="String">
+    	SELECT GROUP_CONCAT(rfild) FROM t_sale_workflow
+      	  WHERE state = 0 And imei IN 
+   		<foreach collection="imeis" item="imei" open="(" separator="," close=")">
+			#{imei}
+		</foreach>
+   </select>
+    
+    <insert id="insert" parameterType="Workflow">
+        INSERT INTO t_sale_workflow (id,
+            rfild, sxdwId, repairnNmber, xhId, imei, lockId, bluetoothId, insideSoftModel,
+            isWarranty, acceptanceTime, returnTimes, salesTime, accepter, lockInfo,
+            state, remark, acceptRemark, payDelivery, customerStatus, cusName,
+            sendFlag, repairNumberRemark, lastEngineer, lastAccTime, payedLogCost, 
+            unNormal_expressCompany, unNormal_expressNO, dutyOfficer, timeoutRemark, timeoutReason,
+            sendStatus, bill, outCount, testMatStatus, sfVersion,backTime
+        ) VALUES (#{id},
+            #{rfild}, #{sxdwId}, #{repairnNmber}, #{xhId}, #{imei}, #{lockId}, #{bluetoothId}, #{insideSoftModel}, 
+            #{isWarranty}, #{acceptanceTime}, #{returnTimes}, #{salesTime}, #{accepter}, #{lockInfo},
+            #{state}, #{remark}, #{acceptRemark}, #{payDelivery}, #{customerStatus}, #{cusName},
+            #{sendFlag}, #{repairNumberRemark}, #{lastEngineer}, #{lastAccTime}, #{payedLogCost},
+            #{unNormalExpressCompany}, #{unNormalExpressNo}, #{dutyOfficer}, #{timeoutRemark}, #{timeoutReason},
+            #{sendStatus}, #{bill}, #{outCount}, #{testMatStatus}, #{sfVersion},#{backTime}
+        )
+    </insert>
+   
+    <update id="update" parameterType="Workflow">
+      	UPDATE t_sale_workflow   
+        <set>
+            <if test="rfild 		!= null"> rfild = #{rfild}, </if>
+            <if test="sxdwId 		!= null"> sxdwId = #{sxdwId}, </if>
+			<if test="lockId 		!= null"> lockId = #{lockId}, </if>
+            <if test="repairnNmber  != null and repairnNmber 	!= ''"> repairnNmber = #{repairnNmber}, </if>
+            <if test="xhId 			!= null"> xhId = #{xhId}, </if>
+            <if test="imei        	!= null and imei 			!= ''"> imei = #{imei}, </if>
+            <if test="isWarranty  	!= null"> isWarranty = #{isWarranty}, </if>
+            <if test="isWarranty != null"> isWarranty = #{isWarranty}, </if>
+            <if test="acceptanceTime!= null"> acceptanceTime = #{acceptanceTime}, </if>
+            <if test="returnTimes 	!= null"> returnTimes = #{returnTimes}, </if>
+            <if test="salesTime 	!= null"> salesTime = #{salesTime}, </if>
+            <if test="accepter 		!= null and accepter 		!= ''"> accepter = #{accepter}, </if>
+            <if test="state 		!= null"> state = #{state}, </if>
+            <if test="payedLogCost 		!= null"> payedLogCost = #{payedLogCost}, </if>
+            <if test="customerStatus!=null and customerStatus != '' ">customerStatus = #{customerStatus},</if> 
+            <if test="w_cusName != null and w_cusName != ''"> cusName = #{w_cusName},</if>   
+            <if test="sortTime != null"> sortTime = #{sortTime},</if>   
+            <if test="sendStatus != null and sendStatus != ''"> sendStatus = #{sendStatus},</if>  
+            <if test="machinaInPack != null and machinaInPack != ''"> machina_in_pack = #{machinaInPack},</if> 
+            <if test="remark != null"> remark = #{remark}, </if>
+            <if test="acceptRemark != null"> acceptRemark = #{acceptRemark},  </if>
+            <if test="repairNumberRemark != null"> repairNumberRemark = #{repairNumberRemark}, </if>
+            <if test="dutyOfficer != null"> dutyOfficer = #{dutyOfficer}, </if>
+            <if test="timeoutRemark != null"> timeoutRemark = #{timeoutRemark}, </if>
+            <if test="insideSoftModel != null"> insideSoftModel = #{insideSoftModel}, </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 超三天修改 -->
+    <update id="updateForTimeout" parameterType="String">
+	    UPDATE t_sale_workflow   
+	        <set>
+	        	<if test="dutyOfficer != null"> dutyOfficer = #{dutyOfficer}, </if>
+            	<if test="timeoutRemark != null"> timeoutRemark = #{timeoutRemark}, </if>
+            	<if test="timeoutReason != null"> timeoutReason = #{timeoutReason}, </if>
+	        </set>
+	       WHERE id IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+    </update>
+    
+    <update id="updateBySendFlag" parameterType="Workflow">
+    	UPDATE t_sale_workflow   
+          <set>
+    		 <if test="sendFlag != null"> sendFlag = #{sendFlag} </if>
+   		  </set>
+   		   WHERE repairnNmber = #{repairnNmber}
+    </update>
+    
+    <update id="updateRelatedImeiForAccept" parameterType="Workflow">
+    	UPDATE t_sale_workflow_related SET imei = #{imei} where id=#{rfild}
+    </update> 
+    
+    <update id="updateImei" parameterType="Workflow">
+    	UPDATE t_sale_workflow SET imei = #{newImei} where imei=#{imei}
+    </update>
+    
+     <update id="updateRelatedImei" parameterType="Workflow">
+    	UPDATE t_sale_workflow_related SET imei = #{newImei} where imei=#{imei}
+    </update>
+    
+     <update id="updateYcfkImei" parameterType="Workflow">
+    	UPDATE t_sale_ycfkmanage SET imei = #{newImei} where imei=#{imei}
+    </update>
+    
+     <update id="updateYcfkTwoImei" parameterType="Workflow">
+    	UPDATE t_sale_ycfkmanage_manage SET imei = #{newImei} where imei=#{imei}
+    </update>
+   
+    <select id="queryAcceptList" resultMap="queryList_resultMap" parameterType="Workflow">
+	    SELECT 
+			wk.id,wk.rfild, wk.sxdwId, wk.repairnNmber, wk.xhId, wk.imei, wk.lockId, wk.bluetoothId, wk.isWarranty, wk.customerStatus, wk.cusName, wk.insideSoftModel,wk.backTime,
+            wk.acceptanceTime, wk.returnTimes, wk.lastEngineer, wk.lastAccTime, wk.salesTime, wk.accepter, wk.state, wk.remark, wk.acceptRemark, wk.repairNumberRemark, wk.payDelivery,
+		    sxdw.cusName AS w_cusName,sxdw.linkman AS w_linkman, sxdw.email AS w_email,sxdw.fax AS w_fax,sxdw.address AS w_address, wk.lockInfo,
+		    sxdw.phone AS w_phone,sxdw.telephone AS w_telephone, sxdw.remark AS w_cusRemark, wk.bill, wk.outCount, wk.testMatStatus, wk.sfVersion,
+			zbxh.model AS w_model,zbxh.marketModel AS w_marketModel,
+	    	wkr.sjfjDesc AS w_sjfjDesc,wkr.cjgzDesc AS w_cjgzDesc,wkr.zzgzDesc AS w_zzgzDesc,wkr.sllDesc AS w_sllDesc,
+	    	wt.test_result AS testResult, wt.test_person AS testPerson, wt.test_time AS testTime			 
+		FROM 
+			t_sale_workflow AS wk
+		LEFT JOIN 
+			t_sale_sxdwmanage AS sxdw ON sxdw.cId = wk.sxdwId
+		LEFT JOIN 
+			t_sale_zbxhmanage AS zbxh ON zbxh.mId = wk.xhId
+		LEFT JOIN 
+			t_sale_workflow_related AS wkr ON wkr.id= wk.rfild
+		LEFT JOIN
+			t_sale_workflow_test wt ON wt.wfId = wk.id
+		<where>
+			<if test="po.customerStatus != null and po.customerStatus != ''"> and wk.customerStatus = #{po.customerStatus}</if>
+			<if test="po.imei != null and po.imei != ''"> and wk.imei like concat('%', '${po.imei}', '%')</if>
+			<if test="po.lockId != null and po.lockId != ''"> and wk.lockId = #{po.lockId}</if>
+			<if test="po.isWarranty != null"> and wk.isWarranty = #{po.isWarranty}</if>
+			<if test="po.isWarranty != null and po.isWarranty != ''">and wk.isWarranty = #{po.isWarranty}</if>
+			<if test="po.w_cusName != null and po.w_cusName 	!= ''">and sxdw.cusName like concat('%', '${po.w_cusName}', '%')</if>
+			<if test="po.repairnNmber != null and po.repairnNmber != ''">and repairnNmber like concat('%', '${po.repairnNmber}', '%')</if>
+			<!-- 全部   | 待处理    /已处理 -->
+			<if test="po.state != null and po.state == 0"> and (wk.state in (0,17,19)) and wk.sendStatus = '0'</if>
+			<if test="po.state != null and po.state == 1"> and wk.state = #{po.state}</if>
+			<if test="po.state != null and po.state == 2"> and wk.state not in (0,17,19)</if>
+			<if test="po.startTime != null and po.startTime != ''"> AND date_format(wk.acceptanceTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+			<if test="po.endTime != null and po.endTime != ''"> AND date_format(wk.acceptanceTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			<if test ="po.treeDate != null and po.treeDate != '' ">AND date_format(wk.acceptanceTime,'%Y-%m-%d')= #{po.treeDate}</if>
+			<if test ="po.searchMorOrAft != null and po.searchMorOrAft != '' and po.searchMorOrAft == 'mor' ">
+            	AND HOUR(wk.acceptanceTime) &lt; 13
+            </if>
+            <if test ="po.searchMorOrAft != null and po.searchMorOrAft != '' and po.searchMorOrAft == 'aft' ">
+            	AND HOUR(wk.acceptanceTime) &gt;= 13
+            </if>
+		</where>
+		ORDER BY wk.customerStatus ASC, wk.id DESC
+    </select>
+    
+    <!-- 分拣分页 -->
+    <select id="querySortPage" resultMap="queryList_resultMap" parameterType="Workflow">
+	    SELECT 
+			wk.id,wk.rfild, wk.sxdwId, wk.repairnNmber, wk.xhId, wk.imei, wk.lockId, wk.bluetoothId, wk.isWarranty, wk.customerStatus, wk.cusName, wk.insideSoftModel, wk.testMatStatus,
+            wk.acceptanceTime, wk.returnTimes, wk.lastEngineer, wk.lastAccTime, wk.salesTime, wk.accepter, wk.state, wk.remark, wk.acceptRemark, wk.repairNumberRemark, wk.payDelivery, 
+		    sxdw.cusName AS w_cusName,sxdw.linkman AS w_linkman, sxdw.email AS w_email,sxdw.fax AS w_fax,sxdw.address AS w_address,sxdw.phone AS w_phone,sxdw.telephone AS w_telephone,
+			zbxh.model AS w_model,zbxh.marketModel AS w_marketModel, wk.lockInfo,
+	    	wkr.sjfjDesc AS w_sjfjDesc,wkr.cjgzDesc AS w_cjgzDesc,wkr.zzgzDesc AS w_zzgzDesc				 
+		FROM 
+			t_sale_workflow AS wk
+		LEFT JOIN 
+			t_sale_sxdwmanage AS sxdw ON sxdw.cId = wk.sxdwId
+		LEFT JOIN 
+			t_sale_zbxhmanage AS zbxh ON zbxh.mId = wk.xhId
+		LEFT JOIN 
+			t_sale_workflow_related AS wkr ON wkr.id= wk.rfild
+		<where>
+			<if test="po.imei != null and po.imei != ''"> and wk.imei like concat('%', '${po.imei}', '%')</if>
+			<if test="po.lockId != null and po.lockId != ''"> and wk.lockId = #{po.lockId}</if>
+			<if test="po.w_cusName != null and po.w_cusName 	!= ''">and sxdw.cusName like concat('%', '${po.w_cusName}', '%')</if>
+			<if test="po.repairnNmber != null and po.repairnNmber != ''">and repairnNmber like concat('%', '${po.repairnNmber}', '%')</if>
+			
+			<if test="po.w_model != null and po.w_model != ''">and zbxh.model = #{po.w_model}</if>
+			<if test="po.w_modelType != null and po.w_modelType 	!= ''">and zbxh.marketModel like concat('%', '${po.w_modelType}', '%')</if>
+			<if test="po.w_cjgzDesc != null and po.w_cjgzDesc != ''">and wkr.cjgzDesc IN ( SELECT iid from t_sale_cjgzmanage WHERE initheckFault like concat('%', '${po.w_cjgzDesc}', '%') )</if>
+			
+			<!-- 全部   | 待处理    /已处理 -->
+			<if test="po.sortState != null and po.sortState == 0"> and wk.state in (1, 18) </if>
+			<if test="po.sortState != null and po.sortState == 1"> and (wk.state &gt; 1 or wk.state =-1 and wk.state &lt;&gt;18)</if>
+			<if test="po.startTime != null and po.startTime != ''"> AND date_format(wk.acceptanceTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+			<if test="po.endTime != null and po.endTime != ''"> AND date_format(wk.acceptanceTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			<if test ="po.treeDate != null and po.treeDate != '' ">AND date_format(wk.acceptanceTime,'%Y-%m-%d')= #{po.treeDate}</if>
+		</where>
+		ORDER BY wk.acceptanceTime DESC
+    </select>
+    
+    <!-- 分拣 -->
+    <select id="querySortList" resultMap="queryList_resultMap" parameterType="Workflow">
+	    SELECT 
+			wk.id,wk.rfild, wk.sxdwId, wk.repairnNmber, wk.xhId, wk.imei, wk.lockId, wk.bluetoothId, wk.isWarranty, wk.customerStatus, wk.cusName, wk.insideSoftModel, wk.testMatStatus,
+            wk.acceptanceTime, wk.returnTimes, wk.lastEngineer, wk.lastAccTime, wk.salesTime, wk.accepter, wk.state, wk.remark, wk.acceptRemark, wk.repairNumberRemark, wk.payDelivery,
+		    sxdw.cusName AS w_cusName,sxdw.linkman AS w_linkman, sxdw.email AS w_email,sxdw.fax AS w_fax,sxdw.address AS w_address,sxdw.phone AS w_phone,sxdw.telephone AS w_telephone,
+			zbxh.model AS w_model,zbxh.marketModel AS w_marketModel, wk.lockInfo,
+	    	wkr.sjfjDesc AS w_sjfjDesc,wkr.cjgzDesc AS w_cjgzDesc,wkr.zzgzDesc AS w_zzgzDesc,
+	    	wt.test_result AS testResult, wt.test_person AS testPerson, wt.test_time AS testTime				 
+		FROM 
+			t_sale_workflow AS wk
+		LEFT JOIN 
+			t_sale_sxdwmanage AS sxdw ON sxdw.cId = wk.sxdwId
+		LEFT JOIN 
+			t_sale_zbxhmanage AS zbxh ON zbxh.mId = wk.xhId
+		LEFT JOIN 
+			t_sale_workflow_related AS wkr ON wkr.id= wk.rfild
+		LEFT JOIN
+		t_sale_workflow_test wt ON wt.wfId = wk.id
+		<where>
+			<if test="imei != null and imei != ''"> and wk.imei like concat('%', '${imei}', '%')</if>
+			<if test="lockId != null and lockId != ''"> and wk.lockId = #{lockId}</if>
+			<if test="w_cusName != null and w_cusName 	!= ''">and sxdw.cusName like concat('%', '${w_cusName}', '%')</if>
+			<if test="repairnNmber != null and repairnNmber != ''">and repairnNmber like concat('%', '${repairnNmber}', '%')</if>
+			
+			<if test="w_model != null and w_model != ''">and zbxh.model = #{w_model}</if>
+			<if test="w_modelType != null and w_modelType 	!= ''">and zbxh.marketModel like concat('%', '${w_modelType}', '%')</if>
+			<if test="w_cjgzDesc != null and w_cjgzDesc != ''">and wkr.cjgzDesc IN ( SELECT iid from t_sale_cjgzmanage WHERE initheckFault like concat('%', '${w_cjgzDesc}', '%') )</if>
+			
+			<!-- 全部   | 待处理    /已处理 -->
+			<if test="sortState != null and sortState == 0"> and wk.state in (1, 18) </if>
+			<if test="sortState != null and sortState == 1"> and (wk.state not in (1,18) or wk.state =-1)</if>
+			<if test="startTime != null and startTime != ''"> AND date_format(wk.acceptanceTime,'%Y-%m-%d') &gt;= #{startTime} </if>
+			<if test="endTime != null and endTime != ''"> AND date_format(wk.acceptanceTime,'%Y-%m-%d') &lt;= #{endTime} </if>
+			<if test ="treeDate != null and treeDate != '' ">AND date_format(wk.acceptanceTime,'%Y-%m-%d')= #{treeDate}</if>
+		</where>
+		ORDER BY wk.acceptanceTime DESC
+    </select>
+    
+    <select id="queryListPage" resultMap="queryList_resultMap" parameterType="Workflow">
+	    SELECT 
+			wk.id,wk.rfild, wk.sxdwId, wk.repairnNmber, wk.xhId, wk.imei, wk.lockId, wk.bluetoothId, wk.isWarranty, wk.insideSoftModel,
+            wk.acceptanceTime, wk.returnTimes, wk.lastEngineer, wk.lastAccTime, wk.salesTime, wk.accepter, wk.state, wk.remark,
+		    sxdw.cusName AS w_cusName,sxdw.linkman AS w_linkman, sxdw.email AS w_email,sxdw.fax AS w_fax,sxdw.address AS w_address,
+		    sxdw.phone AS w_phone,sxdw.telephone AS w_telephone, sxdw.remark AS w_cusRemark,
+			zbxh.model AS w_model,zbxh.marketModel AS w_marketModel, wk.lockInfo,
+	    	wkr.sjfjDesc AS w_sjfjDesc,wkr.cjgzDesc AS w_cjgzDesc,wkr.zzgzDesc AS w_zzgzDesc				 
+		FROM 
+			t_sale_workflow AS wk
+		LEFT JOIN 
+			t_sale_sxdwmanage AS sxdw ON sxdw.cId = wk.sxdwId
+		LEFT JOIN 
+			t_sale_zbxhmanage AS zbxh ON zbxh.mId = wk.xhId
+		LEFT JOIN 
+			t_sale_workflow_related AS wkr ON wkr.id= wk.rfild
+		<where>
+			<if test="po.state 	   != null">and wk.state = #{po.state}</if>
+			<if test="po.imei != null and po.imei != ''"> and wk.imei like concat('%', '${po.imei}', '%')</if>
+			<if test="po.lockId != null and po.lockId != ''"> and wk.lockId = #{po.lockId}</if>
+			<if test="po.isWarranty != null and po.isWarranty != ''">and wk.isWarranty = #{po.isWarranty}</if>
+			<if test="po.w_cusName    != null and po.w_cusName 	!= ''">and sxdw.cusName like concat('%', '${po.w_cusName}', '%')</if>
+			<if test="po.repairnNmber != null and po.repairnNmber != ''">and repairnNmber like concat('%', '${po.repairnNmber}', '%')</if>
+		</where>
+		ORDER BY wk.id DESC
+    </select>
+   
+    <select id="getInfo" parameterType="int" resultType="Workflow">
+        SELECT 
+			wk.id,wk.rfild, wk.sxdwId, wk.repairnNmber, wk.xhId, wk.imei, wk.lockId, wk.bluetoothId, wk.isWarranty, wk.bill, wk.outCount, wk.testMatStatus, wk.sfVersion,
+            wk.acceptanceTime, wk.returnTimes, wk.lastEngineer, wk.lastAccTime, wk.salesTime, wk.accepter, wk.state, wk.remark, wk.payDelivery,
+		    sxdw.cusName AS w_cusName,sxdw.linkman AS w_linkman, sxdw.email AS w_email,sxdw.fax AS w_fax,sxdw.address AS w_address,
+		    sxdw.phone AS w_phone,sxdw.telephone AS w_telephone, sxdw.remark AS w_cusRemark, wk.insideSoftModel,
+			zbxh.model AS w_model,zbxh.marketModel AS w_marketModel, wkr.sllDesc AS w_sllDesc, wk.lockInfo,
+	    	wkr.sjfjDesc AS w_sjfjDesc,wkr.cjgzDesc AS w_cjgzDesc,wkr.zzgzDesc AS w_zzgzDesc,wkr.matDesc AS w_matDesc,wkr.dzlDesc AS w_dzlDesc,wkr.wxbjDesc AS w_wxbjDesc				 
+		FROM 
+			t_sale_workflow AS wk
+		LEFT JOIN 
+			t_sale_sxdwmanage AS sxdw ON sxdw.cId = wk.sxdwId
+		LEFT JOIN 
+			t_sale_zbxhmanage AS zbxh ON zbxh.mId = wk.xhId
+		LEFT JOIN 
+			t_sale_workflow_related AS wkr ON wkr.id= wk.rfild
+      	WHERE 
+      		wk.id = #{id}
+      	LIMIT 1
+    </select>
+    
+	<select id="getDeviceListPage" resultMap="queryList_resultMap" parameterType="Workflow">
+		SELECT a.* FROM(
+			SELECT
+				sw.imei, sw.lockId, sw.bluetoothId, sw.repairnNmber, sw.isWarranty, sw.acceptanceTime, sw.returnTimes, sw.salesTime, sw.insideSoftModel, sw.bill, sw.outCount, sw.testMatStatus, sw.sfVersion,
+				sw.accepter, sw.state, sw.acceptRemark, sw.remark, sw.payDelivery, sw.customerStatus, sw.sendPackTime, sw.cusName,sw.backTime,
+				sxdw.cusName AS w_cusName, sxdw.phone AS w_phone, sxdw.linkman AS w_linkman, sxdw.address AS w_address, sxdw.email AS w_email, sxdw.remark AS w_cusRemark, zbxh.model AS w_model,
+				zbxh.marketModel AS w_marketModel, zbxh.modelType AS w_modelType, sw.repairNumberRemark, sw.lastEngineer, sw.lastAccTime, sw.payedLogCost, sw.unNormal_expressCompany AS w_unNormal_expressCompany,
+				sw.unNormal_expressNO AS w_unNormal_expressNO, sw.dutyOfficer, sw.timeoutRemark, sw.timeoutReason, sw.sortTime, swr.sjfjDesc AS w_sjfjDesc, swr.cjgzDesc AS w_cjgzDesc,
+				swr.zzgzDesc AS w_zzgzDesc, swr.matDesc AS w_matDesc, swr.dzlDesc AS w_dzlDesc, swr.wxbjDesc AS w_wxbjDesc, swre.isRW AS w_isRW, swre.engineer AS w_engineer,
+				swre.repairRemark AS w_repairRemark, swre.repairAgainCount AS w_repairAgainCount, swre.solution AS w_solution, swr.sllDesc AS w_sllDesc,
+				swre.priceRemark AS w_priceRemark, swre.isPrice AS w_isPrice, swre.solutionTwo AS w_solutionTwo, swre.giveUpRepairStatus AS w_giveUpRepairStatus, swpr.offer AS w_offer,
+				swpr.createTime AS price_createTime,swpr.onePriceRemark AS w_onePriceRemark, swpr.repairMoney AS w_repairMoney, swt.customerReceipt AS w_customerReceipt, swt.priceRemark AS w_price_Remark,
+				swt.payReason AS w_payReason, swt.remAccount AS w_remAccount, sw.lockInfo,
+				swt.payTime AS w_payTime, swt.isPay AS w_isPay, swf.ispass AS w_ispass, swf.finDesc AS w_FinDesc, swf.finChecker AS w_FinChecker, swp.packingNO AS w_packingNO, 
+				swp.packer AS w_packer, swp.shipper AS w_shipper, swp.packTime AS w_packTime, swp.packRemark AS w_packRemark, 
+				test.test_person AS testPerson, test.data_source AS dataSource, test.send_time AS sendTime, test.test_result AS testResult, test.test_time AS testTime,
+				swre.repairState AS w_repairState, swf.state AS w_FinispassFalg, swp.packState AS w_packState,swpr.priceState AS w_priceState,
+				swp.expressNO w_expressNO, swp.expressCompany w_expressCompany,
+				(SELECT GROUP_CONCAT(proceMethod) FROM t_sale_zgzmanage AS tsz WHERE FIND_IN_SET(tsz.id,swr.zzgzDesc)) AS zzgzDescStr
+			FROM t_sale_workflow AS sw
+			LEFT JOIN t_sale_workflow_ficheck AS swf ON sw.id = swf.wfId
+			LEFT JOIN t_sale_workflow_pack AS swp ON sw.repairnNmber = swp.repairnNmber
+			LEFT JOIN t_sale_workflow_price AS swpr ON sw.id = swpr.wfId
+			LEFT JOIN t_sale_workflow_related AS swr ON sw.rfild = swr.id
+			LEFT JOIN t_sale_workflow_repair AS swre ON sw.id = swre.wfId
+			LEFT JOIN t_sale_workflow_totalpay AS swt ON sw.repairnNmber = swt.repairNumber
+			LEFT JOIN t_sale_sxdwmanage AS sxdw ON sw.sxdwId = sxdw.cId
+			LEFT JOIN t_sale_zbxhmanage AS zbxh ON sw.xhId = zbxh.mId
+			LEFT JOIN t_sale_workflow_test AS test ON test.wfId = sw.id
+			<where>
+			    <if test="po.imeis != null"> 
+			      and sw.imei in
+	              <foreach collection="po.imeis" item="item" open="(" separator="," close=")">  
+	                   ${item}
+	              </foreach>
+	            </if>
+				<if test="po.lockId != null and po.lockId != ''"> and sw.lockId = #{po.lockId}</if>
+				<if test="po.w_phone != null and po.w_phone != ''">and sxdw.phone = #{po.w_phone}</if>
+				<if test="po.repairnNmber != null and po.repairnNmber != ''">and sw.repairnNmber = #{po.repairnNmber}</if>
+				<if test="po.customerStatus != null and po.customerStatus != ''">and sw.customerStatus = #{po.customerStatus}</if>
+				<if test="po.w_expressNO != null and po.w_expressNO != ''">and swp.expressNO = #{po.w_expressNO}</if>
+				<if test="po.w_model != null and po.w_model != ''">and zbxh.model = #{po.w_model}</if>
+				<if test="po.w_cusName != null and po.w_cusName != ''">and sxdw.cusName like concat('%', '${po.w_cusName}', '%')</if>
+				<if test="po.cusName != null and po.cusName != ''">and sw.cusName like concat('%',#{po.cusName},'%') </if><!-- 无名件 -->
+				<if test="po.startTime != null and po.startTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+				<if test="po.endTime != null and po.endTime != ''"> AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			</where>
+		)a
+		<where>
+			<if test="po.w_zzgzDesc != null and po.w_zzgzDesc != ''">and FIND_IN_SET(#{po.w_zzgzDesc}, a.zzgzDescStr)</if>
+		</where>
+		 ORDER BY a.acceptanceTime DESC, a.repairnNmber, a.state
+     </select>
+    
+    <select id="getDirectiveListPage" resultMap="queryList_resultMap" parameterType="Workflow">
+        SELECT 
+			sxdw.cusName AS w_cusName, zbxh.model AS w_model, wk.imei, wk.remark, wkr.cjgzDesc AS w_cjgzDesc, wk.acceptanceTime,
+			<if test="po.accepter != null and po.accepter != ''"> 
+				wk.accepter w_engineer,
+			</if>
+			<if test="po.w_offer != null and po.w_offer != ''">
+				tswc.offer w_engineer,
+			</if>
+			<if test="po.w_engineer    != null and po.w_engineer 	!= ''">
+				tswr.engineer w_engineer,
+			</if>
+			<if test="po.w_FinChecker != null and po.w_FinChecker != ''">
+				tswf.finChecker w_engineer,
+			</if>
+			<if test="po.w_packer != null and po.w_packer != ''">
+				tswp.packer w_engineer,
+			</if>
+			 wkr.zzgzDesc AS w_zzgzDesc,tswr.solution w_solution,  wk.returnTimes, 
+			 wkr.sjfjDesc AS w_sjfjDesc, tswf.ispass w_ispass, tswp.packTime w_packTime, tswp.expressNO w_expressNO, tswp.expressCompany w_expressCompany, wk.state,wk.repairnNmber,sxdw.phone AS w_phone
+		FROM 
+			t_sale_workflow AS wk
+		LEFT JOIN 
+			t_sale_sxdwmanage AS sxdw ON sxdw.cId = wk.sxdwId
+		LEFT JOIN 
+			t_sale_zbxhmanage AS zbxh ON zbxh.mId = wk.xhId
+		LEFT JOIN 
+			t_sale_workflow_related AS wkr ON wkr.id= wk.rfild
+		LEFT JOIN 
+			t_sale_workflow_repair AS tswr ON tswr.wfId = wk.id
+		LEFT JOIN 
+			t_sale_workflow_ficheck AS tswf ON tswf.wfId = wk.id
+		LEFT JOIN 
+			t_sale_workflow_pack AS tswp ON wk.repairnNmber = tswp.repairnNmber
+		LEFT JOIN 
+			t_sale_workflow_price AS tswc ON tswc.wfId = wk.id
+		<where>
+			<if test="po.accepter != null and po.accepter != ''"> 
+				and wk.accepter like concat('%', '${po.accepter}', '%')
+				<if test="po.startTime != null and po.startTime != ''"> AND date_format(wk.acceptanceTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+				<if test="po.endTime != null and po.endTime != ''"> AND date_format(wk.acceptanceTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			</if>
+			<if test="po.w_offer != null and po.w_offer != ''">
+				and tswc.offer like concat('%', '${po.w_offer}', '%')
+				<if test="po.startTime != null and po.startTime != ''"> AND date_format(tswc.createTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+				<if test="po.endTime != null and po.endTime != ''"> AND date_format(tswc.createTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			</if>
+			<if test="po.w_engineer    != null and po.w_engineer 	!= ''">
+				and tswr.engineer like concat('%', '${po.w_engineer}', '%')
+				<if test="po.startTime != null and po.startTime != ''"> AND date_format(tswr.createTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+				<if test="po.endTime != null and po.endTime != ''"> AND date_format(tswr.createTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			</if>
+			<if test="po.w_FinChecker != null and po.w_FinChecker != ''">
+				and tswf.finChecker like concat('%', '${po.w_FinChecker}', '%')
+				<if test="po.startTime != null and po.startTime != ''"> AND date_format(tswf.createTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+				<if test="po.endTime != null and po.endTime != ''"> AND date_format(tswf.createTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			</if>
+			<if test="po.w_packer != null and po.w_packer != ''">
+				and tswp.packer like concat('%', '${po.w_packer}', '%')
+				<if test="po.startTime != null and po.startTime != ''"> AND date_format(tswp.packTime,'%Y-%m-%d') &gt;= #{po.startTime} </if>
+				<if test="po.endTime != null and po.endTime != ''"> AND date_format(tswp.packTime,'%Y-%m-%d') &lt;= #{po.endTime} </if>
+			</if>
+		</where>
+		GROUP BY wk.imei,wk.state 
+		ORDER BY wk.acceptanceTime DESC
+    </select>
+   
+    <select id="getInfoByImei" parameterType="String" resultType="Workflow">
+   		SELECT 
+			wk.id,wk.rfild, wk.sxdwId, wk.repairnNmber, wk.xhId, wk.imei, wk.lockId, wk.bluetoothId, wk.isWarranty, wk.insideSoftModel,
+            wk.acceptanceTime, wk.returnTimes, wk.salesTime, wk.accepter, wk.state, wk.remark,
+		    sxdw.cusName AS w_cusName,sxdw.linkman AS w_linkman, sxdw.email AS w_email,sxdw.fax AS w_fax,sxdw.address AS w_address,
+		    sxdw.phone AS w_phone,sxdw.telephone AS w_telephone, sxdw.remark AS w_cusRemark,
+			zbxh.model AS w_model,zbxh.marketModel AS w_marketModel, wk.lockInfo,
+	    	wkr.sjfjDesc AS w_sjfjDesc,wkr.cjgzDesc AS w_cjgzDesc,wkr.zzgzDesc AS w_zzgzDesc				 
+		FROM 
+			t_sale_workflow AS wk
+		LEFT JOIN 
+			t_sale_sxdwmanage AS sxdw ON sxdw.cId = wk.sxdwId
+		LEFT JOIN 
+			t_sale_zbxhmanage AS zbxh ON zbxh.mId = wk.xhId
+		LEFT JOIN 
+			t_sale_workflow_related AS wkr ON wkr.id= wk.rfild
+      	WHERE 
+      		wk.imei = #{imei}
+      	ORDER BY wk.acceptanceTime DESC
+      	LIMIT 1
+     </select>
+     
+     <select id="getInfoByLockId" parameterType="String" resultType="Workflow">
+   		SELECT 
+			wk.id,wk.rfild, wk.sxdwId, wk.repairnNmber, wk.xhId, wk.imei, wk.lockId, wk.bluetoothId, wk.isWarranty, wk.insideSoftModel,
+            wk.acceptanceTime, wk.returnTimes, wk.salesTime, wk.accepter, wk.state, wk.remark,
+		    sxdw.cusName AS w_cusName,sxdw.linkman AS w_linkman, sxdw.email AS w_email,sxdw.fax AS w_fax,sxdw.address AS w_address,
+		    sxdw.phone AS w_phone,sxdw.telephone AS w_telephone, sxdw.remark AS w_cusRemark,
+			zbxh.model AS w_model,zbxh.marketModel AS w_marketModel, wk.lockInfo,
+	    	wkr.sjfjDesc AS w_sjfjDesc,wkr.cjgzDesc AS w_cjgzDesc,wkr.zzgzDesc AS w_zzgzDesc				 
+		FROM 
+			t_sale_workflow AS wk
+		LEFT JOIN 
+			t_sale_sxdwmanage AS sxdw ON sxdw.cId = wk.sxdwId
+		LEFT JOIN 
+			t_sale_zbxhmanage AS zbxh ON zbxh.mId = wk.xhId
+		LEFT JOIN 
+			t_sale_workflow_related AS wkr ON wkr.id= wk.rfild
+      	WHERE 
+      		wk.lockId = #{lockId}
+      	ORDER BY wk.acceptanceTime DESC
+      	LIMIT 1
+     </select>
+     
+     <!-- 根据IMEI获取装箱工站数据 -->
+     <select id="getInfoInPackByImei" parameterType="Workflow" resultType="Workflow">
+     	SELECT tsw.id, tsw.imei, tsw.lockId, tsw.lockInfo, tsw.bluetoothId, tsw.repairnNmber, tsw.machina_in_pack AS machinaInPack, 
+     			tsw.sendPackTime, sxdw.cusName AS w_cusName 
+     	FROM t_sale_workflow AS tsw
+		LEFT JOIN t_sale_sxdwmanage AS sxdw ON tsw.sxdwId = sxdw.cId
+		<where>
+			state IN (7,8) AND tsw.sendPackTime is NOT NULL
+			<if test="imei != null and imei != ''"> and imei = #{imei}</if>
+			<if test="lockId != null and lockId != ''"> and lockId = #{lockId}</if>
+			<if test="lockInfo != null and lockInfo != ''"> and lockInfo = #{lockInfo}</if>
+		</where>
+     </select>
+     
+     <select id="getBatchNo" parameterType="String" resultType="Workflow">
+	     	SELECT
+				repairnNmber,acceptanceTime,payDelivery
+			FROM
+				t_sale_workflow
+			WHERE
+			   sxdwId =#{sxdwId}
+			AND
+				acceptanceTime &gt;DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00') 
+			AND
+			    acceptanceTime &lt;=DATE_FORMAT(NOW(), '%Y-%m-%d 23:59:59') 
+			ORDER BY 
+				 acceptanceTime DESC
+			LIMIT 1;
+     </select>
+     
+     <select id="getReturnTimes" parameterType="String" resultType="Integer">
+     	SELECT
+			COUNT(id) AS CouNum
+		FROM
+			t_sale_workflow
+		WHERE
+		
+		    imei = #{imei}
+		AND
+			acceptanceTime &gt;  DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -3 MONTH ),'%Y-%m-%d 00:00:00') 
+		AND
+			acceptanceTime &lt;= DATE_FORMAT(NOW(), '%Y-%m-%d 23:59:59')
+		ORDER BY id DESC;
+     </select>
+     
+    <select id="getLastReturnEngineer" parameterType="String" resultType="Workflow">
+   		SELECT wf.returnTimes, wfr.engineer lastEngineer, wf.acceptanceTime lastAccTime, wfr.solution w_solution FROM t_sale_workflow_repair wfr
+		LEFT JOIN t_sale_workflow wf ON wf.id = wfr.wfId
+		LEFT JOIN t_sale_workflow_related tswr ON tswr.id = wf.id
+		<where>
+			wf.imei = #{imei}
+			<!-- 三个月内的上一次处理措施(二次返修使用) -->
+			<if test="type != null and type != ''">
+				AND acceptanceTime &gt;  DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -3 MONTH ),'%Y-%m-%d 00:00:00') 
+				AND acceptanceTime &lt;= DATE_FORMAT(NOW(), '%Y-%m-%d 23:59:59')
+			</if>
+		</where>
+		ORDER BY wfr.createTime DESC
+		LIMIT 1
+     </select>
+     
+     <!-- 查询保内非人为客户顺付来的数据 -->
+     <select id="getDataByRepairnNmber" parameterType="String" resultType="Integer">
+     	select COUNT(1) from t_sale_workflow tw,t_sale_workflow_repair wr 
+     		where tw.id = wr.wfid AND tw.isWarranty = 0 AND wr.isRW = 1 AND tw.payDelivery = 'N'  AND 
+     		repairnNmber = #{repairnNmber};
+     </select>
+      
+     <update id="updateState" parameterType="String">
+   		UPDATE t_sale_workflow 
+   		SET
+   			state = #{state}
+   		WHERE  id IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+     </update>
+     
+     <!-- 返回受理,分拣时间为null，受理发送状态改为未发送 -->
+      <update id="updateBackToAccept" parameterType="String">
+   		UPDATE t_sale_workflow 
+   		SET
+   			state = #{state}, sortTime = NULL, sendStatus = 0
+   		WHERE  id IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+     </update>
+     
+      <update id="updateStateAndSendPackTime">
+   		UPDATE t_sale_workflow 
+   		SET
+   			state = #{state}, sendPackTime = NOW()
+   		WHERE  id IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+     </update>
+     
+     <!-- 待报价的不报价清空wxbjdesc  -->
+      <update id="updateWxbjIfNotPrice" parameterType="String">
+   		UPDATE t_sale_workflow_related r
+   		SET r.wxbjDesc=''
+   		WHERE  r.id IN (select w.rfild FROM t_sale_workflow w where w.id IN
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		)
+     </update>
+     
+     <!-- 报价数据返回维修工站 清空  matDesc dzlDesc-->
+       <update id="updateWlByWfids" parameterType="String">
+   		UPDATE t_sale_workflow_related r
+   		SET r.matDesc = '',r.dzlDesc = ''
+   		WHERE  r.id IN (select w.rfild FROM t_sale_workflow w where w.id IN
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		)
+     </update>
+     
+      <!-- 维修数据返回分拣工站 清空  matDesc dzlDesc zzgzDesc wxbjDesc sllDesc-->
+       <update id="updateRepairToSortByWfids" parameterType="String">
+   		UPDATE t_sale_workflow_related r
+   		SET r.matDesc = '', r.dzlDesc = '', r.zzgzDesc = '', r.wxbjDesc = '', r.sllDesc = ''
+   		WHERE  r.id IN (select w.rfild FROM t_sale_workflow w where w.id IN
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		)
+     </update>
+     
+      <update id="updateStateByRepairNumber" parameterType="String">
+   		UPDATE t_sale_workflow 
+   		SET
+   			state = #{state}
+   		WHERE id IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+		and repairnNmber IN
+		<foreach collection="repairNumbers" item="repairNumber" open="(" separator="," close=")">
+			#{repairNumber}
+		</foreach>
+     </update>
+     
+     <update id="updateStateByBatchNo">
+   		UPDATE t_sale_workflow 
+   		SET
+   			state = #{state}
+   		WHERE  repairnNmber = #{repairnNmber}
+     </update>
+     
+     <select id="acceptexists" parameterType="String" resultType="int">
+     		SELECT count(1) 
+		 FROM
+			t_sale_workflow
+	    <where>
+	    	and sendFlag = 1
+	    	<if test="repairnNmber != null and repairnNmber != ''"> AND repairnNmber=#{repairnNmber}</if>
+	    </where>
+     	
+     </select>
+     
+     <select id="getPackList" parameterType="Workflow" resultType="Workflow">
+	      SELECT sw.id, wp.id AS w_packId, sw.repairnNmber,sxdw.linkman AS w_linkman,sxdw.cusName AS w_cusName,sxdw.phone AS w_phone,
+	      sxdw.telephone AS w_telephone,sxdw.address AS w_address,sxdw.remark AS w_cusRemark, sw.insideSoftModel,
+		  wp.expressCompany AS w_expressCompany,wp.expressNO AS w_expressNO,wp.packingNO AS w_packingNO , wp.packRemark AS w_packRemark,
+		  wp.packer AS w_packer,wp.shipper AS w_shipper,wp.packTime AS w_packTime, wp.packState AS w_packState,sw.remark,sw.repairNumberRemark,sw.payDelivery
+		  FROM t_sale_workflow_pack wp,t_sale_workflow sw,t_sale_sxdwmanage AS sxdw 
+		  WHERE wp.repairnNmber = sw.repairnNmber AND sxdw.cId = sw.sxdwId
+		  <if test="repairnNmber != null and repairnNmber != ''"> AND sw.repairnNmber like concat('%', '${repairnNmber}', '%')</if>
+    	GROUP BY sw.repairnNmber
+     </select>
+
+    <select id="getPackListPage" parameterType="Workflow" resultType="Workflow">
+	      SELECT sw.id, wp.id AS w_packId,sw.repairnNmber,sw.state,sxdw.linkman AS w_linkman,sxdw.cusName AS w_cusName,sxdw.phone AS w_phone,
+	      sxdw.telephone AS w_telephone,sxdw.address AS w_address,sxdw.remark AS w_cusRemark, sw.insideSoftModel,
+		  wp.expressCompany AS w_expressCompany,wp.expressNO AS w_expressNO,wp.packingNO AS w_packingNO ,wp.packRemark AS w_packRemark,
+		  wp.packer AS w_packer,wp.shipper AS w_shipper,wp.packTime AS w_packTime, wp.packState AS w_packState, wp.createTime AS w_sendPackTime, sw.remark,
+		  swt.priceRemark AS w_price_Remark ,swt.customerReceipt as w_customerReceipt,
+		  sw.payedLogCost,
+		  sw.payDelivery
+		  FROM	t_sale_workflow_pack wp 
+		  INNER JOIN t_sale_workflow sw on wp.repairnNmber = sw.repairnNmber
+		  LEFT JOIN t_sale_workflow_totalpay swt on swt.repairNumber = wp.repairnNmber
+		  INNER JOIN t_sale_sxdwmanage sxdw on sxdw.cId = sw.sxdwId			  
+		 <where>
+		    <if test="po.startTime != null and po.startTime != '' and po.w_packState == 2 ">
+			 	 AND date_format(wp.createTime,'%Y-%m-%d') &gt;= #{po.startTime}
+		    </if>
+		    <if test="po.endTime != null and po.endTime != '' and po.w_packState == 2 ">
+		  		 AND date_format(wp.createTime,'%Y-%m-%d') &lt;= #{po.endTime}
+		    </if>
+		    <if test="po.startTime != null and po.startTime != ''  and po.w_packState == 1 ">
+			 	 AND date_format(wp.packTime,'%Y-%m-%d') &gt;= #{po.startTime}
+		    </if>
+		    <if test="po.endTime != null and po.endTime != ''  and po.w_packState == 1 ">
+		  		 AND date_format(wp.packTime,'%Y-%m-%d') &lt;= #{po.endTime}
+		    </if>
+			<if test="po.repairnNmber != null and po.repairnNmber != ''"> AND sw.repairnNmber like concat('%', '${po.repairnNmber}', '%')</if>
+			<if test="po.treeDate != null and po.treeDate != '' and po.w_packState == 2 ">
+			  	AND date_format(wp.createTime,'%Y-%m-%d')= #{po.treeDate}
+		  	</if>
+			<if test="po.treeDate != null and po.treeDate != '' and po.w_packState == 1 "> 
+			  	AND date_format(wp.packTime,'%Y-%m-%d')= #{po.treeDate}
+			</if>
+			<if test="po.w_packState != null and po.w_packState != '' and po.w_packState == 2"> and wp.packState = 0</if>
+	       	<if test="po.w_packState != null and po.w_packState != '' and po.w_packState == 1"> and wp.packState = 1</if>
+			<if test="po.w_cusName != null and po.w_cusName != ''"> AND sxdw.cusName like concat('%', '${po.w_cusName}', '%')</if>	 
+			<if test="po.packTreeDate != null and po.packTreeDate != '' and po.w_packState == 2 ">
+			   <choose>
+				  <when test="po.packMonth != null and po.packMonth != ''">
+					  AND date_format(wp.createTime,'%Y-%m')= #{po.packMonth}
+				  </when>
+				  <otherwise>
+				  	 AND date_format(wp.createTime,'%Y-%m-%d')= #{po.packTreeDate}
+				  </otherwise>
+			  	</choose>
+			  </if>
+		   <if test="po.packTreeDate != null and po.packTreeDate != '' and po.w_packState == 1 ">
+			  <choose>
+				  <when test="po.packMonth != null and po.packMonth != ''">
+					  AND date_format(wp.packTime,'%Y-%m')= #{po.packMonth}
+				  </when>
+				  <otherwise>
+				  	 AND date_format(wp.packTime,'%Y-%m-%d')= #{po.packTreeDate}
+				  </otherwise>
+			  	</choose>
+		  	</if>
+		 </where>
+		 GROUP BY sw.repairnNmber
+		 <choose>
+		 	<when test ="po.w_packState == 2">
+		 		ORDER BY sw.acceptanceTime DESC
+		 	</when>
+		  	<otherwise>
+		  		ORDER BY wp.packTime DESC
+		  	</otherwise>
+		 </choose>
+     </select>
+     
+     <select id="getImeiState" parameterType="String" resultType="Workflow">
+	     SELECT zbxh.model AS w_model,zbxh.marketModel AS w_marketModel, wk.imei, wk.lockId, wk.bluetoothId, wk.state,wk.repairNumberRemark,wk.acceptRemark, wk.machina_in_pack AS machinaInPack, 
+	     	wkr.sjfjDesc AS w_sjfjDesc,wk.acceptanceTime,pri.onePriceRemark AS w_onePriceRemark,rep.engineer AS w_engineer, wk.lockInfo,
+	     	wk.remark, rep.repairRemark AS w_repairRemark, twf.finDesc AS w_FinDesc, wk.sendPackTime, wk.repairnNmber, wk.insideSoftModel,
+		    wt.test_result AS testResult, wt.test_person AS testPerson, wt.test_time AS testTime, twf.state w_FinispassFalg, rep.repairState w_repairStateFalg,
+		    rep.isRW AS w_isRW, wk.isWarranty
+	     FROM t_sale_workflow AS wk
+	     LEFT JOIN 
+			t_sale_workflow_related AS wkr ON wkr.id= wk.rfild 
+	     LEFT JOIN 
+	     	t_sale_zbxhmanage AS zbxh ON zbxh.mId = wk.xhId
+	      LEFT JOIN 
+	     	t_sale_workflow_price pri ON pri.wfId = wk.id
+	     LEFT JOIN t_sale_workflow_repair AS rep ON wk.id = rep.wfId
+	     LEFT JOIN t_sale_workflow_ficheck twf ON wk.id = twf.wfId
+	     LEFT JOIN
+			t_sale_workflow_test wt ON wt.wfId = wk.id
+	     	<where>
+	     		and wk.repairnNmber = #{repairnNmber}
+	     		<if test="imei != null and imei != ''">
+	     			and wk.imei = #{imei}
+	     		</if>
+	     		<if test="state != null and state != ''"> AND wk.state = #{state}</if>
+	     	</where> 
+     </select>
+     
+     <!-- 装箱获取批次号 -->
+      <select id="getOneByRepairnNmber" parameterType="String" resultType="Workflow">
+	    SELECT * FROM t_sale_workflow
+		WHERE repairnNmber = #{repairnNmber}
+		LIMIT 1
+     </select>
+     
+     <!-- 一批中 装箱工站扫描过的设备个数 -->
+      <select id="getImeiInPackCount" parameterType="String" resultType="Integer">
+	     SELECT COUNT(1)
+	     FROM t_sale_workflow AS wk
+     	<where>
+     		and wk.repairnNmber = #{repairnNmber}
+     		<if test="imei != null and imei != ''">
+     			and wk.imei = #{imei}
+     		</if>
+     		<if test="state != null and state != ''"> AND wk.state = #{state}</if>
+     		and wk.machina_in_pack = 'Y'
+     	</where> 
+     </select>
+     
+     <!-- 批次中设备总数 -->
+      <select id="getCountOfRepairnNmber" parameterType="String" resultType="Integer">
+	     SELECT COUNT(1) FROM t_sale_workflow AS wk where wk.repairnNmber = #{repairnNmber}
+     </select>
+     
+     <select id="exists" parameterType="String" resultType="boolean">
+     	 SELECT CASE WHEN count(1) > 0 THEN 1 ELSE 0 END
+		 FROM
+			t_sale_workflow_pack wp,
+			t_sale_workflow sw,
+			t_sale_sxdwmanage AS sxdw
+		WHERE
+			wp.repairnNmber = sw.repairnNmber AND sxdw.cId = sw.sxdwId
+		<if test="repairnNmber != null and repairnNmber != ''"> AND sw.repairnNmber=#{repairnNmber}</if>
+     </select>
+     
+     <!-- 受理时根据imei、送修批次判断是否是同一数据 -->
+	<select id="isExists" parameterType="Workflow" resultType="int">
+		SELECT count(1) FROM t_sale_workflow
+		WHERE imei = #{imei} and repairnNmber= #{repairnNmber}
+		<if test ="id !=null"> AND id != #{id} </if>
+	</select> 
+	
+	<!-- 放弃报价查询是否所有数据都已到付款之后 -->
+	<select id="selCountPayLogcost" parameterType="String" resultType="int">
+		SELECT COUNT(1) from t_sale_workflow WHERE state IN (0,1,2,3) and repairnNmber = #{repairnNmber}
+	</select>
+	
+	<!-- 批量删除  状态为 已受理状态 state = 0 -->
+	<delete id="deleteInfos" parameterType="String">
+	    DELETE FROM t_sale_workflow 
+        WHERE  id IN 
+   		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach> 
+		AND state = 0 
+	</delete>
+	
+	<!-- 根据ID查询受理信息 -->
+	<select id="selectById" parameterType="String" resultType="Workflow">
+		SELECT id,rfild,imei,acceptanceTime,accepter  FROM t_sale_workflow 
+		WHERE  id IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+				#{id}
+			</foreach> 
+		AND state = 0
+	</select>
+	
+	<!-- 受理时先查询该批次是否已发货或已付款，是，则重新生成新批次号 -->
+	<select id="isExistsAndPay" parameterType="String" resultType="int">
+		SELECT SUM(newNum) FROM(
+			(
+				SELECT count(1) newNum FROM t_sale_workflow wf
+				WHERE wf.repairnNmber=#{repairnNmber} and wf.state=-1 
+			)
+		UNION
+			(
+				SELECT COUNT(1) newNum FROM t_sale_workflow_totalpay tot
+				WHERE tot.repairNumber=#{repairnNmber} AND tot.isPay=0
+			)
+		)a
+	</select>
+	
+	<!-- 受理时该批次号是否存在  -->
+	<select id="getRepairNumberCountPriced" parameterType="String" resultType="int">
+        SELECT count(1) FROM t_sale_workflow_totalpay 
+        WHERE repairNumber=#{repairnNmber}
+    </select>
+	 
+    <!-- ============================================ 受理管理  接口 interface  End ============================================ -->
+    
+    <!-- 查询当前批次下的所有维修状态数量 -->
+    <select id="queryRepairStateList" resultMap="queryList_resultMap" parameterType="String">
+	  SELECT COUNT(id) id,state FROM t_sale_workflow WHERE repairnNmber=#{repairnNmber} GROUP BY state
+    </select>
+    
+     <update id="updateSxdwId" parameterType="Workflow">
+		UPDATE t_sale_workflow
+		<set>
+			<if test="acceptanceTime!= null"> acceptanceTime = #{acceptanceTime}, </if>
+			<if test="acceptRemark != null"> acceptRemark = #{acceptRemark}, </if>
+			<if test="repairNumberRemark != null"> repairNumberRemark = #{repairNumberRemark}, </if>
+        	<if test="sxdwId != null and sxdwId != ''">  sxdwId=#{sxdwId}, </if>	
+        	<if test="w_cusName != null and w_cusName != ''">  cusName=#{w_cusName}, </if>	            
+			<if test="customerStatus!=null and customerStatus != '' ">customerStatus = #{customerStatus}</if>
+		</set>
+		where repairnNmber = #{repairnNmber}	
+     </update>
+     
+     <select id="getWorkflowByIds" parameterType="String" resultType="Workflow">
+     	 <include refid="selectAllFields" />
+     		WHERE  id IN 
+   		 <foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+     </select>
+     
+      <select id="getDeviceList" parameterType="String" resultType="Workflow">
+		SELECT a.* FROM(
+			SELECT
+				sw.imei, sw.lockId, sw.bluetoothId, sw.repairnNmber, sw.isWarranty, sw.acceptanceTime, sw.returnTimes, sw.salesTime, sw.insideSoftModel, sw.bill, sw.outCount, sw.testMatStatus, sw.sfVersion,
+				sw.accepter, sw.state, sw.acceptRemark, sw.remark, sw.payDelivery, sw.customerStatus, sw.sendPackTime, sw.cusName,
+				sxdw.cusName AS w_cusName, sxdw.phone AS w_phone, sxdw.linkman AS w_linkman, sxdw.address AS w_address, sxdw.email AS w_email, sxdw.remark AS w_cusRemark, zbxh.model AS w_model,
+				zbxh.marketModel AS w_marketModel, zbxh.modelType AS w_modelType, sw.repairNumberRemark, sw.lastEngineer, sw.lastAccTime, sw.payedLogCost, sw.unNormal_expressCompany AS w_unNormal_expressCompany,
+				sw.unNormal_expressNO AS w_unNormal_expressNO, sw.dutyOfficer, sw.timeoutRemark, sw.timeoutReason, sw.sortTime, swr.sjfjDesc AS w_sjfjDesc, swr.cjgzDesc AS w_cjgzDesc,
+				swr.zzgzDesc AS w_zzgzDesc, swr.matDesc AS w_matDesc, swr.dzlDesc AS w_dzlDesc, swr.wxbjDesc AS w_wxbjDesc, swre.isRW AS w_isRW, swre.engineer AS w_engineer,
+				swre.repairRemark AS w_repairRemark, swre.repairAgainCount AS w_repairAgainCount, swre.solution AS w_solution, swr.sllDesc AS w_sllDesc,
+				swre.priceRemark AS w_priceRemark, swre.isPrice AS w_isPrice, swre.solutionTwo AS w_solutionTwo, swre.giveUpRepairStatus AS w_giveUpRepairStatus, swpr.offer AS w_offer,
+				swpr.createTime AS price_createTime,swpr.onePriceRemark AS w_onePriceRemark, swpr.repairMoney AS w_repairMoney, swt.customerReceipt AS w_customerReceipt, swt.priceRemark AS w_price_Remark,
+				swt.payReason AS w_payReason, swt.remAccount AS w_remAccount, sw.lockInfo,
+				swt.payTime AS w_payTime, swt.isPay AS w_isPay, swf.ispass AS w_ispass, swf.finDesc AS w_FinDesc, swf.finChecker AS w_FinChecker, swp.packingNO AS w_packingNO, 
+				swp.packer AS w_packer, swp.shipper AS w_shipper, swp.packTime AS w_packTime, swp.packRemark AS w_packRemark, 
+				test.test_person AS testPerson, test.data_source AS dataSource, test.send_time AS sendTime, test.test_result AS testResult, test.test_time AS testTime,
+				swre.repairState AS w_repairState, swf.state AS w_FinispassFalg, swp.packState AS w_packState,swpr.priceState AS w_priceState,
+				swp.expressNO w_expressNO, swp.expressCompany w_expressCompany,
+				(SELECT GROUP_CONCAT(proceMethod) FROM t_sale_zgzmanage AS tsz WHERE FIND_IN_SET(tsz.id,swr.zzgzDesc)) AS zzgzDescStr
+			FROM t_sale_workflow AS sw
+			LEFT JOIN t_sale_workflow_ficheck AS swf ON sw.id = swf.wfId
+			LEFT JOIN t_sale_workflow_pack AS swp ON sw.repairnNmber = swp.repairnNmber
+			LEFT JOIN t_sale_workflow_price AS swpr ON sw.id = swpr.wfId
+			LEFT JOIN t_sale_workflow_related AS swr ON sw.rfild = swr.id
+			LEFT JOIN t_sale_workflow_repair AS swre ON sw.id = swre.wfId
+			LEFT JOIN t_sale_workflow_totalpay AS swt ON sw.repairnNmber = swt.repairNumber
+			LEFT JOIN t_sale_sxdwmanage AS sxdw ON sw.sxdwId = sxdw.cId
+			LEFT JOIN t_sale_zbxhmanage AS zbxh ON sw.xhId = zbxh.mId
+			LEFT JOIN t_sale_workflow_test AS test ON test.wfId = sw.id
+			<where>
+                <if test="imeis != null"> 
+                  and sw.imei in
+                  <foreach collection="imeis" item="item" open="(" separator="," close=")">  
+                       ${item}
+                  </foreach>
+                </if>
+				<if test="lockId != null and lockId != ''"> and sw.lockId = #{lockId}</if>
+				<if test="w_phone != null and w_phone != ''">and sxdw.phone = #{w_phone}</if>
+				<if test="repairnNmber != null and repairnNmber != ''">and sw.repairnNmber = #{repairnNmber}</if>
+				<if test="customerStatus != null and customerStatus != ''">and sw.customerStatus = #{customerStatus}</if>
+				<if test="w_expressNO != null and w_expressNO != ''">and swp.expressNO = #{w_expressNO}</if>
+				<if test="w_model != null and w_model != ''">and zbxh.model = #{w_model}</if>
+				<if test="w_cusName != null and w_cusName != ''">and sxdw.cusName like concat('%', '${w_cusName}', '%')</if>
+				<if test="cusName != null and cusName != ''">and sw.cusName like concat('%',#{cusName},'%') </if><!-- 无名件 -->
+				<if test="startTime != null and startTime != ''">AND date_format(sw.acceptanceTime,'%Y-%m-%d') &gt;= #{startTime} </if>
+				<if test="endTime != null and endTime != ''"> AND date_format(sw.acceptanceTime,'%Y-%m-%d') &lt;= #{endTime} </if>
+			</where>
+
+		)a 
+		<where>
+			<if test="w_zzgzDesc != null and w_zzgzDesc != ''">and FIND_IN_SET(#{w_zzgzDesc}, a.zzgzDescStr)</if>
+		</where>
+		  ORDER BY a.acceptanceTime DESC, a.repairnNmber, a.state
+     </select>
+     
+     <!-- 查询所有未发货的批次号（正常件）  -->
+      <select id="getAllNotPackInfo" resultType="Workflow">
+	    SELECT sxdw.cusName AS w_cusName, sxdw.phone AS w_phone, repairnNmber, acceptanceTime FROM t_sale_workflow sw
+	    LEFT JOIN t_sale_sxdwmanage AS sxdw ON sw.sxdwId = sxdw.cId
+		WHERE repairnNmber IN(SELECT repairnNmber FROM t_sale_workflow WHERE state != -1 AND customerStatus = 'normal')
+		GROUP BY repairnNmber
+		ORDER BY DATE_FORMAT(acceptanceTime,'%Y-%m-%d')
+     </select>
+     
+      <!-- 装箱增加后六位匹配imei  -->
+      <select id="matchImei" resultType="Workflow">
+	    SELECT repairnNmber,imei,acceptanceTime,state,sendPackTime FROM t_sale_workflow
+		WHERE RIGHT(imei,6) = #{imei}
+     </select>
+
+	<!-- =============================================== 修改售后的维修数据  start======================================== -->
+	<!-- 根据imei和批次号查询数据 -->
+      <select id="getDataList" parameterType="String" resultType="Workflow">
+			SELECT
+				sw.id, sw.imei, sw.lockId, sw.bluetoothId, sw.repairnNmber, sw.isWarranty, sw.acceptanceTime,sw.salesTime, sw.accepter, sw.state, 
+				sw.acceptRemark, sw.remark, sw.sendPackTime, sw.sxdwId, sw.xhId, sxdw.cusName AS w_cusName, sxdw.phone AS w_phone, zbxh.model AS w_model,
+				zbxh.marketModel AS w_marketModel, sw.repairNumberRemark, sw.lastEngineer, sw.lastAccTime, sw.sortTime, swr.sjfjDesc AS w_sjfjDesc, swr.cjgzDesc AS w_cjgzDesc,
+				swr.zzgzDesc AS w_zzgzDesc, swr.matDesc AS w_matDesc, swr.dzlDesc AS w_dzlDesc, swr.wxbjDesc AS w_wxbjDesc, swre.isRW AS w_isRW, 
+				swre.engineer AS w_engineer, swre.solution AS w_solution, swre.priceRemark AS w_priceRemark, swre.isPrice AS w_isPrice, 
+				swre.solutionTwo AS w_solutionTwo, swre.giveUpRepairStatus AS w_giveUpRepairStatus, swpr.offer AS w_offer, swre.repairAgainCount AS w_repairAgainCount,
+				swpr.createTime AS price_createTime, swpr.repairMoney AS w_repairMoney, swt.payTime AS w_payTime, swt.isPay AS w_isPay, 
+				swf.ispass AS w_ispass, swp.packer AS w_packer, swp.packTime AS w_packTime, swre.repairState AS w_repairState, 
+				swf.state AS w_FinispassFalg, swp.packState AS w_packState,swpr.priceState AS w_priceState
+			FROM t_sale_workflow AS sw
+			LEFT JOIN t_sale_workflow_ficheck AS swf ON sw.id = swf.wfId
+			LEFT JOIN t_sale_workflow_pack AS swp ON swp.repairnNmber = sw.repairnNmber
+			LEFT JOIN t_sale_workflow_price AS swpr ON sw.id = swpr.wfId
+			LEFT JOIN t_sale_workflow_related AS swr ON sw.rfild = swr.id
+			LEFT JOIN t_sale_workflow_repair AS swre ON sw.id = swre.wfId
+			LEFT JOIN t_sale_workflow_totalpay AS swt ON sw.repairnNmber = swt.repairNumber
+			LEFT JOIN t_sale_sxdwmanage AS sxdw ON sw.sxdwId = sxdw.cId
+			LEFT JOIN t_sale_zbxhmanage AS zbxh ON sw.xhId = zbxh.mId
+			LEFT JOIN t_sale_workflow_test AS test ON test.wfId = sw.id
+			<where>
+				<if test="imei != null and imei != ''"> and sw.imei = #{imei}</if>
+				<if test="repairnNmber != null and repairnNmber != ''">and sw.repairnNmber =#{repairnNmber}</if>
+			</where> 
+     </select>
+     
+     <!-- 查询是否已装箱 修改成已分拣，待维修或待报价状态-->
+      <select id="getIdInPack" parameterType="String" resultType="String">
+	    SELECT GROUP_CONCAT(id) FROM t_sale_workflow WHERE sendPackTime IS NOT NULL AND repairnNmber = #{repairnNmber}
+     </select>
+     
+     <!-- 修改装箱数据的wfId 修改成已分拣，待维修或待报价状态-->
+   <!--   <update id="updateWfIdForPack" parameterType="String">
+   		UPDATE t_sale_workflow_pack SET wfId = #{wfId} WHERE repairnNmber = #{repairnNmber}
+     </update> -->
+     
+     <!-- 删除装箱数据 修改成已分拣，待维修或待报价状态-->
+     <delete id="deleteInfoForPack">
+    	 DELETE FROM t_sale_workflow_pack WHERE repairnNmber = #{repairnNmber}
+     </delete>
+     
+     <!-- 删除price数据 修改成已分拣，待维修状态-->
+     <delete id="deletePriceForRepair">
+    	 DELETE FROM t_sale_workflow_price WHERE wfId = #{wfId}
+     </delete>
+     
+     <!-- 删除ficheck数据 修改成已分拣，待维修状态-->
+     <delete id="deleteFicheckForRepair">
+    	 DELETE FROM t_sale_workflow_ficheck WHERE wfId = #{wfId}
+     </delete>
+     
+	<!-- 查询price表里是否有wfid的数据 修改成已分拣，待维修状态-->
+	<select id="getPriceCountForRepair" parameterType="Integer" resultType="int">
+	    SELECT count(1) FROM t_sale_workflow_price WHERE wfId = #{wfId}
+     </select>
+     
+     <!-- 查询ficheck表里是否有wfid的数据 修改成已分拣，待维修状态-->
+	<select id="getFicheckCountForRepair" parameterType="Integer" resultType="int">
+	    SELECT count(1) FROM t_sale_workflow_ficheck WHERE wfId = #{wfId}
+     </select>
+						
+     <!-- 删除t_sale_related_zzgz表里rfiId为wfid的数据 修改成已分拣，待维修或待报价状态-->
+     <delete id="deleteInfoForRelated">
+    	DELETE FROM t_sale_related_zzgz WHERE rfild = #{wfId}
+     </delete>
+     
+     <!-- 修改repair表数据改成刚分拣的状态 -->
+     <update id="updateRepairForRepair" parameterType="Integer">
+   		UPDATE t_sale_workflow_repair
+		SET repairState = 0, isRW = 0, isPay = 1, repairAgainCount =0, solution = NULL, solutionTwo = NULL, 
+			isPrice = 0, giveUpRepairStatus = 0, giveup_price_person = NULL, giveup_price_time = NULL,
+			repairRemark = NULL, repairPrice = 0, hourFee = 0, sumPrice = 0, priceRemark = NULL
+		WHERE wfId = #{wfId}
+     </update>
+		
+	<!-- repair表状态改为-1，维修总金额 = 维修费+工时费，放弃报价时间等修改为未放弃  修改成待报价状态-->
+	<update id="updateRepairForPrice" parameterType="Integer">
+		UPDATE t_sale_workflow_repair SET isPay = 1, repairState = -1, solution = NULL, solutionTwo= NULL, isPrice = 0, sumPrice = repairPrice + hourFee,
+		giveUpRepairStatus = 0, giveup_price_person = null, giveup_price_time = NULL WHERE wfId = #{wfId}
+	</update>
+	
+	<!-- price数据状态0，付款状态，维修金额=维修报价+ 工时费  修改成待报价状态-->
+	<update id="updatePriceForPrice" parameterType="String">
+		UPDATE t_sale_workflow_price SET isPay = 1, priceState = 0,
+		repairMoney = (SELECT (repairPrice + hourFee) FROM t_sale_workflow_repair WHERE wfId = #{wfId}) WHERE wfId = #{wfId}
+	</update>
+	
+	 <!-- related表的报价及物料数据清除  修改成已分拣，待维修状态-->
+	 <update id="updateRelatedForRepair" parameterType="Integer">
+   		UPDATE t_sale_workflow_related 
+		SET zzgzDesc = NULL, matDesc = NULL, dzlDesc = NULL, wxbjDesc = NULL, sllDesc = NULL
+		WHERE id = #{wfId}
+     </update>
+     
+	<!-- related表的最终故障数据清除  修改成待报价状态-->
+	<update id="updateRelatedForPrice" parameterType="Integer">
+		UPDATE t_sale_workflow_related 
+		SET zzgzDesc = NULL, sllDesc = NULL
+		WHERE id = #{wfId}
+	</update>
+     
+	<!-- workflow表的状态改成2或3，发送装箱时间置空 修改成已分拣，待维修或待报价状态-->
+	<update id="updateInfoForWorkflow" parameterType="Integer">
+   		UPDATE t_sale_workflow SET state = #{state}, sendPackTime = NULL WHERE id = #{wfId}
+    </update>	
+    
+    <!-- 分拣工站查询选中的数据是否有不是已受理，待分拣？有：不允许分拣、返回受理 -->
+	<select id="getCountSortByIds" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow
+		WHERE state in (1, 18) AND sendStatus = 1
+		AND id IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>	
+	
+	  <!-- 受理工站查询选中的数据是否有不是已受理？有：不允许发送测试,分拣 -->
+	<select id="getCountToTestByIds" parameterType="String" resultType="int">
+		SELECT COUNT(1) FROM t_sale_workflow
+		WHERE state in (0, 17)
+		AND id IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+	<insert id="insertWorkflowInfo"
+        parameterType="cn.concox.vo.workflow.WorkflowTemp">
+        INSERT INTO
+        t_sale_temporary_workflow (
+        uid,
+        imei,
+        lockId,
+        lockInfo,
+        bluetoothId,
+        sxdwId,
+        xhId,
+        w_sjfj,
+        w_cjgzId,
+        repairnNmber,
+        isWarranty,
+        returnTimes,
+        lastEngineer,
+        strLastAccTime,
+        strSalesTime,
+        payDelivery,
+        remark,
+        acceptRemark,
+        repairNumberRemark,
+        customerStatus,
+        cusName,
+        unNormalExpressCompany,
+        unNormalExpressNo,
+        sfVersion,
+        insideSoftModel,
+        bill,outCount,
+        testMatStatus,
+        model,
+        marketModel,
+        initheckFault,
+        sjfjname,
+        backTime
+        ) VALUES (
+        #{uid},
+        #{imei},
+        #{lockId},
+        #{lockInfo},
+        #{bluetoothId},
+        #{sxdwId},
+        #{xhId},
+        #{w_sjfj},
+        #{w_cjgzId},
+        #{repairnNmber},
+        #{isWarranty},
+        #{returnTimes},
+        #{lastEngineer},
+        #{strLastAccTime},
+        #{strSalesTime},
+        #{payDelivery},
+        #{remark},
+        #{acceptRemark},
+        #{repairNumberRemark},
+        #{customerStatus},
+        #{cusName},
+        #{unNormalExpressCompany},
+        #{unNormalExpressNo},
+        #{sfVersion},
+        #{insideSoftModel},
+        #{bill},
+        #{outCount},
+        #{testMatStatus},
+        #{model},
+        #{marketModel},
+        #{initheckFault},
+        #{sjfjname},
+        #{backTime}
+        )
+    </insert>
+    <select id="getWorkflowInfo" parameterType="java.lang.String"
+        resultType="cn.concox.vo.workflow.WorkflowTemp">
+        SELECT * FROM t_sale_temporary_workflow WHERE uid = #{uId}
+    </select>
+    <update id="updateWorkflowInfo" parameterType="Integer">
+        UPDATE
+        t_sale_temporary_workflow
+        SET
+        uid=#{uid},
+        lockId=#{lockId},
+        lockInfo=#{lockInfo},
+        bluetoothId=#{bluetoothId},
+        sxdwId=#{sxdwId},
+        xhId=#{xhId},
+        w_sjfj=#{w_sjfj},
+        w_cjgzId=#{w_cjgzId},
+        repairnNmber=#{repairnNmber},
+        isWarranty=#{isWarranty},
+        returnTimes=#{returnTimes},
+        lastEngineer=#{lastEngineer},
+        strLastAccTime=#{strLastAccTime},
+        strSalesTime=#{strSalesTime},
+        payDelivery=#{payDelivery},
+        remark=#{remark},
+        acceptRemark=#{acceptRemark},
+        repairNumberRemark=#{repairNumberRemark},
+        customerStatus=#{customerStatus},
+        cusName=#{cusName},
+        unNormalExpressCompany=#{unNormalExpressCompany},
+        unNormalExpressNo=#{unNormalExpressNo},
+        sfVersion=#{sfVersion},
+        insideSoftModel=#{insideSoftModel},
+        bill=#{bill},
+        outCount=#{outCount},
+        testMatStatus=#{testMatStatus},
+        model=#{model},
+        marketModel=#{marketModel},
+        initheckFault=#{initheckFault},
+        sjfjname=#{sjfjname}
+        WHERE
+        imei=#{imei}
+    </update>
+    <select id="getWorkflowInfoByImei"
+        parameterType="java.lang.String"
+        resultType="cn.concox.vo.workflow.WorkflowTemp">
+        SELECT * FROM t_sale_temporary_workflow WHERE imei = #{imei}
+    </select>
+      <delete id="deleteWorkflowInfoByUserId" parameterType="java.lang.String">
+      DELETE FROM t_sale_temporary_workflow WHERE uid = #{uId} 
+    </delete>
+    <!-- ==================================================== 修改售后的维修数据  end================================================== -->
+    
+    <insert id="insertWarrantyInfo" parameterType="cn.concox.vo.basicdata.WarrantyInfo">
+        insert into
+        t_sale_warranty
+        (
+	        imei,
+	        mcType,
+	        sfVersion,
+	        bill,
+	        cpName,
+	        prolongMonth,
+	        createTime,
+	        createBy
+        )
+        values
+		<foreach collection="list" item="item" separator=",">
+			(
+			    #{item.imei},
+			    #{item.mcType},
+			    #{item.sfVersion},
+			    #{item.bill},
+			    #{item.cpName},
+		        #{item.prolongMonth},
+		        NOW(),
+		        #{item.createBy}
+			)
+		</foreach>
+    </insert>
+    
+    <select id="getProlongMonthByImei" resultType="java.lang.Integer">
+        select prolongMonth from t_sale_warranty
+        where imei = #{imei}
+    </select>
+    
+    <select id="getWarrantyInfo" parameterType="cn.concox.vo.basicdata.WarrantyInfo" resultType="cn.concox.vo.basicdata.WarrantyInfo">
+        select
+        imei,
+        prolongMonth,
+        mcType,
+        sfVersion,
+        bill,
+        cpName, 
+        date_format(createTime,'%Y-%m-%d %k:%i:%s') AS createTime,
+        createBy
+        from 
+        t_sale_warranty
+        <where>
+            <if test="warranty.imeiList != null">
+                imei IN
+		        <foreach collection="warranty.imeiList" item="item" open="(" separator="," close=")">
+		            ${item}
+		        </foreach>
+            </if>
+            <if test="warranty.prolongMonth != null and warranty.prolongMonth != -1">
+                AND prolongMonth = #{warranty.prolongMonth}
+            </if>
+            <if test="warranty.mcType != null and warranty.mcType != ''">
+                AND mcType = #{warranty.mcType}
+            </if>
+            <if test="warranty.sfVersion != null and warranty.sfVersion != ''">
+                AND sfVersion = #{warranty.sfVersion}
+            </if>
+            <if test="warranty.bill != null and warranty.bill != ''">
+                AND bill = #{warranty.bill}
+            </if>
+            <if test="warranty.cpName != null and warranty.cpName != ''">
+                AND cpName = #{warranty.cpName}
+            </if>
+            <if test="warranty.createBy != null and warranty.createBy != ''">
+                AND createBy = #{warranty.createBy}
+            </if>
+            <if test="warranty.createTimeStart != null and warranty.createTimeStart != ''">
+                AND date_format(createTime,'%Y-%m-%d') &gt;= #{warranty.createTimeStart}
+            </if>
+            <if test="warranty.createTimeEnd != null and warranty.createTimeEnd != ''">
+                AND date_format(createTime,'%Y-%m-%d') &lt;= #{warranty.createTimeEnd}
+            </if>
+            <if test="warranty.prolongMonth == -1">
+                AND prolongMonth &gt;= #{warranty.prolongMonthStart}
+                AND prolongMonth &lt;= #{warranty.prolongMonthEnd}
+            </if>
+        </where>
+        order by createTime DESC
+    </select>
+    
+    <select id="listWarrantyInfo" parameterType="cn.concox.vo.basicdata.WarrantyInfo" resultType="cn.concox.vo.basicdata.WarrantyInfo">
+        select
+        imei,
+        prolongMonth,
+        mcType,
+        sfVersion,
+        bill,
+        cpName, 
+        date_format(createTime,'%Y-%m-%d %k:%i:%s') AS createTime,
+        createBy
+        from 
+        t_sale_warranty
+        <where>
+            <if test="imeiList != null">
+                imei IN
+                <foreach collection="imeiList" item="item" open="(" separator="," close=")">
+                    ${item}
+                </foreach>
+            </if>
+            <if test="prolongMonth != null and prolongMonth != -1">
+                AND prolongMonth = #{prolongMonth}
+            </if>
+            <if test="mcType != null and mcType != ''">
+                AND mcType = #{mcType}
+            </if>
+            <if test="sfVersion != null and sfVersion != ''">
+                AND sfVersion = #{sfVersion}
+            </if>
+            <if test="bill != null and bill != ''">
+                AND bill = #{bill}
+            </if>
+            <if test="cpName != null and cpName != ''">
+                AND cpName = #{cpName}
+            </if>
+            <if test="createBy != null and createBy != ''">
+                AND createBy = #{createBy}
+            </if>
+            <if test="createTimeStart != null and createTimeStart != ''">
+                AND date_format(createTime,'%Y-%m-%d') &gt;= #{createTimeStart}
+            </if>
+            <if test="createTimeEnd != null and createTimeEnd != ''">
+                AND date_format(createTime,'%Y-%m-%d') &lt;= #{createTimeEnd}
+            </if>
+            <if test="prolongMonth == -1">
+                AND prolongMonth &gt;= #{prolongMonthStart}
+                AND prolongMonth &lt;= #{prolongMonthEnd}
+            </if>
+        </where>
+        order by createTime DESC
+    </select>
+
+	<select id="listNotSendInfo" resultType="Workflow">
+		SELECT sw.imei, sw.lockId, sw.bluetoothId, sw.repairnNmber, sw.isWarranty, sw.acceptanceTime, sw.returnTimes, sw.salesTime, sw.insideSoftModel, sw.bill, sw.outCount, sw.testMatStatus, sw.sfVersion,
+		sw.accepter, sw.state, sw.acceptRemark, sw.remark, sw.payDelivery, sw.customerStatus, sw.sendPackTime, sw.cusName,
+		sxdw.cusName AS w_cusName, sxdw.phone AS w_phone, sxdw.linkman AS w_linkman, sxdw.address AS w_address, sxdw.email AS w_email, sxdw.remark AS w_cusRemark, zbxh.model AS w_model,
+		zbxh.marketModel AS w_marketModel, zbxh.modelType AS w_modelType, sw.repairNumberRemark, sw.lastEngineer, sw.lastAccTime, sw.payedLogCost, sw.unNormal_expressCompany AS w_unNormal_expressCompany,
+		sw.unNormal_expressNO AS w_unNormal_expressNO, sw.dutyOfficer, sw.timeoutRemark, sw.timeoutReason, sw.sortTime, swr.sjfjDesc AS w_sjfjDesc, swr.cjgzDesc AS w_cjgzDesc,
+		swr.zzgzDesc AS w_zzgzDesc, swr.matDesc AS w_matDesc, swr.dzlDesc AS w_dzlDesc, swr.wxbjDesc AS w_wxbjDesc, swre.isRW AS w_isRW, swre.engineer AS w_engineer,
+		swre.repairRemark AS w_repairRemark, swre.repairAgainCount AS w_repairAgainCount, swre.solution AS w_solution, swr.sllDesc AS w_sllDesc,
+		swre.priceRemark AS w_priceRemark, swre.isPrice AS w_isPrice, swre.solutionTwo AS w_solutionTwo, swre.giveUpRepairStatus AS w_giveUpRepairStatus, swpr.offer AS w_offer,
+		swpr.createTime AS price_createTime,swpr.onePriceRemark AS w_onePriceRemark, swpr.repairMoney AS w_repairMoney, swt.customerReceipt AS w_customerReceipt, swt.priceRemark AS w_price_Remark,
+		swt.payReason AS w_payReason, swt.remAccount AS w_remAccount, sw.lockInfo,
+		swt.payTime AS w_payTime, swt.isPay AS w_isPay, swf.ispass AS w_ispass, swf.finDesc AS w_FinDesc, swf.finChecker AS w_FinChecker, swp.packingNO AS w_packingNO,
+		swp.packer AS w_packer, swp.shipper AS w_shipper, swp.packTime AS w_packTime, swp.packRemark AS w_packRemark,
+		test.test_person AS testPerson, test.data_source AS dataSource, test.send_time AS sendTime, test.test_result AS testResult, test.test_time AS testTime,
+		swre.repairState AS w_repairState, swf.state AS w_FinispassFalg, swp.packState AS w_packState,swpr.priceState AS w_priceState
+		FROM(
+		SELECT *FROM t_sale_workflow tsw WHERE tsw.state != -1
+		<if test="po.repairnNmber != null and po.repairnNmber!=''">
+			AND  tsw.repairnNmber = #{po.repairnNmber}
+		</if>
+		<if test="po.startTime != null and po.startTime!=''">
+			AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &gt;= #{po.startTime}
+		</if>
+		<if test="po.endTime != null and po.endTime!=''">
+			AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &lt;= #{po.endTime}
+		</if>
+		<if test="po.isPacked == 0">
+			AND tsw.sendPackTime is null
+		</if>
+		<if test="po.isPacked == 1">
+			AND tsw.sendPackTime is not null
+		</if>
+		<if test="po.state!=null">
+			AND tsw.state=#{po.state}
+		</if>
+		<if test="po.w_cusName !=null and po.w_cusName!=''">
+			AND tsw.sxdwId in(SELECT cId FROM t_sale_sxdwmanage WHERE cusName=#{po.w_cusName})
+		</if>
+		) as sw
+		LEFT JOIN t_sale_workflow_ficheck AS swf ON sw.id = swf.wfId
+		LEFT JOIN t_sale_workflow_pack AS swp ON sw.repairnNmber = swp.repairnNmber
+		LEFT JOIN t_sale_workflow_price AS swpr ON sw.id = swpr.wfId
+		LEFT JOIN t_sale_workflow_related AS swr ON sw.rfild = swr.id
+		LEFT JOIN t_sale_workflow_repair AS swre ON sw.id = swre.wfId
+		LEFT JOIN t_sale_workflow_totalpay AS swt ON sw.repairnNmber = swt.repairNumber
+		LEFT JOIN t_sale_sxdwmanage AS sxdw ON sw.sxdwId = sxdw.cId
+		LEFT JOIN t_sale_zbxhmanage AS zbxh ON sw.xhId = zbxh.mId
+		LEFT JOIN t_sale_workflow_test AS test ON test.wfId = sw.id
+		WHERE 1=1
+		<if test="po.w_engineer !=null and po.w_engineer !=''">
+			AND swre.engineer = #{po.w_engineer}
+		</if>
+		<choose>
+			<when test="po.workStation == 1"><!-- 受理 -->
+				AND sw.state IN(0,17)
+			</when>
+			<when test="po.workStation == 2"><!-- 分拣 -->
+				AND sw.state IN(1,18)
+			</when>
+			<when test="po.workStation == 3"><!-- 维修-->
+				AND (
+				sw.state IN(2,5,10,11,12,16)
+				OR (sw.state=4 AND swpr.priceState = -1)
+				OR (sw.state=6 AND swf.state = -1)
+				OR (sw.state=8 AND sw.machina_in_pack !='Y')
+				)
+			</when>
+			<when test="po.workStation == 4"><!--报价-->
+				AND (sw.state IN(3,9,14) OR (sw.state = 4 AND swre.repairState=-1))
+			</when>
+			<when test="po.workStation == 5"><!-- 终检-->
+				AND (
+				sw.state =13
+				OR (sw.state = 6 AND swre.repairState=-1)
+				OR (sw.state = 7 AND sw.machina_in_pack !='Y')
+				)
+			</when>
+			<when test="po.workStation == 6">
+				AND sw.state IN(15,19)
+			</when>
+		</choose>
+		ORDER BY sw.repairnNmber DESC
+	</select>
+    
+    <delete id="deleteWarrantyInfo" parameterType="java.lang.String">
+        delete from t_sale_warranty
+        where imei IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+    
+    <select id="repeatWarrantyImei" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+            imei
+        FROM
+            t_sale_warranty
+        WHERE
+            imei IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="listCpName" resultType="java.lang.String">
+		SELECT
+		    DISTINCT (cpName)
+		FROM
+		    t_sale_warranty
+    </select>
+    
+    <update id="updateInWarranty" parameterType="java.lang.String">
+		UPDATE t_sale_workflow
+		SET isWarranty = 0
+		WHERE
+            imei IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+    
+    <update id="updateOutWarranty" parameterType="java.lang.String">
+        UPDATE t_sale_workflow
+        SET isWarranty = 1
+        WHERE
+            imei IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+	<update id="updateCustomer">
+		UPDATE t_sale_workflow
+		SET  sxdwId=#{sxdwId},cusName=#{cusName}
+		WHERE imei=#{imei} and repairnNmber=#{repairnNmber};
+	</update>
+
+	<select id="selectNotSendListPage" resultType="Workflow">
+		SELECT sw.imei, sw.lockId, sw.bluetoothId, sw.repairnNmber, sw.isWarranty, sw.acceptanceTime, sw.returnTimes, sw.salesTime, sw.insideSoftModel, sw.bill, sw.outCount, sw.testMatStatus, sw.sfVersion,
+		sw.accepter, sw.state, sw.acceptRemark, sw.remark, sw.payDelivery, sw.customerStatus, sw.sendPackTime, sw.cusName,
+		sxdw.cusName AS w_cusName, sxdw.phone AS w_phone, sxdw.linkman AS w_linkman, sxdw.address AS w_address, sxdw.email AS w_email, sxdw.remark AS w_cusRemark, zbxh.model AS w_model,
+		zbxh.marketModel AS w_marketModel, zbxh.modelType AS w_modelType, sw.repairNumberRemark, sw.lastEngineer, sw.lastAccTime, sw.payedLogCost, sw.unNormal_expressCompany AS w_unNormal_expressCompany,
+		sw.unNormal_expressNO AS w_unNormal_expressNO, sw.dutyOfficer, sw.timeoutRemark, sw.timeoutReason, sw.sortTime, swr.sjfjDesc AS w_sjfjDesc, swr.cjgzDesc AS w_cjgzDesc,
+		swr.zzgzDesc AS w_zzgzDesc, swr.matDesc AS w_matDesc, swr.dzlDesc AS w_dzlDesc, swr.wxbjDesc AS w_wxbjDesc, swre.isRW AS w_isRW, swre.engineer AS w_engineer,
+		swre.repairRemark AS w_repairRemark, swre.repairAgainCount AS w_repairAgainCount, swre.solution AS w_solution, swr.sllDesc AS w_sllDesc,
+		swre.priceRemark AS w_priceRemark, swre.isPrice AS w_isPrice, swre.solutionTwo AS w_solutionTwo, swre.giveUpRepairStatus AS w_giveUpRepairStatus, swpr.offer AS w_offer,
+		swpr.createTime AS price_createTime,swpr.onePriceRemark AS w_onePriceRemark, swpr.repairMoney AS w_repairMoney, swt.customerReceipt AS w_customerReceipt, swt.priceRemark AS w_price_Remark,
+		swt.payReason AS w_payReason, swt.remAccount AS w_remAccount, sw.lockInfo,
+		swt.payTime AS w_payTime, swt.isPay AS w_isPay, swf.ispass AS w_ispass, swf.finDesc AS w_FinDesc, swf.finChecker AS w_FinChecker, swp.packingNO AS w_packingNO,
+		swp.packer AS w_packer, swp.shipper AS w_shipper, swp.packTime AS w_packTime, swp.packRemark AS w_packRemark,
+		test.test_person AS testPerson, test.data_source AS dataSource, test.send_time AS sendTime, test.test_result AS testResult, test.test_time AS testTime,
+		swre.repairState AS w_repairState, swf.state AS w_FinispassFalg, swp.packState AS w_packState,swpr.priceState AS w_priceState
+		FROM(
+			SELECT *FROM t_sale_workflow tsw WHERE tsw.state != -1
+			<if test="po.repairnNmber != null and po.repairnNmber!=''">
+				AND  tsw.repairnNmber = #{po.repairnNmber}
+			</if>
+			<if test="po.startTime != null and po.startTime!=''">
+				AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &gt;= #{po.startTime}
+			</if>
+			<if test="po.endTime != null and po.endTime!=''">
+				AND date_format(tsw.acceptanceTime,'%Y-%m-%d') &lt;= #{po.endTime}
+			</if>
+			<if test="po.isPacked == 0">
+				AND tsw.sendPackTime is null
+			</if>
+			<if test="po.isPacked == 1">
+				AND tsw.sendPackTime is not null
+			</if>
+			<if test="po.state!=null">
+				AND tsw.state=#{po.state}
+			</if>
+			<if test="po.w_cusName !=null and po.w_cusName!=''">
+				AND tsw.sxdwId in(SELECT cId FROM t_sale_sxdwmanage WHERE cusName=#{po.w_cusName})
+			</if>
+			) as sw
+			LEFT JOIN t_sale_workflow_ficheck AS swf ON sw.id = swf.wfId
+			LEFT JOIN t_sale_workflow_pack AS swp ON sw.repairnNmber = swp.repairnNmber
+			LEFT JOIN t_sale_workflow_price AS swpr ON sw.id = swpr.wfId
+			LEFT JOIN t_sale_workflow_related AS swr ON sw.rfild = swr.id
+			LEFT JOIN t_sale_workflow_repair AS swre ON sw.id = swre.wfId
+			LEFT JOIN t_sale_workflow_totalpay AS swt ON sw.repairnNmber = swt.repairNumber
+			LEFT JOIN t_sale_sxdwmanage AS sxdw ON sw.sxdwId = sxdw.cId
+			LEFT JOIN t_sale_zbxhmanage AS zbxh ON sw.xhId = zbxh.mId
+			LEFT JOIN t_sale_workflow_test AS test ON test.wfId = sw.id
+			WHERE 1=1
+			<if test="po.w_engineer !=null and po.w_engineer !=''">
+				AND swre.engineer = #{po.w_engineer}
+			</if>
+			<choose>
+				<when test="po.workStation == 1"><!-- 受理 -->
+					AND sw.state IN(0,17)
+				</when>
+				<when test="po.workStation == 2"><!-- 分拣 -->
+					AND sw.state IN(1,18)
+				</when>
+				<when test="po.workStation == 3"><!-- 维修-->
+					AND (
+						sw.state IN(2,5,10,11,12,16)
+						OR (sw.state=4 AND swpr.priceState = -1)
+						OR (sw.state=6 AND swf.state = -1)
+						OR (sw.state=8 AND sw.machina_in_pack !='Y')
+					)
+				</when>
+				<when test="po.workStation == 4"><!--报价-->
+					AND (sw.state IN(3,9,14) OR (sw.state = 4 AND swre.repairState=-1))
+				</when>
+				<when test="po.workStation == 5"><!-- 终检-->
+					AND (
+						sw.state =13
+						OR (sw.state = 6 AND swre.repairState=-1)
+						OR (sw.state = 7 AND sw.machina_in_pack !='Y')
+					)
+				</when>
+				<when test="po.workStation == 6">
+					AND sw.state IN(15,19)
+				</when>
+			</choose>
+			ORDER BY sw.repairnNmber DESC
+	</select>
+
+	<select id="existsWarrantyByImei" parameterType="java.lang.String" resultType="java.lang.Boolean">
+        SELECT EXISTS (SELECT imei FROM t_sale_warranty WHERE imei=#{imei})
+    </select>
+
+	<select id="selectTimeoutAndNotLockData" resultType="Workflow">
+		SELECT *FROM t_sale_workflow WHERE backTime &lt; #{date} AND sendPackTime is null
+	</select>
+
+	<update id="updateTimeoutDay">
+		UPDATE t_sale_workflow SET timeoutDays=#{timeoutDays} WHERE imei=#{imei} AND repairnNmber = #{repairNumber}
+	</update>
+	<update id="updateTimeoutDayById">
+		UPDATE t_sale_workflow SET timeoutDays=#{timeoutDays} WHERE id=#{id}
+	</update>
+
+	<update id="updateTimeoutReason">
+		UPDATE t_sale_workflow SET timeoutReason = #{timeoutReason} WHERE imei=#{imei} AND repairnNmber = #{repairNumber}
+	</update>
+	<update id="updateTimeoutReasonById">
+		UPDATE t_sale_workflow SET timeoutReason = #{timeoutReason} WHERE id=#{id}
+	</update>
+
+	<update id="updateTimeoutRemarkById">
+		UPDATE t_sale_workflow SET timeoutRemark = #{timeoutRemark} WHERE id=#{id}
+	</update>
+
+	<select id="selectCountBetweenAcceptTime" resultType="Integer">
+		SELECT count(1) FROM t_sale_workflow
+		WHERE acceptanceTime &gt; #{from} AND acceptanceTime &lt; #{to} AND sxdwId=#{sxdwId}
+	</select>
+
+	<select id="selectNotHaveBackTime" resultType="Workflow">
+		SELECT *FROM t_sale_workflow WHERE backTime is null
+	</select>
+
+	<update id="updateBackTimeById">
+		UPDATE t_sale_workflow SET backTime=#{backTime} WHERE id=#{id}
+	</update>
+
+	<select id="selectNotHaveBackTimeByTime" resultType="Workflow">
+		SELECT *FROM t_sale_workflow WHERE acceptanceTime &gt;= #{start} and acceptanceTime &lt;=#{end} and backTime is null;
+	</select>
+</mapper>
